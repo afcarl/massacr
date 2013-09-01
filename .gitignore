@@ -1,9 +1,11 @@
-# Output files #
+# Crap I don't want you guys to see #
 ###################
 *.nc
 *.txt
 *.png
 *.eps
+*.out
+*.mod
 
 # Compiled source #
 ###################
