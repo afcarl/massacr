@@ -4,7 +4,7 @@
 ! PHREEQOUT  - SINGLE BOX GEOCHEMICAL MODEL
 ! 
 ! SUMMARY: 
-! COMPILE : gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqout.f90
+! COMPILE : gfortran -c -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqout.f90
 !			gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqout.o
 !			./a.out
 ! 
@@ -90,5 +90,7 @@ program phreeqout
      CALL OutputErrorString(id)
      STOP
   END IF
+  
+  write(*,*) "phreequm dress"
     
 end program phreeqout
