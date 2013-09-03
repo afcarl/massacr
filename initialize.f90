@@ -6,6 +6,7 @@ save
 
 real(8) :: x(xn), y(yn), t(tn), ytemp(xn,yn)
 real(8) :: permeability(xn,yn), permx(xn,yn), permy(xn,yn), permLong((xn-2)*(yn-2))
+real(8) :: rhoLong((xn-2)*(yn-2))
 real(8) :: permxLong((xn-2)*(yn-2)), permyLong((xn-2)*(yn-2))
 real(8) :: rho0(xn,yn)
 real(8) :: bcx0(xn,2), bcy0(2,yn), bcxPsi(xn,2), bcyPsi(2,yn), ic0(xn,yn)

@@ -1,8 +1,8 @@
 module globals
 save
 
-  integer, parameter :: testInt = 31, xn = 101, yn = 101
-  integer, parameter :: tn=100000!tn = 64000
+  integer, parameter :: testInt = 31, xn = 71, yn = 71
+  integer, parameter :: tn=500000!tn = 64000
   real(8) :: x_min = 0.0D+00, x_max = 1.0D+00, y_min = 0.0D+00, y_max = 1.0D+00
   real(8) :: t_min = 0.0D+00, t_max=0.1!t_max = 4000000000.0 !t_max = 0.5
   real(8) :: dt, dx, dy, dt0 = 0.001

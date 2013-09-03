@@ -1,7 +1,7 @@
 
 ! ----------------------------------------------------------------------------------%%
 !
-! MAIN METHOD
+! MAIN MASSACR METHOD
 ! 
 ! SUMMARY: Solve governing equations (conservation of momentum and thermal energy) 
 !          in 2D and writes data to text (.txt) and netCDF (.nc) files. 
@@ -244,22 +244,23 @@ write(*,*) j
   rho = rho_next(h)
   h = h_next(h, psi,rho, flux)
   
-  h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
-  h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
-  h(:,1) = flux(:,1)
-  h(:,yn) = flux(:,2)
+!!!!!!!!!!!! THIS !!!!!!!!!!!
+!  h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
+!  h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
+!  h(:,1) = flux(:,1)
+!  h(:,yn) = flux(:,2)
   
 
   
 ! BENCHMARK FIXED/ADIABATIC BOUNDARY CONDITIONS
   
-  h(1,:) = 0.5
- h(xn,:) = -0.5
+
  flux(:,1) = (4.0/3.0)*h(:,2) - (1.0/3.0)*h(:,3) ! bottom
  flux(:,2) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
   h(:,1) = flux(:,1)
   h(:,yn) = flux(:,2)
-
+  h(1,:) = 0.5
+ h(xn,:) = -0.5
   
 
   
@@ -324,23 +325,19 @@ end do
 
 
 ! WRITE EVERYTHING TO TEXT FILES
-yep = write_vec ( xn, real(x,kind=4), 'xT1.txt' )
-yep = write_vec ( yn, real(y,kind=4), 'yT1.txt' )
-yep = write_vec ( tn, real(t, kind=4), 'tT1.txt' )
+yep = write_vec ( xn, real(x,kind=4), 'x.txt' )
+yep = write_vec ( yn, real(y,kind=4), 'y.txt' )
+yep = write_vec ( tn, real(t, kind=4), 't.txt' )
 !yep = write_matrix ( xn, yn*tn, real(hmat, kind = 4), 'hT.txt' )
 !yep = write_matrix ( xn, yn*tn, real(psimat,kind=4), 'psiMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )
-yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'hT1.txt' )
-yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat1.txt' )
-yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat1.txt' )
-yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat1.txt' )
-yep = write_matrix ( xn, yn, real(u,kind=4), 'u1.txt' )
-yep = write_matrix ( xn, yn, real(v,kind=4), 'v1.txt' )
-yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho1.txt' )
-yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
-yep = write_matrix ( xn, yn,real(porosity,kind=4), 'porosity1.txt' )
-yep = write_matrix ( xn, yn,real(ytemp,kind=4), 'ytemp1.txt' )
+yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h.txt' )
+yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat.txt' )
+yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat.txt' )
+yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat.txt' )
+yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho.txt' )
+yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 
 ! WRITE THINGS TO NETCDF FILES
 !  call check( nf90_create('thermalNRG.nc', NF90_CLOBBER, ncid) )
@@ -445,8 +442,6 @@ mn = h
 velocities0 = velocities(psi)
 u = velocities0(1:xn,1:yn)
 v = velocities0(1:xn,yn+1:2*yn)
-
-
 uLong = reshape(u(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 vLong = reshape(transpose(v(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
@@ -584,6 +579,8 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   ! SOLVING EQUATION
 !  a(1:(xn-2)*(yn-2),1:(xn-2)*(yn-2)) = aa
 !  a(:,(xn-2)*(yn-2)+1) = uVec
+  
+  !!!!!!!!!!!! THIS !!!!!!!!!!!
   h_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),uVec,(xn-2)*(yn-2))
 
 !  aBand = band(aBand,m,(xn-2)*(yn-2))
@@ -594,13 +591,15 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 !  h(:,1) =  bcx0(:,1) ! bottom
 !  h(:,yn) = bcx0(:,2) ! top
 
+!h(:,1) = (4.0/3.0)*h(:,2) - (1.0/3.0)*h(:,3) ! bottom
+!h(:,yn) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
 
 
 ! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
 ! h(2,2:yn-1) = h(2,2:yn-1) + h0(1,2:yn-1)*sx/2.0
 ! h(yn-1,2:yn-1) = h(yn-1,2:yn-1) + h0(yn,2:yn-1)*sx/2.0 
- h(:,2) = h(:,2) + h(:,1)*sy/2.0 ! bottom
- h(:,xn-1) = h(:,xn-1) + h(:,xn)*sy/2.0 ! top
+ h(2:xn-1,2) = h(2:xn-1,2) + h(2:xn-1,1)*sy/2.0 !- h(2:xn-1,1)*qx*u(2:xn-1,1) ! bottom
+ h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h(2:xn-1,xn)*sy/2.0 !+ h(2:xn-1,xn)*qx*u(2:xn-1,xn) ! top
 
 
 
@@ -776,7 +775,7 @@ end function write_matrix
 end interface
 
   ! integers
-  integer :: i, j, ii, n, m=5
+  integer :: i, j, ii, n, m
   ! inputs
   real(8) :: rhs0(xn,yn), rhs1(xn,yn), rhsLong((xn-2)*(yn-2))
   real(8) :: h(xn,yn), psi(xn,yn), rho_in(xn,yn)
@@ -802,6 +801,8 @@ mn = psi
 permx = partial((1/(permeability*rho_in)),xn,yn,dx,dy,1)
 permy = partial((1/(permeability*rho_in)),xn,yn,dx,dy,2)
 
+rhoLong = reshape(rho_in,(/(xn-2)*(yn-2)/))
+permLong = reshape(permeability,(/(xn-2)*(yn-2)/))
 permxLong = reshape(permx,(/(xn-2)*(yn-2)/))
 permyLong = reshape(permy,(/(xn-2)*(yn-2)/))
 
@@ -859,7 +860,7 @@ psi_next = 0.0
 
 !----------------------------------------------------------!
 ! MAKE THE BAND
- 
+ ! put this in for consistency permeLong(i)*rhoLong(i)*
   aBand0 = 0.0
   m = 2*(xn-2) + 1
   do i = 1,(xn-2)*(yn-2)

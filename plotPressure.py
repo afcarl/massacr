@@ -5,10 +5,10 @@ import math
 import streamplot as sp
 plt.rcParams['contour.negative_linestyle'] = 'solid'
 
-t = np.loadtxt('tT1.txt',delimiter='\n')
-x0 = np.loadtxt('xT1.txt',delimiter='\n')
+t = np.loadtxt('t.txt',delimiter='\n')
+x0 = np.loadtxt('x.txt',delimiter='\n')
 #x0=x0/np.max(x0)
-y0 = np.loadtxt('yT1.txt',delimiter='\n')
+y0 = np.loadtxt('y.txt',delimiter='\n')
 #y0=y0/np.max(np.abs(y0))
 
 x=x0
@@ -21,15 +21,14 @@ y = np.append(y0, np.max(y0)+(y0[-1]-y0[-2]))
 xg, yg = np.meshgrid(x[:],y[:])
 
 
-h = np.loadtxt('hT1.txt')
-u= np.loadtxt('uMat1.txt')
-v= np.loadtxt('vMat1.txt')
-psi = np.loadtxt('psiMat1.txt')
+h = np.loadtxt('h.txt')
+u= np.loadtxt('uMat.txt')
+v= np.loadtxt('vMat.txt')
+psi = np.loadtxt('psiMat.txt')
 #pr = np.loadtxt('pMat.txt')
-rho = np.loadtxt('rho1.txt')
+rho = np.loadtxt('rho.txt')
 viscosity = 1e-3
-permeability = np.loadtxt('permeability1.txt')
-porosity = np.loadtxt('porosity1.txt')
+permeability = np.loadtxt('permeability.txt')
 permeability = permeability
 
 i=3

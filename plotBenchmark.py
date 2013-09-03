@@ -5,10 +5,10 @@ import math
 plt.rcParams['contour.negative_linestyle'] = 'solid'
 
 
-t = np.loadtxt('tT1.txt',delimiter='\n')
-x0 = np.loadtxt('xT1.txt',delimiter='\n')
+t = np.loadtxt('t.txt',delimiter='\n')
+x0 = np.loadtxt('x.txt',delimiter='\n')
 x0=x0/np.max(x0)
-y0 = np.loadtxt('yT1.txt',delimiter='\n')
+y0 = np.loadtxt('y.txt',delimiter='\n')
 y0=y0/np.max(y0)
 x=x0
 y=y0
@@ -20,10 +20,8 @@ y = np.append(y0, 1.0+1.0/float(bits))
 
 xg, yg = np.meshgrid(x[:],y[:])
 
-h = np.loadtxt('hT1.txt')
-#ut= np.loadtxt('uMat.txt')
-#vt= np.loadtxt('vMat.txt')
-psi = np.loadtxt('psiMat1.txt')
+h = np.loadtxt('h.txt')
+psi = np.loadtxt('psiMat.txt')
 
 i=5
 #wut = u0[i*len(y):((i)*len(y)+len(x)),:]
@@ -96,6 +94,6 @@ plt.subplots_adjust(bottom=.0, left=.05, right=.95, top=1.0, hspace=.3)
 
 #cbar.set_label(r'TEMPERATURE',fontsize=10)
 
-plt.savefig('bplotc.png')
+plt.savefig('ra4g31.png')
 
 
