@@ -598,8 +598,8 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 ! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
 ! h(2,2:yn-1) = h(2,2:yn-1) + h0(1,2:yn-1)*sx/2.0
 ! h(yn-1,2:yn-1) = h(yn-1,2:yn-1) + h0(yn,2:yn-1)*sx/2.0 
- h(2:xn-1,2) = h(2:xn-1,2) + h(2:xn-1,1)*sy/2.0 !- h(2:xn-1,1)*qx*u(2:xn-1,1) ! bottom
- h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h(2:xn-1,xn)*sy/2.0 !+ h(2:xn-1,xn)*qx*u(2:xn-1,xn) ! top
+ h(2:xn-1,2) = h(2:xn-1,2) + h0(2:xn-1,1)*sy/2.0 !- h(2:xn-1,1)*qx*u(2:xn-1,1) ! bottom
+ h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h0(2:xn-1,xn)*sy/2.0 !+ h(2:xn-1,xn)*qx*u(2:xn-1,xn) ! top
 
 
 
