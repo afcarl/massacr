@@ -2,13 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import math
-import streamplot as sp
 plt.rcParams['contour.negative_linestyle'] = 'solid'
 
-t = np.loadtxt('t.txt',delimiter='\n')
-x0 = np.loadtxt('x.txt',delimiter='\n')
+t = np.loadtxt('t1.txt',delimiter='\n')
+x0 = np.loadtxt('x1.txt',delimiter='\n')
 #x0=x0/np.max(x0)
-y0 = np.loadtxt('y.txt',delimiter='\n')
+y0 = np.loadtxt('y1.txt',delimiter='\n')
 #y0=y0/np.max(np.abs(y0))
 
 x=x0
@@ -21,14 +20,14 @@ y = np.append(y0, np.max(y0)+(y0[-1]-y0[-2]))
 xg, yg = np.meshgrid(x[:],y[:])
 
 
-h = np.loadtxt('h.txt')
-u= np.loadtxt('uMat.txt')
-v= np.loadtxt('vMat.txt')
-psi = np.loadtxt('psiMat.txt')
+h = np.loadtxt('h1.txt')
+u= np.loadtxt('uMat1.txt')
+v= np.loadtxt('vMat1.txt')
+psi = np.loadtxt('psiMat1.txt')
 #pr = np.loadtxt('pMat.txt')
-rho = np.loadtxt('rho.txt')
+rho = np.loadtxt('rho1.txt')
 viscosity = 1e-3
-permeability = np.loadtxt('permeability.txt')
+permeability = np.loadtxt('permeability1.txt')
 permeability = permeability
 
 i=3
@@ -70,8 +69,8 @@ v = np.append(v, v[:,-1:], axis=1)
 u = np.append(u, u[-1:,:], axis=0)
 u = np.append(u, u[:,-1:], axis=1)
 
-porosity = np.append(porosity, porosity[-1:,:], axis=0)
-porosity = np.append(porosity, porosity[:,-1:], axis=1)
+#porosity = np.append(porosity, porosity[-1:,:], axis=0)
+#porosity = np.append(porosity, porosity[:,-1:], axis=1)
 
 permeability = np.append(permeability, permeability[-1:,:], axis=0)
 permeability = np.append(permeability, permeability[:,-1:], axis=1)
@@ -96,8 +95,6 @@ plt.clabel(CS, fontsize=9, inline=1,fmt='%3.0f')
 #plt.scatter(xv,yv)
 #sp.streamplot(ax1,xg, yg, (u),(v))
 
-u = u*porosity
-v = v*porosity
 
 N = np.ones(u.shape)
 for i in range(len(xg)):
@@ -130,7 +127,7 @@ print len(uniques)
 cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 cbar.set_label(r'log of permeability',fontsize=8)
 
-plt.savefig('august25.png')
+plt.savefig('sept16.png')
 print "yeah!"
 
 

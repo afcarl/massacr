@@ -218,15 +218,13 @@ write(*,*) j
   do i = 1,xn
   !flux(i,1) = -h(i,3)/3.0 +4.0*h(i,2)/3.0 +(.27+.01*cos(2.0*x(i)*3.14/x_max))*2.0*dx/(lambda*3.0)
   flux(i,1) = h(i,2) +(.27)*dy/(lambda)
-  !flux(i,1) = 400.0
   end do
   
   !write(*,*) maxval(flux(:,1))
   ! top
   do i = 1,xn
   !flux(i,2) = -h(i,xn-2)/3.0 +4.0*h(i,xn-1)/3.0 -.27*2.0*dy/(lambda*3.0)
-  flux(i,2) = h(i,xn-2) -(.27)*dy/(lambda)
-  !flux(i,2) = 200.0
+  !flux(i,2) = h(i,xn-2) -(.27)*dy/(lambda)
   !flux(i,2) = (4.0/3.0)*h(i,xn-1) - (1.0/3.0)*h(i,xn-2)
   end do
   
@@ -247,33 +245,31 @@ write(*,*) j
   h = h_next(h, psi,rho, flux)
   
 !!!!!!!!!!!! THIS !!!!!!!!!!!
-  h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
-  h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
-  h(:,1) = flux(:,1)
-  h(:,yn) = flux(:,2)
+!  h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
+!  h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
+!  h(:,1) = flux(:,1)
+!  h(:,yn) = flux(:,2)
   
 
   
 ! BENCHMARK FIXED/ADIABATIC BOUNDARY CONDITIONS
   
 
-! flux(:,1) = (4.0/3.0)*h(:,2) - (1.0/3.0)*h(:,3) ! bottom
-! flux(:,2) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
-!  h(:,1) = flux(:,1)
-!  h(:,yn) = flux(:,2)
-!  h(1,:) = 0.5
-! h(xn,:) = -0.5
+ flux(:,1) = (4.0/3.0)*h(:,2) - (1.0/3.0)*h(:,3) ! bottom
+ flux(:,2) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
+  h(:,1) = flux(:,1)
+  h(:,yn) = flux(:,2)
+  h(1,:) = 0.5
+ h(xn,:) = -0.5
   
 
   
 
 ! BENCHMARK 
-!rhs0 = - 1000.0*partial(h,xn,yn,dx,dy,1) 
+rhs0 = - 1000.0*partial(h,xn,yn,dx,dy,1) 
 ! OLD METHOD
-
 !rhs0 = - (permeability/(viscosity))*rho_fluid*g*alpha*partial(h,xn,yn,dx,dy,1)
-rhs0 = - (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
-
+!!!!!!rhs0 = - (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 ! LOTS OF COEFFICIENTS FOR SOME REASON
 !rhs0 = - cp*g*alpha*200.0*1300.0*rho_fluid/(viscosity*lambda)*partial(h,xn,yn,dx,dy,1)
 
@@ -329,19 +325,19 @@ end do
 
 
 ! WRITE EVERYTHING TO TEXT FILES
-yep = write_vec ( xn, real(x,kind=4), 'x1.txt' )
-yep = write_vec ( yn, real(y,kind=4), 'y1.txt' )
-yep = write_vec ( tn, real(t, kind=4), 't1.txt' )
+yep = write_vec ( xn, real(x,kind=4), 'x.txt' )
+yep = write_vec ( yn, real(y,kind=4), 'y.txt' )
+yep = write_vec ( tn, real(t, kind=4), 't.txt' )
 !yep = write_matrix ( xn, yn*tn, real(hmat, kind = 4), 'hT.txt' )
 !yep = write_matrix ( xn, yn*tn, real(psimat,kind=4), 'psiMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )
-yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h1.txt' )
-yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat1.txt' )
-yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat1.txt' )
-yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat1.txt' )
-yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho1.txt' )
-yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
+yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h.txt' )
+yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat.txt' )
+yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat.txt' )
+yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat.txt' )
+yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho.txt' )
+yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 
 ! WRITE THINGS TO NETCDF FILES
 !  call check( nf90_create('thermalNRG.nc', NF90_CLOBBER, ncid) )
@@ -462,8 +458,8 @@ write(*,*) "velocity check"
 write(*,"(F10.5)") (dt*maxval(abs(u)))/(dx)
 write(*,"(F10.5)") (dt*maxval(abs(v)))/(dy)
 write(*,*) "conduction check"
-write(*,"(F10.5)") (2.0*dt*lambda)/(4186.0*dy*dy)
-!write(*,*) (2.0*dt)/(dy*dy)
+!write(*,"(F10.5)") (2.0*dt*lambda)/(4186.0*dy*dy)
+write(*,*) (2.0*dt)/(dy*dy)
 write(*,*) " "
 
 
@@ -475,12 +471,12 @@ h0 = h
   sx = (2.0*dt*lambda)/(4186.0*dx*dx)
   sy = (2.0*dt*lambda)/(4186.0*dy*dy)
   ! BENCHMARK
-!  sx = (2.0*dt)/(dx*dx)
-!  sy = (2.0*dt)/(dy*dy)
+  sx = (2.0*dt)/(dx*dx)
+  sy = (2.0*dt)/(dy*dy)
 
 ! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
- h(2,:) = h(2,:) + h0(1,:)*sx/2.0  ! left
- h(yn-1,:) = h(yn-1,:) + h0(xn,:)*sx/2.0  ! right
+ h(2,2:xn-1) = h(2,2:xn-1) + h0(1,2:xn-1)*sx/2.0  ! left
+ h(yn-1,2:xn-1) = h(yn-1,2:xn-1) + h0(xn,2:xn-1)*sx/2.0  ! right
  !h(2:xn-1,2) = h(2:xn-1,2) + h0(2:xn-1,1)*sy/2.0
  !h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h0(2:xn-1,xn)*sy/2.0
  
@@ -602,8 +598,8 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 ! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
 ! h(2,2:yn-1) = h(2,2:yn-1) + h0(1,2:yn-1)*sx/2.0
 ! h(yn-1,2:yn-1) = h(yn-1,2:yn-1) + h0(yn,2:yn-1)*sx/2.0 
- h(:,2) = h(:,2) + flux(:,1)*sy/2.0 !- h(2:xn-1,1)*qx*u(2:xn-1,1) ! bottom
- h(:,xn-1) = h(:,xn-1) + flux(:,2)*sy/2.0 !+ h(2:xn-1,xn)*qx*u(2:xn-1,xn) ! top
+ h(:,2) = h(:,2) + h0(:,1)*sy/2.0 !- h(2:xn-1,1)*qx*u(2:xn-1,1) ! bottom
+ h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h0(2:xn-1,xn)*sy/2.0 !+ h(2:xn-1,xn)*qx*u(2:xn-1,xn) ! top
 
 
 
@@ -868,19 +864,19 @@ psi_next = 0.0
   aBand0 = 0.0
   m = 2*(xn-2) + 1
   do i = 1,(xn-2)*(yn-2)
-  aBand0(i,(m+1)/2) = (4.0)/(permLong(i)*rhoLong(i)*dx*dx)
+  aBand0(i,(m+1)/2) = (4.0)/(dx*dx)
   if (i .gt. 1) then
-  	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) !(-1.0)/(dx*dx)
+  	aBand0(i,((m+1)/2)-1) = (-1.0)/(dx*dx) !(-1.0)/(dx*dx)
   end if
   if (i .lt. (xn-2)*(yn-2)) then
-  	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) !(-1.0)/(dx*dx)
+  	aBand0(i,((m+1)/2)+1) = (-1.0)/(dx*dx) !(-1.0)/(dx*dx)
   end if
     ! extra columns
   if (i .le. (xn-2)*(yn-2)-(xn-2)) then
-  	aBand0(i,m) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) - (permyLong(i))/(2.0*dx)
+  	aBand0(i,m) = (-1.0)/(dx*dx) !+ permyLong(i)/(2.0*dx)
   end if
   if (i .ge. (xn-2)) then
-  	aBand0(i,1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) + (permyLong(i))/(2.0*dx)
+  	aBand0(i,1) = (-1.0)/(dx*dx) !- permyLong(i)/(2.0*dx)
   end if
   end do
   
@@ -917,12 +913,13 @@ interp = 4.0*restr
 !write(*,"(F30.5)") permy*dx
 
 !BENCHMARK
-!rho_in = 1.0
-!permeability = 1.0
+rho_in = 1.0
+permeability = 1.0
 
-!do n=1,800
-!do i=2,xn-1
-!do j=2,yn-1
+do n=1,800
+
+do i=2,xn-1
+do j=2,yn-1
 
 	!psi_next(i,j) = (1.0/4.0)*(psi_next(i+1,j)+psi_next(i-1,j)&
 	!&+psi_next(i,j+1)+psi_next(i,j-1)+dx*dx*rhs1(i,j))
@@ -942,19 +939,20 @@ interp = 4.0*restr
 !&+rhs1(i,j))
 
 !!!!!!!!! THIS BIT !!!!!!!!!!!!!
-!psi_next(i,j) = (1/((4.0/(dx*dx*(permeability(i,j)*rho_in(i,j))))))&
+!psi_next(i,j) = (1/((2.0/(dx*dx*(permeability(i,j)*rho_in(i,j))))+(2.0/(dy*dy*(permeability(i,j)*rho_in(i,j))))))&
 !&*(psi_next(i+1,j)/(permeability(i,j)*rho_in(i,j)*dx*dx)&
 !&+psi_next(i-1,j)/(permeability(i,j)*rho_in(i,j)*dx*dx)&
-!&+(permy(i,j)*psi_next(i,j+1) - permy(i,j)*psi_next(i,j-1))/(dy)&
-!&-(permx(i,j)*psi_next(i+1,j) + permx(i,j)*psi_next(i-1,j))/(dx)&
+!!&+(permy(i,j)*psi_next(i,j+1) - permy(i,j)*psi_next(i,j-1))/(dy)&
+!!&-(permx(i,j)*psi_next(i+1,j) + permx(i,j)*psi_next(i-1,j))/(dx)&
 !&+psi_next(i,j+1)/(permeability(i,j)*rho_in(i,j)*dy*dy)&
 !&+psi_next(i,j-1)/(permeability(i,j)*rho_in(i,j)*dy*dy)&
 !&+rhs1(i,j))
 
 
-!end do
-!end do
-!end do
+end do
+end do
+
+end do
 
 write(*,*) "deltaPSI"
 write(*,*) maxval(abs((mn(2:xn-1,2:yn-1)-psi_next(2:xn-1,2:yn-1))/psi_next(2:xn-1,2:yn-1)))

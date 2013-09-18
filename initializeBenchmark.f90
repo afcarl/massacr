@@ -38,7 +38,7 @@ real(8) :: waveIntercept
   
   
 ! BOUNDARY CONDITIONS
-  ic0(:,:) = 275.0 ! IC
+  ic0(:,:) = 0.00 ! IC
   do i=1,xn
   	!ic0(i,:) = linspace(yn, 340.0D+00, 200.0D+00)
   end do
@@ -46,8 +46,7 @@ real(8) :: waveIntercept
   bcx0(:,2) = 273.0 ! top
   !BENCHMARK
 !  bcx0(:,1) = 0.0 ! bottom
-!  bcx0(:,2) = 0.0 ! top
-
+  bcx0(:,2) = 0.0 ! top
   do i =1,xn
   	!bcx0(i,1) = 295.0 + real(i,kind=4)/20.0 !sqrt(real(i,kind=4))
   	!bcx0(i,1) = 100.0 + 10.0*cos(2.0*3.14*x(i)/3000.0)
@@ -57,8 +56,8 @@ real(8) :: waveIntercept
   bcy0(1,:) = 273.0 ! left
   bcy0(2,:) = 273.0 ! right
   !BENCHMARK
-!  bcy0(1,:) = 0.5 ! left
-!  bcy0(2,:) = -0.5 ! right
+  bcy0(1,:) = 0.5 ! left
+  bcy0(2,:) = -0.5 ! right
   
 !  bcx0(1:yn,1) = linspace(yn, bcy0(1,1), bcy0(1,2)) ! left
 !  bcx0(1:yn,2) = linspace(yn, bcy0(1,1), bcy0(1,2)) ! right
@@ -179,12 +178,12 @@ do i=1,yn
 !	end if
 	
 	if (y(i) .ge. y_min) then
-	permeability(:,i) = (0.5+0.5*tanh((y(i)+((800.0)))/20.0))*1e-13 &
-	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/20.0)))*1e-21
+	permeability(:,i) = (0.5+0.5*tanh((y(i)+((800.0)))/70.0))*1e-13 &
+	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/70.0)))*1e-21
 	end if
 	if (y(i) .gt. -500.0) then
-	permeability(:,i) = (0.5+0.5*tanh((y(i)+((200.0)))/20.0))*1e-17 &
-	&+ (1.0 - (0.5+0.5*tanh((y(i)+((200.0)))/20.0)))*1e-13
+	permeability(:,i) = (0.5+0.5*tanh((y(i)+((200.0)))/70.0))*1e-21 &
+	&+ (1.0 - (0.5+0.5*tanh((y(i)+((200.0)))/70.0)))*1e-13
 	end if
 	
 	!permeability = 1e-18

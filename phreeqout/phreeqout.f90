@@ -16,19 +16,14 @@ program phreeqout
   INTEGER(KIND=4) :: id
   INTEGER(KIND=4) :: i
   CHARACTER(LEN=400) :: line
-  character(len=1200) :: inputz
-  character(len=1200) :: inputz0
+  character(len=2200) :: inputz
+  character(len=1200) :: inputz0, inputSS
   real(8), allocatable :: outmat(:,:)
 
-!!! INPUT INFO
-! EQUILIBRIUM_PHASES 1
-! phase targetSatIndex amount
-! ---default takes a single # as SI and 10.0 mols
-! ---SI = 0 means in equilibrium with fluid
-
-!!! END INFO BLOCK
-
-  ! PHREEQC INPUT SCRIPT 
+  !!!!!!!!!!!!!!!!!!!!!!
+  !  OLD INPUT SCRIPT  !
+  !!!!!!!!!!!!!!!!!!!!!!
+  
   inputz = "SOLUTION 1 Pure water" //NEW_LINE('')// &
   &"    pH 7.0" //NEW_LINE('')// &
   &"    temp 25.0" //NEW_LINE('')// &
@@ -46,55 +41,204 @@ program phreeqout
 
   &"END"
   
-  inputz0 = "SOLUTION 1 # 1 mmol/l NaCl" //NEW_LINE('')// &
-  &"    units   ppm" //NEW_LINE('')// &
-  &"    pH 8.22" //NEW_LINE('')// &
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !  SOLID SOLUTIONS ONLY   !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  inputSS = "SOLUTION 1 # 1 mmol/l NaCl" //NEW_LINE('')// &
+  &"    units   mol/kgw" //NEW_LINE('')// &
+  &"    pH 7.5" //NEW_LINE('')// &
   &"    pe 8.451" //NEW_LINE('')// &
   &"    density 1.023" //NEW_LINE('')// &
-  &"    temp 25.0" //NEW_LINE('')// &
-  &"    redox O(0)/O(-2)" //NEW_LINE('')// &
-!  &"    Ca 412.3" //NEW_LINE('')// &
-!  &"    Mg 1291.8" //NEW_LINE('')// &
-  &"    Ca 500.0" //NEW_LINE('')// &
-  &"    Mg 500.0" //NEW_LINE('')// &
-  &"    Na 10768.0" //NEW_LINE('')// &
-  &"    K 399.1" //NEW_LINE('')// &
-  &"    Fe .002" //NEW_LINE('')// &
-  &"    Mn .0002 pe" //NEW_LINE('')// &
-  &"    Si 4.28" //NEW_LINE('')// &
-  &"    Cl 19353.0" //NEW_LINE('')// &
-  &"    Alkalinity 141.682 as HCO3" //NEW_LINE('')// &
-  &"    S(6) 2712.0" //NEW_LINE('')// &
-  &"    N(5) 0.29 gfw 62.0" //NEW_LINE('')// &
-  &"    N(-3) 0.03 as NH4" //NEW_LINE('')// &
-  &"    O(0) 1.0 O2(g) -0.7" //NEW_LINE('')// &
-  &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-  &"    quartz 0.0 1.0" //NEW_LINE('')// &
-!  &"    diopside 0.0 1.0" //NEW_LINE('')// &
-  &"    Wollastonite 0.0 1.0" //NEW_LINE('')// &
-  &"    P-Wollstanite 0.0 1.0" //NEW_LINE('')// &
-  &"    Ca-Olivine 0.0 1.0" //NEW_LINE('')// &
-  &"    Magnetite 0.0 1.0" //NEW_LINE('')// &
-  &"    Anorthite 0.0 1.0" //NEW_LINE('')// &
-!  &"    Albite(low) 0.0 0.5" //NEW_LINE('')// &
-!  &"    k-feldspar 0.0 1.0" //NEW_LINE('')// &
-!  &"    dolomite 0.0 0.0" //NEW_LINE('')// &
-!  &"    calcite 0.0 0.0" //NEW_LINE('')// &
-!  &"    kaolinite 0.0 0.0" //NEW_LINE('')// &
+  &"    temp 75.0" //NEW_LINE('')// &
+  &"    Ca 6.0e-4" //NEW_LINE('')// &
+  &"    Mg 2.0e-3" //NEW_LINE('')// &
+  &"    Na 1.0e-3" //NEW_LINE('')// &
+  &"    K 1.0e-4" //NEW_LINE('')// &
+  &"    Fe 1.2e-6" //NEW_LINE('')// &
+  &"    S(6) 1.0e-4" //NEW_LINE('')// &
+  &"    Si 2.0e-4" //NEW_LINE('')// &
+  &"    Cl 3.0e-4" //NEW_LINE('')// &
+  &"    Al 1.0e-6" //NEW_LINE('')// &
+  &"    Alkalinity 2.0e-3" //NEW_LINE('')// &
+  &"END" //NEW_LINE('')// &
+  
+  &"CALCULATE_VALUES" //NEW_LINE('')// &
+  
+!  &"R(Plag)" //NEW_LINE('')// &
+!  &"-start" //NEW_LINE('')// &
+!  &"10 something = log10(((ACT('Ca+2')^.5)*(ACT('H2O')^3.0)*(ACT('SiO2')^2.5)*" // &
+!  & "(ACT('Al+3')^1.5)*(ACT('Na+')^.5))/(ACT('H+')^6.0))" //NEW_LINE('')// &
+!  &"100 SAVE something" //NEW_LINE('')// &
+!  &"-end" //NEW_LINE('')// &
+!  
+!  &"R(Aug)" //NEW_LINE('')// &
+!  &"-start" //NEW_LINE('')// &
+!  &"10 something = log10(((ACT('Ca+2')^.7)*(ACT('H2O')^2.0)*(ACT('SiO2')^2.0)*" //&
+!  &"(ACT('Fe+2')^.6)*(ACT('Mg+2')^.7))/(ACT('H+')^4.0))" //NEW_LINE('')// &
+!  &"100 SAVE something" //NEW_LINE('')// &
+!  &"-end" //NEW_LINE('')// &
+!  
+  &"R(Pig)" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"10 something = log10(((ACT('Ca+2')^1.14)*(ACT('H2O')^2.0)*(ACT('SiO2')^2.0)*" //&
+  &"(ACT('Fe+2')^.64)*(ACT('Mg+2')^.22))/(ACT('H+')^4.0))" //NEW_LINE('')// &
+  &"100 SAVE something" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+  
+!  &"R(Glass)" //NEW_LINE('')// &
+!  &"-start" //NEW_LINE('')// &
+!  &"10 something = log10(((ACT('Ca+2')^.015)*(ACT('H2O')^.35)*(ACT('SiO2')^0.5)*" //&
+!  &"(ACT('Fe+2')^.095)*(ACT('Mg+2')^.065)*(ACT('Na+')^.025)*(ACT('K+')^.001)*" // &
+!  &"(ACT('Al+3')^.105))/(ACT('H+')^7.0))" //NEW_LINE('')// &
+!  &"100 SAVE something" //NEW_LINE('')// &
+!  &"-end" //NEW_LINE('')// &
+  
+  &"END" //NEW_LINE('')// &
+  
+  &"SOLID_SOLUTIONS 1" //NEW_LINE('')// &
+!  &"Plagioclase" //NEW_LINE('')// &
+!  &"    -comp albite 0.5" //NEW_LINE('')// &
+!  &"    -comp anorthite 0.5" //NEW_LINE('')// &
+!  &"Augite" //NEW_LINE('')// &
+!  &"    -comp enstatite 0.3" //NEW_LINE('')// &
+!  &"    -comp ferrosilite 0.3" //NEW_LINE('')// &
+!  &"    -comp wollastonite 0.35" //NEW_LINE('')// &
+  &"Pigeonite" //NEW_LINE('')// &
+  &"    -comp enstatite 0.57" //NEW_LINE('')// &
+  &"    -comp ferrosilite 0.32" //NEW_LINE('')// &
+  &"    -comp wollastonite 0.11" //NEW_LINE('')// &
+!  &"BasaltGlass" //NEW_LINE('')// &
+!  &"    -comp Ca 0.015" //NEW_LINE('')// &
+!  &"    -comp Fe 0.095" //NEW_LINE('')// &
+!  &"    -comp Mg 0.065" //NEW_LINE('')// &
+!  &"    -comp Na 0.025" //NEW_LINE('')// &
+!  &"    -comp K 0.01" //NEW_LINE('')// &
+!  &"    -comp Al 0.105" //NEW_LINE('')// &
+! !! &"    -comp S 0.003" //NEW_LINE('')// &
+!  &"    -comp SiO2(am) 0.5" //NEW_LINE('')// &
+!!!  &"    -comp H2O .35" //NEW_LINE('')// &
+  &"END" //NEW_LINE('')// &
+  
+  
   &"REACTION_TEMPERATURE 1" //NEW_LINE('')// &
-  &"    0.0 750.0 in 51 steps" //NEW_LINE('')// &
-  &"SAVE solution 1" //NEW_LINE('')// &
-  &"SAVE equilibrium_phases 1" //NEW_LINE('')// &
-  &"DUMP" //NEW_LINE('')// &
-  &"    -solution 1" //NEW_LINE('')// &
-  &"    -equilibrium_phases" //NEW_LINE('')// &
+  &"    1.0 100.0 in 51 steps" //NEW_LINE('')// &
+  
+  &"Use solution 1" //NEW_LINE('')// &
+  &"Use solid_solutions 1" //NEW_LINE('')// &
+  
+  
+  
+  
+  
   &"SELECTED_OUTPUT" //NEW_LINE('')// &
-  &"    -reset false" //NEW_LINE('')// &
-  &"    -molalities Ca+2 Mg+2" //NEW_LINE('')// &
-  &"    -temp" //NEW_LINE('')// &
+  &"-reset false" //NEW_LINE('')// &
+  &"-ca R(Pig)" //NEW_LINE('')// &
+  &"-temp" //NEW_LINE('')// &
   &"END"
   
-  write(*,*) inputz0
+  
+  
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  !  BASALT DISSOLUTION EXPERIMENTS   !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  
+
+  inputz0 = "SOLUTION 1 # 1 mmol/l NaCl" //NEW_LINE('')// &
+  &"    units   mol/kgw" //NEW_LINE('')// &
+  &"    pH 7.5" //NEW_LINE('')// &
+  &"    pe 8.451" //NEW_LINE('')// &
+  &"    density 1.023" //NEW_LINE('')// &
+  &"    temp 80.0" //NEW_LINE('')// &
+! &"    redox O(0)/O(-2)" //NEW_LINE('')// &
+  &"    Ca 6.0e-4" //NEW_LINE('')// &
+  &"    Mg 2.0e-3" //NEW_LINE('')// &
+  &"    Na 1.0e-3" //NEW_LINE('')// &
+  &"    K 1.0e-4" //NEW_LINE('')// &
+  &"    Fe 1.2e-6" //NEW_LINE('')// &
+  &"    S(6) 1.0e-4" //NEW_LINE('')// &
+  &"    Si 2.0e-4" //NEW_LINE('')// &
+  &"    Cl 3.0e-4" //NEW_LINE('')// &
+  &"    Al 1.0e-6" //NEW_LINE('')// &
+  &"    Alkalinity 2.0e-3 as HCO3" //NEW_LINE('')// &
+  &"END" //NEW_LINE('')// &
+  
+  &"Use solution 1" //NEW_LINE('')// &
+  
+  &"KINETICS" //NEW_LINE('')// &
+  &"Plagioclase" //NEW_LINE('')// &
+  &"-m0 5" //NEW_LINE('')// &
+  &"Augite" //NEW_LINE('')// &
+  &"-m0 6" //NEW_LINE('')// &
+  &"Pigeonite" //NEW_LINE('')// &
+  &"-m0 3" //NEW_LINE('')// &
+  &"Magnetite" //NEW_LINE('')// &
+  &"-m0 1" //NEW_LINE('')// &
+!  &"BasaltGlass" //NEW_LINE('')// &
+!  &"-m0 60.0" //NEW_LINE('')// &
+
+  &"    -step 3.14e11 in 100" //NEW_LINE('')// &
+  &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
+  
+  
+  &"RATES" //NEW_LINE('')// &
+  
+!  &"BasaltGlass" //NEW_LINE('')// &
+!  &"-start" //NEW_LINE('')// &
+!  &"    10 rate0=(10^(-5.6))*exp(-25.5/(8.314*TK))*((ACT('H+'))^3.0/" // &
+!  &"(ACT('Al+3')))" //NEW_LINE('')// &
+!  &"    20 save rate0 * time" //NEW_LINE('')// &
+!  &"-end" //NEW_LINE('')// &
+  
+  &"Plagioclase" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"    10 rate = (((1.58e-9)*exp(-53.5/(8.314*TK))*(ACT('H+'))^0.541 +" // &
+  &"(3.39e-12)*exp(-57.4/(8.314*TK)) +" // &
+  &"(4.78e-15)*exp(59/(8.314*TK))*(ACT('H+'))^-0.57))" //NEW_LINE('')// &
+  &"    20 save rate * time" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+  
+  &"Augite" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"    10 rate0 = (((1.58e-7)*exp(-78.0/(8.314*TK))*(ACT('H+'))^0.7 +" // &
+  &"(1.07e-12)*exp(-78.0/(8.314*TK))))" //NEW_LINE('')// & 
+  &"    20 save rate0 * time" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+  
+  &"Pigeonite" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"    10 rate0 = (((1.58e-7)*exp(-78.0/(8.314*TK))*(ACT('H+'))^0.7 +" // &
+  &"(1.07e-12)*exp(-78.0/(8.314*TK))))" //NEW_LINE('')// &
+  &"    20 save rate0 * time" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+  
+  &"Magnetite" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"    10 rate0 = (((2.57e-9)*exp(-18.6/(8.314*TK))*(ACT('H+'))^0.279 +" // &
+  &"(1.66e-11)*exp(-18.6/(8.314*TK))))" //NEW_LINE('')// &
+  &"    20 save rate0 * time" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+  
+  &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
+!  &"    Calcite 0.0 0.0" //NEW_LINE('')// &
+!  &"    Siderite 0.0 0.0" //NEW_LINE('')// &
+!  &"    Albite 0.0 0.0" //NEW_LINE('')// &
+!  &"    Goethite 0.0 0.0" //NEW_LINE('')// &
+!  &"    Kaolinite 0.0 0.0" //NEW_LINE('')// &
+!  &"    Celadonite 0.0 0.0" //NEW_LINE('')// &
+   
+!  &"DUMP" //NEW_LINE('')// &
+!  &"    -solution 1" //NEW_LINE('')// &
+!  &"    -equilibrium_phases" //NEW_LINE('')// &
+  &"SELECTED_OUTPUT" //NEW_LINE('')// &
+  &"    -reset false" //NEW_LINE('')// &
+!  &"    -equilibrium_phases wollastonite" //NEW_LINE('')// &
+  &"    -kinetic_reactants Plagioclase augite pigeonite magnetite" //NEW_LINE('')// &
+!  &"    -temp" //NEW_LINE('')// &
+  &"    -time" //NEW_LINE('')// &
+  &"END"
+  
+
 
   ! INITIALIZE STUFF
   id = CreateIPhreeqc()
@@ -112,16 +256,25 @@ program phreeqout
      STOP
   END IF
 
-  IF (LoadDatabase(id, "minteq.dat").NE.0) THEN
+!  IF (LoadDatabase(id, "minteq.dat").NE.0) THEN
+!     CALL OutputErrorString(id)
+!     STOP
+!  END IF
+  
+  IF (LoadDatabase(id, "llnl.dat").NE.0) THEN
      CALL OutputErrorString(id)
      STOP
   END IF
+
+
   
   ! RUN INPUT
   IF (RunString(id, inputz0).NE.0) THEN
      CALL OutputErrorString(id)
      STOP
   END IF
+  
+  write(*,*) "it works!"
   
   ! PRINT DUMP/OUTPUT
   DO i=1,GetOutputStringLineCount(id)
@@ -131,11 +284,13 @@ program phreeqout
   
   WRITE(*,*) "WRITING TO 2D ARRAY AND OUTPUT FILES"
   
+  
+  
   ! OPEN FILE
   OPEN(UNIT=12, FILE="outmat.txt", ACTION="write", STATUS="replace") 
   
   ! WRITE AWAY
-  allocate(outmat(GetSelectedOutputStringLineCount(id),3))
+  allocate(outmat(GetSelectedOutputStringLineCount(id)+1,9))
   DO i=1,GetSelectedOutputStringLineCount(id)
      call GetSelectedOutputStringLine(id, i, line)
      ! HEADER BITS YOU MAY WANT
@@ -146,7 +301,8 @@ program phreeqout
      ! MEAT
      if (i .gt. 2) then
      	read(line,*) outmat(i,:)
-     	write(12,"(3F12.5)") outmat(i,:)
+     	!write(12,"(4F12.5)") outmat(i,:)
+     	write(12,*) outmat(i,:)
      	write(*,*) trim(line)
      end if
   END DO

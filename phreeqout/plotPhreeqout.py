@@ -5,25 +5,136 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import math
 
-outmat = np.loadtxt('outmat.txt')
 
-x = outmat[:,0]
-y = outmat[:,1]
+
 
 fig=plt.figure()
 
-ax = plt.subplot(1,1,1)
-#p1, = ax.plot(outmat[:,0],outmat[:,1], label='QUARTZ')
-p2, = ax.plot(outmat[:,0],outmat[:,1], label='Ca$^{2+}$',linewidth=4)
-p3, = ax.plot(outmat[:,0],outmat[:,2], label='Mg$^{2+}$',linewidth=4)
-#p4, = ax.plot(outmat[:,0],outmat[:,5], label='DOLOMITE')
+plt.rc('xtick', labelsize=6) 
+plt.rc('ytick', labelsize=6) 
+
+##################
+# Ca / Mg switch #
+##################
+
+out = np.loadtxt('outForstDiop.txt')
+
+ax = plt.subplot(2,3,1)
+
+p2, = ax.plot(out[:,0],out[:,2], label='Ca$^{2+}$',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,3], label='Mg$^{2+}$',linewidth=2)
+
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
-#plt.xlim(np.min(x)-abs(x[0]-x[-1])/10.0,np.max(x)+abs(x[0]-x[-1])/10.0)
-#plt.ylim(np.min(y)-abs(y[0]-y[-1])/10.0,0.05)
 plt.margins(0.05)
-plt.xlabel('TEMPERATURE [C]')
-plt.ylabel('MOLALITY IN SEAWATER [mol/kg]')
-plt.legend(handles, labels,loc=3)
-plt.savefig('ga.png')
+#plt.xlabel('TEMPERATURE [C]',fontsize=8)
+plt.ylabel('MOLALITY IN SEAWATER [mol/kg]',fontsize=8)
+plt.legend(handles, labels,loc=1,prop={'size':6})
+plt.title('Forsterite & Diopside',fontsize=8)
+
+
+########################
+#    EVERYTHING        #
+########################
+
+out = np.loadtxt('outForstWollast.txt')
+
+ax = plt.subplot(2,3,2)
+
+p2, = ax.plot(out[:,0],out[:,2], label='Ca$^{2+}$',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,3], label='Mg$^{2+}$',linewidth=2)
+
+
+handles, labels = ax.get_legend_handles_labels()
+#plt.legend(handles[::-1], labels[::-1])
+plt.margins(0.05)
+#plt.xlabel('TEMPERATURE [C]')
+#plt.ylabel('MOLALITY IN SEAWATER [mol/kg]',fontsize=8)
+#plt.legend(handles, labels,loc=1,prop={'size':8})
+plt.title('Forsterite & Wollastonite',fontsize=8)
+
+########################
+#    EVERYTHING        #
+########################
+
+out = np.loadtxt('outForstWollastAnorth.txt')
+
+ax = plt.subplot(2,3,3)
+
+p2, = ax.plot(out[:,0],out[:,2], label='Ca$^{2+}$',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,3], label='Mg$^{2+}$',linewidth=2)
+
+
+handles, labels = ax.get_legend_handles_labels()
+#plt.legend(handles[::-1], labels[::-1])
+plt.margins(0.05)
+#plt.xlabel('TEMPERATURE [C]')
+#plt.ylabel('MOLALITY IN SEAWATER [mol/kg]',fontsize=8)
+#plt.legend(handles, labels,loc=1,prop={'size':8})
+plt.title('Forsterite, Wollastonite & Anorthite',fontsize=8)
+
+
+
+########################
+#    EVERYTHING        #
+########################
+
+out = np.loadtxt('outQuartzCaol.txt')
+
+ax = plt.subplot(2,3,4)
+
+p2, = ax.plot(out[:,0],out[:,2], label='Ca$^{2+}$',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,3], label='Mg$^{2+}$',linewidth=2)
+
+
+handles, labels = ax.get_legend_handles_labels()
+#plt.legend(handles[::-1], labels[::-1])
+plt.margins(0.05)
+plt.xlabel('TEMPERATURE [C]',fontsize=8)
+#plt.ylabel('MOLALITY IN SEAWATER [mol/kg]',fontsize=8)
+#plt.legend(handles, labels,loc=1,prop={'size':8})
+plt.title('Quartz & Ca-olivine',fontsize=8)
+
+########################
+#    EVERYTHING        #
+########################
+
+out = np.loadtxt('outQuartzForstDiop.txt')
+
+ax = plt.subplot(2,3,5)
+
+p2, = ax.plot(out[:,0],out[:,2], label='Ca$^{2+}$',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,3], label='Mg$^{2+}$',linewidth=2)
+
+
+handles, labels = ax.get_legend_handles_labels()
+#plt.legend(handles[::-1], labels[::-1])
+plt.margins(0.05)
+#plt.xlabel('TEMPERATURE [C]')
+#plt.ylabel('MOLALITY IN SEAWATER [mol/kg]',fontsize=8)
+#plt.legend(handles, labels,loc=1,prop={'size':8})
+plt.title('Quartz, Forsterite & Diopside',fontsize=8)
+
+########################
+#    EVERYTHING        #
+########################
+
+out = np.loadtxt('outCaolWollast.txt')
+
+ax = plt.subplot(2,3,6)
+
+p2, = ax.plot(out[:,0],out[:,2], label='Ca$^{2+}$',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,3], label='Mg$^{2+}$',linewidth=2)
+
+
+handles, labels = ax.get_legend_handles_labels()
+#plt.legend(handles[::-1], labels[::-1])
+plt.margins(0.05)
+#plt.xlabel('TEMPERATURE [C]')
+#plt.ylabel('MOLALITY IN SEAWATER [mol/kg]',fontsize=8)
+#plt.legend(handles, labels,loc=1,prop={'size':8})
+plt.title('Ca-olivine & Wollastonite',fontsize=8)
+
+
+plt.savefig('assemblages.eps')
