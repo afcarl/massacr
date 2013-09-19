@@ -3,7 +3,7 @@
 *.nc
 *.txt
 *.png
-*.eps
+#*.eps
 *.out
 *.mod
 *.dat
