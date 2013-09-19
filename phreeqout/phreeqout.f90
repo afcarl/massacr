@@ -167,17 +167,17 @@ program phreeqout
   
   &"KINETICS" //NEW_LINE('')// &
   &"Plagioclase" //NEW_LINE('')// &
-  &"-m0 5" //NEW_LINE('')// &
+  &"-m0 35" //NEW_LINE('')// &
   &"Augite" //NEW_LINE('')// &
-  &"-m0 6" //NEW_LINE('')// &
+  &"-m0 16" //NEW_LINE('')// &
   &"Pigeonite" //NEW_LINE('')// &
   &"-m0 3" //NEW_LINE('')// &
   &"Magnetite" //NEW_LINE('')// &
   &"-m0 1" //NEW_LINE('')// &
-!  &"BasaltGlass" //NEW_LINE('')// &
-!  &"-m0 60.0" //NEW_LINE('')// &
+  !&"BasaltGlass" //NEW_LINE('')// &
+  !&"-m0 6.0" //NEW_LINE('')// &
 
-  &"    -step 3.14e11 in 100" //NEW_LINE('')// &
+  &"    -step 3.14e10 in 100" //NEW_LINE('')// &
   &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
   
   
@@ -218,9 +218,10 @@ program phreeqout
   &"(1.66e-11)*exp(-18.6/(8.314*TK))))" //NEW_LINE('')// &
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
+
   
   &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-!  &"    Calcite 0.0 0.0" //NEW_LINE('')// &
+  &"    CO2(g) 0.0 1000.0" //NEW_LINE('')// &
 !  &"    Siderite 0.0 0.0" //NEW_LINE('')// &
 !  &"    Albite 0.0 0.0" //NEW_LINE('')// &
 !  &"    Goethite 0.0 0.0" //NEW_LINE('')// &
@@ -230,11 +231,10 @@ program phreeqout
 !  &"DUMP" //NEW_LINE('')// &
 !  &"    -solution 1" //NEW_LINE('')// &
 !  &"    -equilibrium_phases" //NEW_LINE('')// &
+
   &"SELECTED_OUTPUT" //NEW_LINE('')// &
   &"    -reset false" //NEW_LINE('')// &
-!  &"    -equilibrium_phases wollastonite" //NEW_LINE('')// &
   &"    -kinetic_reactants Plagioclase augite pigeonite magnetite" //NEW_LINE('')// &
-!  &"    -temp" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
   &"END"
   
@@ -279,11 +279,12 @@ program phreeqout
   ! PRINT DUMP/OUTPUT
   DO i=1,GetOutputStringLineCount(id)
      call GetOutputStringLine(id, i, line)
-     write(*,*) trim(line)
+     !write(*,*) trim(line)
   END DO
   
   WRITE(*,*) "WRITING TO 2D ARRAY AND OUTPUT FILES"
   
+  WRITE(*,*) GetSelectedOutputStringLineCount(id)
   
   
   ! OPEN FILE

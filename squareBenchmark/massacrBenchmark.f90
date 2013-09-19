@@ -259,8 +259,8 @@ write(*,*) j
  flux(:,2) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
   h(:,1) = flux(:,1)
   h(:,yn) = flux(:,2)
-  h(1,:) = 0.5
- h(xn,:) = -0.5
+  h(1,2:xn-1) = 0.5
+ h(xn,2:xn-1) = -0.5
   
 
   
@@ -862,34 +862,34 @@ psi_next = 0.0
 ! MAKE THE BAND
  ! put this in for consistency permeLong(i)*rhoLong(i)*
   aBand0 = 0.0
-  m = 2*(xn-2) + 1
-  do i = 1,(xn-2)*(yn-2)
-  aBand0(i,(m+1)/2) = (4.0)/(dx*dx)
-  if (i .gt. 1) then
-  	aBand0(i,((m+1)/2)-1) = (-1.0)/(dx*dx) !(-1.0)/(dx*dx)
-  end if
-  if (i .lt. (xn-2)*(yn-2)) then
-  	aBand0(i,((m+1)/2)+1) = (-1.0)/(dx*dx) !(-1.0)/(dx*dx)
-  end if
-    ! extra columns
-  if (i .le. (xn-2)*(yn-2)-(xn-2)) then
-  	aBand0(i,m) = (-1.0)/(dx*dx) !+ permyLong(i)/(2.0*dx)
-  end if
-  if (i .ge. (xn-2)) then
-  	aBand0(i,1) = (-1.0)/(dx*dx) !- permyLong(i)/(2.0*dx)
-  end if
-  end do
-  
-  do i=1,((xn-2)-1)
-  ii = i*(xn-2)
-  aBand0(ii,((m+1)/2)+1) = 0.0
-  aBand0(ii+1,((m+1)/2)-1) = 0.0
-  end do
+!  m = 2*(xn-2) + 1
+!  do i = 1,(xn-2)*(yn-2)
+!  aBand0(i,(m+1)/2) = (4.0)/(dx*dx)
+!  if (i .gt. 1) then
+!  	aBand0(i,((m+1)/2)-1) = (-1.0)/(dx*dx) !(-1.0)/(dx*dx)
+!  end if
+!  if (i .lt. (xn-2)*(yn-2)) then
+!  	aBand0(i,((m+1)/2)+1) = (-1.0)/(dx*dx) !(-1.0)/(dx*dx)
+!  end if
+!    ! extra columns
+!  if (i .le. (xn-2)*(yn-2)-(xn-2)) then
+!  	aBand0(i,m) = (-1.0)/(dx*dx) !+ permyLong(i)/(2.0*dx)
+!  end if
+!  if (i .ge. (xn-2)) then
+!  	aBand0(i,1) = (-1.0)/(dx*dx) !- permyLong(i)/(2.0*dx)
+!  end if
+!  end do
+!  
+!  do i=1,((xn-2)-1)
+!  ii = i*(xn-2)
+!  aBand0(ii,((m+1)/2)+1) = 0.0
+!  aBand0(ii+1,((m+1)/2)-1) = 0.0
+!  end do
   
 ! THIS IS FOR SOLVING IF THE MATRIX WORKED
-  aBand0 = band(aBand0,m,(xn-2)*(yn-2))
-  psi_nextRow = solve(aBand0,uVec,m,(xn-2)*(yn-2))
-  psi_next(2:xn-1,2:yn-1) = reshape(psi_nextRow, (/xn-2, yn-2/))
+!  aBand0 = band(aBand0,m,(xn-2)*(yn-2))
+!  psi_nextRow = solve(aBand0,uVec,m,(xn-2)*(yn-2))
+!  psi_next(2:xn-1,2:yn-1) = reshape(psi_nextRow, (/xn-2, yn-2/))
 
   
 !----------------------------------------------------------!
@@ -916,7 +916,7 @@ interp = 4.0*restr
 rho_in = 1.0
 permeability = 1.0
 
-do n=1,800
+do n=1,4000
 
 do i=2,xn-1
 do j=2,yn-1
@@ -939,14 +939,14 @@ do j=2,yn-1
 !&+rhs1(i,j))
 
 !!!!!!!!! THIS BIT !!!!!!!!!!!!!
-!psi_next(i,j) = (1/((2.0/(dx*dx*(permeability(i,j)*rho_in(i,j))))+(2.0/(dy*dy*(permeability(i,j)*rho_in(i,j))))))&
-!&*(psi_next(i+1,j)/(permeability(i,j)*rho_in(i,j)*dx*dx)&
-!&+psi_next(i-1,j)/(permeability(i,j)*rho_in(i,j)*dx*dx)&
-!!&+(permy(i,j)*psi_next(i,j+1) - permy(i,j)*psi_next(i,j-1))/(dy)&
-!!&-(permx(i,j)*psi_next(i+1,j) + permx(i,j)*psi_next(i-1,j))/(dx)&
-!&+psi_next(i,j+1)/(permeability(i,j)*rho_in(i,j)*dy*dy)&
-!&+psi_next(i,j-1)/(permeability(i,j)*rho_in(i,j)*dy*dy)&
-!&+rhs1(i,j))
+psi_next(i,j) = (1/((4.0/(dx*dx*(permeability(i,j)*rho_in(i,j))))))&
+&*(psi_next(i+1,j)/(permeability(i,j)*rho_in(i,j)*dx*dx)&
+&+psi_next(i-1,j)/(permeability(i,j)*rho_in(i,j)*dx*dx)&
+!&+(permy(i,j)*psi_next(i,j+1) - permy(i,j)*psi_next(i,j-1))/(dy)&
+!&-(permx(i,j)*psi_next(i+1,j) + permx(i,j)*psi_next(i-1,j))/(dx)&
+&+psi_next(i,j+1)/(permeability(i,j)*rho_in(i,j)*dy*dy)&
+&+psi_next(i,j-1)/(permeability(i,j)*rho_in(i,j)*dy*dy)&
+&+rhs1(i,j))
 
 
 end do

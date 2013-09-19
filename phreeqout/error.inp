@@ -110,6 +110,20 @@ KINETICS_RAW                 1
 EQUILIBRIUM_PHASES_RAW       1 
   # EXCHANGE_MODIFY candidates; use new_def=true #
   -new_def                   0
+  -component                 CO2(g)
+      # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
+      -si                    0
+      -moles                 1000
+      -force_equality        0
+      -dissolve_only         0
+      -precipitate_only      0
+      # PPassemblage workspace variables #
+      -si_org                0
+      -delta                 0
+      -initial_moles         0
+      -totals                
   -eltList                   # List of all elements in phases and alternate reactions
+    C                        1
+    O                        2
   # PPassemblage workspace variables #
   -assemblage_totals
