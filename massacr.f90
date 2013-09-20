@@ -287,7 +287,7 @@ psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
 psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
 !psi(:,1) = ((4.0/3.0)*psi(:,2) - (1.0/3.0)*psi(:,3)) !bottom
 psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
-!psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
+psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
 permeable = psi(:,yn)
 
 
@@ -819,9 +819,8 @@ permyLong = reshape(permy,(/(xn-2)*(yn-2)/))
  rhs1(yn-1,:) = rhs1(xn-1,:) 
  rhs1(:,2) = rhs1(:,2) 
  rhs1(:,xn-1) = rhs1(:,xn-1)
- rhs1(2:xn-1,xn-1) = rhs1(2:xn-1,xn-1) !+&
- !& permeable(2:xn-1)/((2.0/(dx*dx*(permeability(2:xn-1,xn-1)*rho_in(2:xn-1,xn-1))))+&
- !&(2.0/(dy*dy*(permeability(2:xn-1,xn-1)*rho_in(2:xn-1,xn-1))))) 
+ rhs1(2:xn-1,xn-1) = rhs1(2:xn-1,xn-1) +&
+ & permeable(2:xn-1)/(4.0/(dx*dx*(permeability(2:xn-1,xn-1)*rho_in(2:xn-1,xn-1))))
 
   !aa0 = 0.0
   do i = 1,(xn-2)*(yn-2)

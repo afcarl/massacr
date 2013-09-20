@@ -102,18 +102,18 @@ KINETICS_RAW                 1
       -moles                 0
       -initial_moles         0
   -equal_increments           1
-  -count                     100
+  -count                     20
   -steps             
-    314000000000 
+    31400000000 
   # KINETICS workspace variables #
   -totals                    
 EQUILIBRIUM_PHASES_RAW       1 
   # EXCHANGE_MODIFY candidates; use new_def=true #
   -new_def                   0
-  -component                 CO2(g)
+  -component                 Siderite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 1000
+      -moles                 0
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -124,6 +124,7 @@ EQUILIBRIUM_PHASES_RAW       1
       -totals                
   -eltList                   # List of all elements in phases and alternate reactions
     C                        1
-    O                        2
+    Fe                       1
+    O                        3
   # PPassemblage workspace variables #
   -assemblage_totals

@@ -94,6 +94,6 @@ plt.subplots_adjust(bottom=.0, left=.05, right=.95, top=1.0, hspace=.3)
 
 #cbar.set_label(r'TEMPERATURE',fontsize=10)
 
-plt.savefig('ra4.png')
+plt.savefig('ra40.png')
 
 
