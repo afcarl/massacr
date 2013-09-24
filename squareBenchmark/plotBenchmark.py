@@ -52,14 +52,15 @@ ax1=fig.add_subplot(1,2,1, aspect='equal')
 #p.set_clim([np.min(u0[1*len(y)-1:((1)*len(y)+len(x))-1,:]), np.max(u0[1*len(y)-1:((1)*len(y)+len(x))-1,:])])
 
 
-levels = np.arange(-20.0,20.0,1.0)
-levels = np.arange(-5.0,50.0,1.0)
+levels = np.arange(-20.0,20.0,2.0)
+
 print "hm"
 print y0.shape
 print x0.shape
 print psi.shape
 print h.shape
-CS = plt.contour(x0, y0, psi, 20, colors='k', linewidths=np.array([.5]))
+
+CS = plt.contour(x0, y0, psi, levels, colors='k', linewidths=np.array([.5]))
 CS.set_clim([np.min(psi), np.max(psi)])
 plt.clabel(CS, fontsize=6, inline=1, fmt='%1.1f')
 #plt.quiver(x0,y0,ui,vi)
@@ -72,7 +73,8 @@ print y0.shape
 print x0.shape
 print psi.shape
 print h.shape
-IS = plt.contour(x0, y0, h, 20, colors='k', linewidths=np.array([.5]))
+levels = np.arange(-.5,.5,.05)
+IS = plt.contour(x0, y0, h, levels, colors='k', linewidths=np.array([.5]))
 IS.set_clim([np.min(h), np.max(h)])
 plt.clabel(IS, fontsize=6, inline=1, fmt='%1.2f')
 plt.yticks([],{'fontsize':'xsmall'})

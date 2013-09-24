@@ -11,11 +11,11 @@ outPlag = np.loadtxt('outPlagioclase.txt')
 outAug = np.loadtxt('outAugite.txt')
 outPig = np.loadtxt('outPigeonite.txt')
 
-out = np.loadtxt('outmat.txt')
+out = np.loadtxt('testMat.txt')
 
 def func(x, a, b, c, d, e):
     return a + b*x + c/x + d*np.log10(x) + e/(x*x)
-x = outPlag[:,0]
+x = outPlag[:,0]+273.0
 yn = outPlag[:,1]
 popt, pcov = curve_fit(func, x, yn)
 print popt
@@ -36,7 +36,7 @@ plt.rc('xtick', labelsize=12)
 plt.rc('ytick', labelsize=12) 
 
 
-ax = plt.subplot(1,1,1)
+ax = plt.subplot(2,1,1)
 
 #p3, = ax.plot([25, 25],[0, 25], 'grey', label='T = 25 C',linewidth=4)
 #p3, = ax.plot(outPlag[:,0],outPlag[:,1], 'g', label='plagioclase',linewidth=4)
@@ -44,11 +44,23 @@ ax = plt.subplot(1,1,1)
 #p3, = ax.plot(outPig[:,0],outPig[:,1], 'blue', label='pigeonite',linewidth=4)
 
 out[:,0] = np.round(out[:,0]/(3.14e7),2)
-p3, = ax.plot(out[:,0],out[:,1], 'grey', label='plagioclase',linewidth=2)
-p3, = ax.plot(out[:,0],out[:,3], 'r', label='augite',linewidth=2)
-p3, = ax.plot(out[:,0],out[:,5], 'g', label='pigeonite',linewidth=2)
-p3, = ax.plot(out[:,0],out[:,7], 'b', label='magnetite',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,2], 'grey', label='plagioclase',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,4], 'r', label='augite',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,6], 'g', label='pigeonite',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,8], 'b', label='magnetite',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,10], 'm', label='glass',linewidth=2)
+plt.grid(True)
 
+handles, labels = ax.get_legend_handles_labels()
+plt.legend(handles[::-1], labels[::-1])
+plt.margins(0.05)
+plt.ylabel('AMOUNT [mol]',fontsize=12)
+plt.xlabel('TIME [year]',fontsize=12)
+plt.legend(handles, labels,loc=3,prop={'size':8})
+
+ax = plt.subplot(2,1,2)
+
+p3, = ax.plot(out[:,0],out[:,1], 'grey', label='pH',linewidth=2)
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
@@ -58,6 +70,4 @@ plt.xlabel('TIME [year]',fontsize=12)
 plt.legend(handles, labels,loc=1,prop={'size':12})
 
 
-
-
-plt.savefig('glass.png')
+plt.savefig('glass923.png')

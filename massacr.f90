@@ -150,6 +150,7 @@ end interface
 integer :: i, j, ii, m, n
 
 real(8) :: nusseltLocalv(xn,1), nuBar
+real(8) :: hc=20.0
 
 
 
@@ -225,7 +226,10 @@ write(*,*) j
   ! top
   do i = 1,xn
   !flux(i,2) = -h(i,xn-2)/3.0 +4.0*h(i,xn-1)/3.0 -.27*2.0*dy/(lambda*3.0)
-  flux(i,2) = h(i,xn-2) -(.27)*dy/(lambda)
+  flux(i,2) = h(i,xn-2) -(.27+.1*cos(4.0*x(i)*3.14/x_max))*dy/(lambda)
+  !!! CRAP IDEA !!!
+ ! flux(i,2) = 2.0*h(i,xn-1) - h(i,xn-2)
+  !flux(i,2) = ((lambda/dx)*h(i,xn-1) - hc*275.0)/((lambda/dx) - hc)
   !flux(i,2) = 200.0
   !flux(i,2) = (4.0/3.0)*h(i,xn-1) - (1.0/3.0)*h(i,xn-2)
   end do

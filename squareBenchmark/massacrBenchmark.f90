@@ -212,78 +212,33 @@ do j = 2, tn
 
 write(*,*) j
 
-! HEAT FLUX BOUNDARY CONDITIONS
-
-  ! bottom
-  do i = 1,xn
-  !flux(i,1) = -h(i,3)/3.0 +4.0*h(i,2)/3.0 +(.27+.01*cos(2.0*x(i)*3.14/x_max))*2.0*dx/(lambda*3.0)
-  flux(i,1) = h(i,2) +(.27)*dy/(lambda)
-  end do
   
-  !write(*,*) maxval(flux(:,1))
-  ! top
-  do i = 1,xn
-  !flux(i,2) = -h(i,xn-2)/3.0 +4.0*h(i,xn-1)/3.0 -.27*2.0*dy/(lambda*3.0)
-  !flux(i,2) = h(i,xn-2) -(.27)*dy/(lambda)
-  !flux(i,2) = (4.0/3.0)*h(i,xn-1) - (1.0/3.0)*h(i,xn-2)
-  end do
-  
-! ATTEMPT AT MIXED BOUNDARY CONDITION
 
-  !do i=1,xn
-  !	if (v(i,yn) .gt. 0) then
-  !		h(i,yn) = (4.0/3.0)*h(i,yn-1) - (1.0/3.0)*h(i,yn-2)
-  !	end if
-  !	if (v(i,yn) .le. 0) then
-  !		h(i,yn) = 275.0
-  !	end if
-  !end do
 
-  ! PUT IN BOUNDARY CONDITIONS BETWEEN STEPS
-  
   rho = rho_next(h)
   h = h_next(h, psi,rho, flux)
-  
-!!!!!!!!!!!! THIS !!!!!!!!!!!
-!  h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
-!  h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
-!  h(:,1) = flux(:,1)
-!  h(:,yn) = flux(:,2)
-  
+
 
   
 ! BENCHMARK FIXED/ADIABATIC BOUNDARY CONDITIONS
   
-
- flux(:,1) = (4.0/3.0)*h(:,2) - (1.0/3.0)*h(:,3) ! bottom
- flux(:,2) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
-  h(:,1) = flux(:,1)
-  h(:,yn) = flux(:,2)
-  h(1,2:xn-1) = 0.5
- h(xn,2:xn-1) = -0.5
-  
-
+  h(:,1) = (4.0/3.0)*h(:,2) - (1.0/3.0)*h(:,3) ! bottom
+  h(:,yn) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
+  h(1,:) = 0.5
+ h(xn,:) = -0.5
   
 
 ! BENCHMARK 
 rhs0 = - 1000.0*partial(h,xn,yn,dx,dy,1) 
-! OLD METHOD
-!rhs0 = - (permeability/(viscosity))*rho_fluid*g*alpha*partial(h,xn,yn,dx,dy,1)
-!!!!!!rhs0 = - (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
-! LOTS OF COEFFICIENTS FOR SOME REASON
-!rhs0 = - cp*g*alpha*200.0*1300.0*rho_fluid/(viscosity*lambda)*partial(h,xn,yn,dx,dy,1)
+!rhs0 = - (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 
 psi = psi_next(h, rhs0, psi, permeable, rho)
 
 ! PUT IN BOUNDARY CONDITIONS BETWEEN STEPS
 psi(1,1:yn) = bcyPsi(1,1:yn) ! left
-!psi(1,:) = ((4.0/3.0)*psi(2,:) - (1.0/3.0)*psi(3,:)) ! left
 psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
-!psi(xn,:)  = ((4.0/3.0)*psi(xn-1,:) - (1.0/3.0)*psi(xn-2,:)) ! right
 psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
-!psi(:,1) = ((4.0/3.0)*psi(:,2) - (1.0/3.0)*psi(:,3)) !bottom
 psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
-!psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
 permeable = psi(:,yn)
 
 
@@ -475,11 +430,11 @@ h0 = h
   sy = (2.0*dt)/(dy*dy)
 
 ! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
- h(2,2:xn-1) = h(2,2:xn-1) + h0(1,2:xn-1)*sx/2.0  ! left
- h(yn-1,2:xn-1) = h(yn-1,2:xn-1) + h0(xn,2:xn-1)*sx/2.0  ! right
+ h(2,2:xn-1) = h(2,2:xn-1) + h(1,2:xn-1)*sx/2.0  ! left
+ h(yn-1,2:xn-1) = h(yn-1,2:xn-1) + h(xn,2:xn-1)*sx/2.0  ! right
  !h(2:xn-1,2) = h(2:xn-1,2) + h0(2:xn-1,1)*sy/2.0
  !h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h0(2:xn-1,xn)*sy/2.0
- 
+
 
 uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 
@@ -598,8 +553,8 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 ! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
 ! h(2,2:yn-1) = h(2,2:yn-1) + h0(1,2:yn-1)*sx/2.0
 ! h(yn-1,2:yn-1) = h(yn-1,2:yn-1) + h0(yn,2:yn-1)*sx/2.0 
- h(:,2) = h(:,2) + h0(:,1)*sy/2.0 !- h(2:xn-1,1)*qx*u(2:xn-1,1) ! bottom
- h(:,xn-1) = h(:,xn-1) + h0(:,xn)*sy/2.0 !+ h(2:xn-1,xn)*qx*u(2:xn-1,xn) ! top
+  h(2:xn-1,2) = h(2:xn-1,2) + h0(2:xn-1,1)*sy/2.0
+ h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h0(2:xn-1,xn)*sy/2.0
 
 
 
@@ -872,10 +827,10 @@ psi_next = 0.0
   	aBand0(i,((m+1)/2)+1) = (-1.0)/(dx*dx) !(-1.0)/(dx*dx)
   end if
     ! extra columns
-  if (i .le. (xn-2)*(yn-2)-(xn-2)) then
+  if (i .lt. (xn-2)*(yn-2)-(xn-2)) then
   	aBand0(i,m) = (-1.0)/(dx*dx) !+ permyLong(i)/(2.0*dx)
   end if
-  if (i .ge. (xn-2)) then
+  if (i .gt. (xn-2)) then
   	aBand0(i,1) = (-1.0)/(dx*dx) !- permyLong(i)/(2.0*dx)
   end if
   end do

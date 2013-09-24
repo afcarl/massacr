@@ -42,22 +42,22 @@ real(8) :: waveIntercept
   do i=1,xn
   	!ic0(i,:) = linspace(yn, 340.0D+00, 200.0D+00)
   end do
-  bcx0(:,1) = 273.0 ! bottom
-  bcx0(:,2) = 273.0 ! top
+
   !BENCHMARK
-!  bcx0(:,1) = 0.0 ! bottom
+  bcy0(1,:) = 0.5 ! left
+  bcy0(2,:) = -0.5 ! right
+  !BENCHMARK
+  bcx0(:,1) = 0.0 ! bottom
   bcx0(:,2) = 0.0 ! top
+!  bcx0(:,1) = linspace(yn,0.5D+00,-0.5D+00)
+!  bcx0(:,2) = linspace(yn,0.5D+00,-0.5D+00)
   do i =1,xn
   	!bcx0(i,1) = 295.0 + real(i,kind=4)/20.0 !sqrt(real(i,kind=4))
   	!bcx0(i,1) = 100.0 + 10.0*cos(2.0*3.14*x(i)/3000.0)
   	!bcx0(i,2) = 200.0 + 10.0*cos(2.0*3.14*x(i)/1300.0)
   end do
-  
-  bcy0(1,:) = 273.0 ! left
-  bcy0(2,:) = 273.0 ! right
-  !BENCHMARK
-  bcy0(1,:) = 0.5 ! left
-  bcy0(2,:) = -0.5 ! right
+
+
   
 !  bcx0(1:yn,1) = linspace(yn, bcy0(1,1), bcy0(1,2)) ! left
 !  bcx0(1:yn,2) = linspace(yn, bcy0(1,1), bcy0(1,2)) ! right
