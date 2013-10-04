@@ -52,7 +52,7 @@ ax1=fig.add_subplot(1,2,1, aspect='equal')
 #p.set_clim([np.min(u0[1*len(y)-1:((1)*len(y)+len(x))-1,:]), np.max(u0[1*len(y)-1:((1)*len(y)+len(x))-1,:])])
 
 
-levels = np.arange(-20.0,20.0,2.0)
+levels = np.arange(-20.0,21.0,1.0)
 
 print "hm"
 print y0.shape
@@ -96,6 +96,6 @@ plt.subplots_adjust(bottom=.0, left=.05, right=.95, top=1.0, hspace=.3)
 
 #cbar.set_label(r'TEMPERATURE',fontsize=10)
 
-plt.savefig('ra40.png')
+plt.savefig('ra1004.png')
 
 
