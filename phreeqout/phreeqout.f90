@@ -4,8 +4,8 @@
 ! PHREEQOUT  - SINGLE BOX GEOCHEMICAL MODEL
 ! 
 ! SUMMARY: 
-! COMPILE : gfortran -c -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqoutTest.f90
-!			gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqoutTest.o
+! COMPILE : gfortran -c -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqout.f90
+!			gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqout.o
 !			./a.out
 ! 
 !
@@ -151,8 +151,6 @@ program phreeqout
   inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    pH 7.5" //NEW_LINE('')// &
   &"    units   mol/kgw" //NEW_LINE('')// &
-!  &"    pressure 100" //NEW_LINE('')// &
-!  &"    density 1.023" //NEW_LINE('')// &
   &"    temp 40.0" //NEW_LINE('')// &
   &"    Ca 6.0e-4" //NEW_LINE('')// &
   &"    Mg 2.0e-5" //NEW_LINE('')// &
@@ -163,11 +161,8 @@ program phreeqout
   &"    Si 2.0e-4" //NEW_LINE('')// &
   &"    Cl 3.0e-4" //NEW_LINE('')// &
   &"    Al 1.0e-6" //NEW_LINE('')// &
-!  &"    pe 10.68" //NEW_LINE('')// &
   &"    Alkalinity 2.0e-3 as HCO3" //NEW_LINE('')// &
-!  &"    pressure 1" //NEW_LINE('')// &
-!  &"    CO2(g) 2 # 100 atm" //NEW_LINE('')// &
-  &"    -water		.01	# kg" //NEW_LINE('')// &
+  &"    -water		.15	# kg" //NEW_LINE('')// &
   &"END" //NEW_LINE('')// &
   
   &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
@@ -176,7 +171,7 @@ program phreeqout
   &"    Siderite 0.0 0.0" //NEW_LINE('')// &
   &"    Kaolinite 0.0 0.0" //NEW_LINE('')// &
   &"    Goethite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Dolomite 0.0 0.0" //NEW_LINE('')// &
+  &"    Dolomite 0.0 0.0" //NEW_LINE('')// &
   &"    Celadonite 0.0 0.0" //NEW_LINE('')// &
   &"    SiO2(am) 0.0 0.0" //NEW_LINE('')// &
   &"    Albite 0.0 0.0" //NEW_LINE('')// &
@@ -185,17 +180,11 @@ program phreeqout
   &"    Smectite-high-Fe-Mg 0.0 0.0" //NEW_LINE('')// &
   &"    Saponite-Mg 0.0 0.0" //NEW_LINE('')// &
   &"    Stilbite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Dawsonite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Magnesite 0.0 0.0" //NEW_LINE('')// &
+  &"    Dawsonite 0.0 0.0" //NEW_LINE('')// &
+  &"    Magnesite 0.0 0.0" //NEW_LINE('')// &
   &"    Clinoptilolite-Ca 0.0 0.0" //NEW_LINE('')// &
   &"    Pyrite 0.0 0.0" //NEW_LINE('')// &
 !  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
-  
-!  &"    BasaltGlass 0.0 0.0 precipitate only" //NEW_LINE('')// &
-!  &"    Plagioclase 0.0 0.0 precipitate only" //NEW_LINE('')// &
-!  &"    Augite 0.0 0.0 precipitate only" //NEW_LINE('')// &
-!  &"    Pigeonite 0.0 0.0 precipitate only" //NEW_LINE('')// &
-!  &"    Anorthite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
 
   
   &"KINETICS" //NEW_LINE('')// &
@@ -209,31 +198,28 @@ program phreeqout
   &"-m0 .4" //NEW_LINE('')// &
   &"BGlass" //NEW_LINE('')// &
   &"-f Ca+2 0.015 Fe+2 0.095 Mg+2 0.065 " //&
-  & "Na+ 0.025 K+ 0.01 Al+3 0.105 Si 0.5 S 0.003 H2O 1.35" //NEW_LINE('')// &
+  & "Na+ 0.025 K+ 0.01 Al+3 0.105 Si 0.5 SO4-- 0.003 O 1.23 H+.692" //NEW_LINE('')// &
   &"-m0 96.77" //NEW_LINE('')// &
 
-  &"    -step 1.57e20 in 100" //NEW_LINE('')// &
+  &"    -step 1.57e20 in 1000" //NEW_LINE('')// &
+
   &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
   
     &"Use solution 1" //NEW_LINE('')// &
-  !&"Use equilibrium_phases 1" //NEW_LINE('')// &
-  
-  !&"SAVE solution 1" //NEW_LINE('')// &
-  
+    
+    
   &"RATES" //NEW_LINE('')// &
   
   &"BGlass" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
   &"    10 rate0=M*46.5*(1.52*10^-5)*0.1*(1e-10)*exp(-25.5/(.008314*TK))" // &
   &"*(((ACT('H+')^3)/(ACT('Al+3')))^.33)" //NEW_LINE('')// &
-!  &"    10 rate=M*125*(1.52e-2)*0.1*(1e-10)*exp(-25.5/(.008314*TK))" // &
-!  &"*(((ACT('H+')^3)/(ACT('Al+3')))^.33)" //NEW_LINE('')// &
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
   &"Plagioclase" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate = M*270*(1.52*10^-5)*0.1*(((1.58e-9)"//&
+  &"    10 rate = (1-SR('Plagioclase'))*M*270.0*(1.52*10^-5)*0.1*(((1.58e-9)"//&
   &"*exp(-53.5/(.008314*TK))*(ACT('H+')^0.541) +(3.39e-12)*exp(-57.4/(.008314*TK)) +"//&
   &"(4.78e-15)*exp(-59/(.008314*TK))*(ACT('OH-'))^-0.57))"//NEW_LINE('')//&
   &"    20 save rate * time"//NEW_LINE('')//&
@@ -241,22 +227,22 @@ program phreeqout
   
   &"Augite" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate0 = M*230*(1.52e-5)*0.1*(((1.58e-7)" // &
+  &"    10 rate0 = (1-SR('Augite'))*M*230.0*(1.52e-5)*0.1*(((1.58e-7)" // &
   &"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))" //NEW_LINE('')// & 
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
   &"Pigeonite" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate0 = M*236*(1.52e-5)*0.1*(((1.58e-7)" // &
+  &"    10 rate0 = (1-SR('Pigeonite'))*M*236.0*(1.52e-5)*0.1*(((1.58e-7)" // &
   &"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))"//NEW_LINE('')// &
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
   &"Magnetite" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate0 = M*231*(1.52e-5)*0.1*(((2.57e-9)*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279) +" // &
-  &"(1.66e-11)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
+  &"    10 rate0 = (1-SR('Magnetite'))*M*231.0*(1.52e-5)*0.1*(((2.57e-16)" // &
+  &"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-16)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
 
@@ -270,13 +256,11 @@ program phreeqout
   &"    -reset false" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
-!  &"    -molalities HCO3-" //NEW_LINE('')// &
+  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite hematite goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
   &"    -p magnesite Clinoptilolite-Ca siderite" //NEW_LINE('')// &
-  
 !  &"    -activities H+ Al+3 " //NEW_LINE('')// &
-!  &"    -equilibrium_phases Siderite Kaolinite Dolomite SiO2(am) Goethite" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
   &"END"
   
@@ -321,7 +305,7 @@ program phreeqout
   ! PRINT DUMP/OUTPUT
   DO i=1,GetOutputStringLineCount(id)
      call GetOutputStringLine(id, i, line)
-     write(*,*) trim(line)
+     !write(*,*) trim(line)
   END DO
   
   WRITE(*,*) "WRITING TO 2D ARRAY AND OUTPUT FILES"
@@ -333,7 +317,7 @@ program phreeqout
   OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
   
   ! WRITE AWAY
-  allocate(outmat(GetSelectedOutputStringLineCount(id)+1,44))
+  allocate(outmat(GetSelectedOutputStringLineCount(id)+1,45))
   DO i=1,GetSelectedOutputStringLineCount(id)
      call GetSelectedOutputStringLine(id, i, line)
      ! HEADER BITS YOU MAY WANT
