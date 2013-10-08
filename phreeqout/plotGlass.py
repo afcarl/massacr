@@ -35,13 +35,81 @@ fig=plt.figure()
 plt.rc('xtick', labelsize=8) 
 plt.rc('ytick', labelsize=8)
 
+# 3 stillbite 832.2
+mStil = 832.2
+# 5 sio2(am) 60.0
+mSi = 60.0
+# 7 kaolinite 258.2
+mKao = 258.2
+# 9 albite
+mAlb = 262.3
+# 11 saponite-mg
+mSap = 385.537
+# 13 celadonite
+mCel = 396.8
+# 15 Clinoptilolite-Ca
+mClin = 1344.4919
+# 17 pyrite
+mPyr = 120.0
+# 19 hematite
+mHem = 103.8
+# 21 goethite
+mGoe = 88.8
+# 23 dolomite
+mDol = 184.3
+# 25 Smectite-high-Fe-Mg
+mSmec = 425.685
+# 27 dawsonite
+mDaws = 144.0
+# 29 magnesite
+mMagn = 84.3
+# 31 siderite
+mSid = 115.8
+# 33 calcite
+mCal = 100.0
 
 mass = out[:,35]*270.0 + out[:,37]*230.0 + out[:,39]*238.6 +  \
        out[:,41]*231.0 + out[:,43]*46.5 + \
-       out[:,3]*832.2 + out[:,5]*60.0 + out[:,7]*258.2 + out[:,9]*262.3 + \
-        + out[:,11]*358.537 + out[:,13]*396.8 + \
-       out[:,15]*943.16 + out[:,17]*120.0 + out[:,19]*159.6 + out[:,33]*130.0
+       out[:,3]*mStil + out[:,5]*mSi + out[:,7]*mKao + out[:,9]*mAlb +\
+       out[:,11]*mSap + out[:,13]*mCel +\
+       out[:,15]*mClin + out[:,17]*mPyr + out[:,19]*mHem + out[:,21]*mGoe +\
+       out[:,23]*mDol + out[:,25]*mSmec + out[:,27]*mDaws + \
+       out[:,29]*mMagn + out[:,31]*mSid + out[:,33]*mCal
+
 #mass = 1.0
+out[:,0] = out[:,0]/(3.14e7)
+
+
+################
+# precipitates #
+################
+
+ax = plt.subplot(2,2,3)
+this = out[:,1]
+p3, = ax.plot(out[:,0],out[:,3]*mStil/mass, 'b:', label='Stilbite',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,5]*mSi/mass, 'b', label='SiO2',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,7]*mKao/mass, 'k', label='Kaolinite',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,9]*mAlb/mass, 'g', label='Albite',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,11]*mSap/mass, 'm--', label='Saponite-Mg',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,13]*mCel/mass, 'r', label='Celadonite',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,15]*mClin/mass, 'm', label='Clinoptilolite-Ca',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,17]*mPyr/mass, 'r--', label='Pyrite',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,19]*mHem/mass, 'gold', label='Hematite',linewidth=1)
+##p3, = ax.plot(out[:,0],out[:,21]*230.0/mass, 'k:', label='',linewidth=1)
+##p3, = ax.plot(out[:,0],out[:,23]*230.0/mass, 'k:', label='',linewidth=1)
+##p3, = ax.plot(out[:,0],out[:,25]*230.0/mass, 'k:', label='',linewidth=1)
+##p3, = ax.plot(out[:,0],out[:,27]*230.0/mass, 'k:', label='',linewidth=1)
+##p3, = ax.plot(out[:,0],out[:,29]*230.0/mass, 'k:', label='',linewidth=1)
+#p3, = ax.plot(out[:,0],out[:,31]*230.0/mass, 'k:', label='',linewidth=1)
+
+
+handles, labels = ax.get_legend_handles_labels()
+plt.legend(handles[::-1], labels[::-1])
+
+plt.ylabel('MASS FRACTION',fontsize=8)
+plt.xlabel('TIME',fontsize=8)
+plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=2)
+
 
 
 ###############
@@ -52,7 +120,7 @@ ax = plt.subplot(2,2,2)
 
 
 
-out[:,0] = out[:,0]/(3.14e7)
+
 p3, = ax.plot(out[:,0],out[:,35]*270.0/mass, 'r', label='Plagioclase',linewidth=2)
 p3, = ax.plot(out[:,0],out[:,37]*230.0/mass, 'g', label='Augite',linewidth=2)
 p3, = ax.plot(out[:,0],out[:,39]*238.6/mass, 'm--', label='Pigeonite',linewidth=2)
@@ -88,35 +156,6 @@ plt.xlabel('TIME',fontsize=8)
 plt.legend(handles, labels,loc='best',prop={'size':8})
 
 
-################
-# precipitates #
-################
-
-ax = plt.subplot(2,2,3)
-this = out[:,1]
-p3, = ax.plot(out[:,0],out[:,3]*832.2/mass, 'b:', label='Stilbite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,5]*60.0/mass, 'b', label='SiO2',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,7]*258.2/mass, 'k', label='Kaolinite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,9]*262.3/mass, 'g', label='Albite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,11]*385.537/mass, 'm--', label='Saponite-Mg',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,13]*396.8/mass, 'r', label='Celadonite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,15]*943.16/mass, 'm', label='Clinoptilolite-Ca',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,17]*120.0/mass, 'r--', label='Pyrite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,19]*159.6/mass, 'gold', label='Hematite',linewidth=1)
-##p3, = ax.plot(out[:,0],out[:,21]*230.0/mass, 'k:', label='',linewidth=1)
-##p3, = ax.plot(out[:,0],out[:,23]*230.0/mass, 'k:', label='',linewidth=1)
-##p3, = ax.plot(out[:,0],out[:,25]*230.0/mass, 'k:', label='',linewidth=1)
-##p3, = ax.plot(out[:,0],out[:,27]*230.0/mass, 'k:', label='',linewidth=1)
-##p3, = ax.plot(out[:,0],out[:,29]*230.0/mass, 'k:', label='',linewidth=1)
-##p3, = ax.plot(out[:,0],out[:,31]*230.0/mass, 'k:', label='',linewidth=1)
-
-
-handles, labels = ax.get_legend_handles_labels()
-plt.legend(handles[::-1], labels[::-1])
-
-plt.ylabel('MASS FRACTION',fontsize=8)
-plt.xlabel('TIME',fontsize=8)
-plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=2)
 
 
 ################
@@ -125,7 +164,7 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=2)
 
 ax = plt.subplot(2,2,4)
 this = out[:,1]
-p3, = ax.plot(out[:,0],out[:,33]*150.0/mass, 'm--', label='Siderite',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,31]*mSid/mass, 'm--', label='Siderite',linewidth=1)
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
@@ -135,4 +174,4 @@ plt.xlabel('TIME',fontsize=8)
 plt.legend(handles, labels,loc='best',prop={'size':8})
 
 
-plt.savefig('basalt40c.eps')
+plt.savefig('glass1006.png')

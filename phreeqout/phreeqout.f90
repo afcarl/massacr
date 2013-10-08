@@ -149,7 +149,7 @@ program phreeqout
   
 
   inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
-  &"    pH 7.5" //NEW_LINE('')// &
+  &"    pH 9.5" //NEW_LINE('')// &
   &"    units   mol/kgw" //NEW_LINE('')// &
   &"    temp 40.0" //NEW_LINE('')// &
   &"    Ca 6.0e-4" //NEW_LINE('')// &
@@ -168,23 +168,23 @@ program phreeqout
   &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
   &"    CO2(g) 2 1000000" //NEW_LINE('')// &
 
-  &"    Siderite 0.0 0.0" //NEW_LINE('')// &
-  &"    Kaolinite 0.0 0.0" //NEW_LINE('')// &
-  &"    Goethite 0.0 0.0" //NEW_LINE('')// &
-  &"    Dolomite 0.0 0.0" //NEW_LINE('')// &
-  &"    Celadonite 0.0 0.0" //NEW_LINE('')// &
-  &"    SiO2(am) 0.0 0.0" //NEW_LINE('')// &
-  &"    Albite 0.0 0.0" //NEW_LINE('')// &
-  &"    Calcite 0.0 0.0" //NEW_LINE('')// &
-  &"    Hematite 0.0 0.0" //NEW_LINE('')// &
-  &"    Smectite-high-Fe-Mg 0.0 0.0" //NEW_LINE('')// &
-  &"    Saponite-Mg 0.0 0.0" //NEW_LINE('')// &
-  &"    Stilbite 0.0 0.0" //NEW_LINE('')// &
-  &"    Dawsonite 0.0 0.0" //NEW_LINE('')// &
-  &"    Magnesite 0.0 0.0" //NEW_LINE('')// &
-  &"    Clinoptilolite-Ca 0.0 0.0" //NEW_LINE('')// &
-  &"    Pyrite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
+  &"    Siderite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Kaolinite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Goethite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+!  &"    Dolomite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Celadonite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    SiO2(am) 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Albite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+!  &"    Calcite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Hematite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+!  &"    Smectite-high-Fe-Mg 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Saponite-Mg 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Stilbite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+!  &"    Dawsonite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+!  &"    Magnesite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Clinoptilolite-Ca 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+  &"    Pyrite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
+!  &"    Quartz 0.0 0.0 precipitate_only" //NEW_LINE('')// &
 
   
   &"KINETICS" //NEW_LINE('')// &
@@ -221,7 +221,7 @@ program phreeqout
   &"-start" //NEW_LINE('')// &
   &"    10 rate = (1-SR('Plagioclase'))*M*270.0*(1.52*10^-5)*0.1*(((1.58e-9)"//&
   &"*exp(-53.5/(.008314*TK))*(ACT('H+')^0.541) +(3.39e-12)*exp(-57.4/(.008314*TK)) +"//&
-  &"(4.78e-15)*exp(-59/(.008314*TK))*(ACT('OH-'))^-0.57))"//NEW_LINE('')//&
+  &"(4.78e-15)*exp(-59.0/(.008314*TK))*(ACT('H+'))^-0.57))"//NEW_LINE('')//&
   &"    20 save rate * time"//NEW_LINE('')//&
   &"-end" //NEW_LINE('')// &
   
@@ -241,8 +241,8 @@ program phreeqout
   
   &"Magnetite" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate0 = (1-SR('Magnetite'))*M*231.0*(1.52e-5)*0.1*(((2.57e-16)" // &
-  &"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-16)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
+  &"    10 rate0 = (1-SR('Magnetite'))*M*231.0*(1.52e-5)*0.1*(((2.57e-9)" // &
+  &"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-11)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
 
@@ -259,7 +259,7 @@ program phreeqout
   &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite hematite goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
-  &"    -p magnesite Clinoptilolite-Ca siderite" //NEW_LINE('')// &
+  &"    -p magnesite siderite calcite" //NEW_LINE('')// &
 !  &"    -activities H+ Al+3 " //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
   &"END"

@@ -576,6 +576,28 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   	aBand(i,3) = -sx/2.0 - uLong(i)*qx/2.0
   end if
   
+  ! first edge
+  if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
+  aBand(i,2) = 1.0 + sy + uLong(i)*qy
+   if (i .gt. 1) then
+  	aBand(i,1) =  0.0
+  	end if
+  	if (i .lt. (xn-2)*(yn-2)) then
+  	aBand(i,3) = -sy/2.0 - uLong(i)*qy
+  	end if
+  end if
+  
+  ! last edge
+  if (any(mod((/i/),xn-2) .eq. 0.0)) then
+  aBand(i,2) = 1.0 + sy - uLong(i)*qy
+   if (i .gt. 1) then
+  	aBand(i,3) =  0.0
+  	end if
+  	if (i .lt. (xn-2)*(yn-2)) then
+  	aBand(i,1) = -sy/2.0 + uLong(i)*qy
+  	end if
+  end if
+  
   end do
   
   do i=1,((xn-2)-1)
@@ -695,6 +717,28 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   end if
   if (i+1 .le. (xn-2)*(yn-2)) then
   	bBand(i,3) = -sy/2.0 - vLong(i)*qy/2.0
+  end if
+  
+  ! first edge
+  if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
+  bBand(i,2) = 1.0 + sy + vLong(i)*qy
+   if (i .gt. 1) then
+  	bBand(i,1) =  0.0
+  	end if
+  	if (i .lt. (xn-2)*(yn-2)) then
+  	bBand(i,3) = -sy/2.0 - vLong(i)*qy
+  	end if
+  end if
+  
+  ! last edge
+  if (any(mod((/i/),xn-2) .eq. 0.0)) then
+  bBand(i,2) = 1.0 + sy - vLong(i)*qy
+   if (i .gt. 1) then
+  	bBand(i,3) =  0.0
+  	end if
+  	if (i .lt. (xn-2)*(yn-2)) then
+  	bBand(i,1) = -sy/2.0 + vLong(i)*qy
+  	end if
   end if
   
   end do

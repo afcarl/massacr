@@ -232,7 +232,7 @@ write(*,*) j
   
 
 ! BENCHMARK 
-rhs0 = - 1000.0*partial(h,xn,yn,dx,dy,1) 
+rhs0 = - 100.0*partial(h,xn,yn,dx,dy,1) 
 !rhs0 = - (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 
 psi = psi_next(h, rhs0, psi, permeable, rho)
