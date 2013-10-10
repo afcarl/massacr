@@ -15,9 +15,9 @@ program phreeqout
     INCLUDE "IPhreeqc.f90.inc"
   INTEGER(KIND=4) :: id
   INTEGER(KIND=4) :: i
-  CHARACTER(LEN=700) :: line
-  character(len=2200) :: inputz
-  character(len=3200) :: inputz0, inputSS
+  CHARACTER(LEN=900) :: line
+  character(len=4200) :: inputz
+  character(len=4200) :: inputz0, inputSS
   real(8), allocatable :: outmat(:,:)
 
   !!!!!!!!!!!!!!!!!!!!!!
@@ -186,6 +186,48 @@ program phreeqout
   &"    Pyrite 0.0 0.0 precipitate_only" //NEW_LINE('')// &
 !  &"    Quartz 0.0 0.0 precipitate_only" //NEW_LINE('')// &
 
+  &"CALCULATE_VALUES" //NEW_LINE('')// &
+  
+  &"R(sum)" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"10 sum = EQUI('Stilbite')*832.2/2.15 + EQUI('SiO2(am)')*60.0/2.62" //&
+  &"+ EQUI('Kaolinite')*258.2/2.6 + EQUI('Albite')*262.3/2.62" // &
+  &"+ EQUI('Saponite-Mg')*385.537/2.4 + EQUI('Celadonite')*396.8/3.0" // &
+  &"+ EQUI('Clinoptilolite-Ca')*1344.49/2.62 + EQUI('Pyrite')*120.0" // &
+  &"+ EQUI('Hematite')*103.8/5.3 + EQUI('Goethite')*88.8/3.8" // &
+  &"+ EQUI('Dolomite')*184.3/2.84 + EQUI('Smectite-high-Fe-Mg')*425.7/2.7" // &
+  &"+ EQUI('Dawsonite')*144.0/2.42 + EQUI('Magnesite')*84.3/3.0" // &
+  &"+ EQUI('Siderite')*115.8/3.96 + EQUI('Calcite')*100.0/2.71" // &
+  &"+ KIN('Plagioclase')*270.0/2.68 + KIN('Augite')*230.0/3.4" // &
+  &"+ KIN('Pigeonite')*239.6/3.38 + KIN('Magnetite')*231.0/5.15" // &
+  &"+ KIN('BGlass')*46.5/2.92" // &
+  &"" //NEW_LINE('')// &
+  &"100 SAVE sum" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+  
+  &"R(phi)" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"10 phi = 1.0-(CALC_VALUE('R(sum)')*.001/(CALC_VALUE('R(sum)')*.001+SOLN_VOL))" //&
+  &"" //NEW_LINE('')// &
+  &"100 SAVE phi" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+  
+  
+  &"R(rho_s)" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"10 rho_s = 2.93e6" //&
+  &"" //NEW_LINE('')// &
+  &"100 SAVE rho_s" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+  
+  
+  &"R(s_sp)" //NEW_LINE('')// &
+  &"-start" //NEW_LINE('')// &
+  &"10 s_sp = CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')) * 400.0 / CALC_VALUE('R(rho_s)')" //&
+  &"" //NEW_LINE('')// &
+  &"100 SAVE s_sp" //NEW_LINE('')// &
+  &"-end" //NEW_LINE('')// &
+
   
   &"KINETICS" //NEW_LINE('')// &
   &"Plagioclase" //NEW_LINE('')// &
@@ -201,7 +243,7 @@ program phreeqout
   & "Na+ 0.025 K+ 0.01 Al+3 0.105 Si 0.5 SO4-- 0.003 O 1.23 H+.692" //NEW_LINE('')// &
   &"-m0 96.77" //NEW_LINE('')// &
 
-  &"    -step 1.57e20 in 1000" //NEW_LINE('')// &
+  &"    -step 1.57e20 in 100" //NEW_LINE('')// &
 
   &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
   
@@ -260,6 +302,7 @@ program phreeqout
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite hematite goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
   &"    -p magnesite siderite calcite" //NEW_LINE('')// &
+  &"    -calculate_values R(phi) R(s_sp)" //NEW_LINE('')// &
 !  &"    -activities H+ Al+3 " //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
   &"END"
@@ -317,7 +360,7 @@ program phreeqout
   OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
   
   ! WRITE AWAY
-  allocate(outmat(GetSelectedOutputStringLineCount(id)+1,45))
+  allocate(outmat(GetSelectedOutputStringLineCount(id)+1,47))
   DO i=1,GetSelectedOutputStringLineCount(id)
      call GetSelectedOutputStringLine(id, i, line)
      ! HEADER BITS YOU MAY WANT
@@ -341,7 +384,7 @@ program phreeqout
 
   ! ALL DONE!
   write(*,*) "phreequm dress"
-  
+  write(*,*) outmat(2,46)
   
 end program phreeqout
 

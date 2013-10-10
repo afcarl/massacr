@@ -79,6 +79,11 @@ mass = out[:,35]*270.0 + out[:,37]*230.0 + out[:,39]*238.6 +  \
 #mass = 1.0
 out[:,0] = out[:,0]/(3.14e7)
 
+print "phi"
+print out[:,45]
+
+print "s_sp"
+print out[:,46]
 
 ################
 # precipitates #
