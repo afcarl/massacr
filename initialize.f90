@@ -38,7 +38,7 @@ real(8) :: waveIntercept
   
   
 ! BOUNDARY CONDITIONS
-  ic0(:,:) = 275.0 ! IC
+  ic0(:,:) = 300.0 ! IC
   do i=1,xn
   	!ic0(i,:) = linspace(yn, 340.0D+00, 200.0D+00)
   end do
@@ -179,12 +179,12 @@ do i=1,yn
 !	end if
 	
 	if (y(i) .ge. y_min) then
-	permeability(:,i) = (0.5+0.5*tanh((y(i)+((800.0)))/20.0))*1e-13 &
-	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/20.0)))*1e-21
+	permeability(:,i) = (0.5+0.5*tanh((y(i)+((900.0)))/20.0))*1e-13 &
+	&+ (1.0 - (0.5+0.5*tanh((y(i)+((900.0)))/20.0)))*1e-21
 	end if
 	if (y(i) .gt. -500.0) then
-	permeability(:,i) = (0.5+0.5*tanh((y(i)+((200.0)))/20.0))*1e-17 &
-	&+ (1.0 - (0.5+0.5*tanh((y(i)+((200.0)))/20.0)))*1e-13
+	permeability(:,i) = (0.5+0.5*tanh((y(i)+((300.0)))/20.0))*4e-17 &
+	&+ (1.0 - (0.5+0.5*tanh((y(i)+((300.0)))/20.0)))*1e-13
 	end if
 	
 	!permeability = 1e-18

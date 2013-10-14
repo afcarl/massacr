@@ -88,6 +88,9 @@ print out[:,46]
 print "water_volume"
 print out[:,47]
 
+print "rho_s"
+print out[:,48]
+
 ################
 # precipitates #
 ################

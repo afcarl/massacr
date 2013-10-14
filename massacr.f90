@@ -181,33 +181,6 @@ vmat(1:xn,1:yn) = v
 
 
 
-!CONDUCTION ONLY SIMULATION
-! RIGHT NOW IT DOES NOTHING AND CONDUCTION FUNCTION IS OUT OF DATE
-do j = 2, 2
-write(*,*) "conduction"
-write(*,*) j
-
-!h = conduction(h)
-psi = 0.0
-u = 0.0
-v = 0.0
-
-! ADD EACH TIMESTEP TO MATRICES
-!hmat(1:xn,1+yn*(j-1):1+yn*(j)) = h
-!psimat(1:xn,1+yn*(j-1):1+yn*(j)) = psi
-!umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
-!vmat(1:xn,1+yn*(j-1):1+yn*(j)) = v
-hmat(1:xn,1:yn) = h
-psimat(1:xn,1:yn) = psi
-umat(1:xn,1:yn) = u
-vmat(1:xn,1:yn) = v
-
-end do
-
-
-
-
-
 
 do j = 2, tn
 
@@ -219,7 +192,7 @@ write(*,*) j
   do i = 1,xn
   !flux(i,1) = -h(i,3)/3.0 +4.0*h(i,2)/3.0 +(.27+.01*cos(2.0*x(i)*3.14/x_max))*2.0*dx/(lambda*3.0)
   flux(i,1) = h(i,2) +(.27)*dy/(lambda)
-  !flux(i,1) = 400.0
+!  flux(i,1) = 400.0
   end do
   
   !write(*,*) maxval(flux(:,1))
@@ -228,25 +201,10 @@ write(*,*) j
   !flux(i,2) = -h(i,xn-2)/3.0 +4.0*h(i,xn-1)/3.0 -.27*2.0*dy/(lambda*3.0)
   flux(i,2) = h(i,xn-2) -(.27+.1*cos(4.0*x(i)*3.14/x_max))*dy/(lambda)
   flux(i,2) = h(i,xn-2) -(.27)*dy/(lambda)
-  !!! CRAP IDEA !!!
- ! flux(i,2) = 2.0*h(i,xn-1) - h(i,xn-2)
-  !flux(i,2) = ((lambda/dx)*h(i,xn-1) - hc*275.0)/((lambda/dx) - hc)
-  !flux(i,2) = 200.0
-  !flux(i,2) = (4.0/3.0)*h(i,xn-1) - (1.0/3.0)*h(i,xn-2)
+!  flux(i,2) = 200.0
+
   end do
   
-! ATTEMPT AT MIXED BOUNDARY CONDITION
-
-  !do i=1,xn
-  !	if (v(i,yn) .gt. 0) then
-  !		h(i,yn) = (4.0/3.0)*h(i,yn-1) - (1.0/3.0)*h(i,yn-2)
-  !	end if
-  !	if (v(i,yn) .le. 0) then
-  !		h(i,yn) = 275.0
-  !	end if
-  !end do
-
-  ! PUT IN BOUNDARY CONDITIONS BETWEEN STEPS
   
   rho = rho_next(h)
   h = h_next(h, psi,rho, flux)
@@ -257,30 +215,7 @@ write(*,*) j
   h(:,1) = flux(:,1)
   h(:,yn) = flux(:,2)
   
-
-  
-! BENCHMARK FIXED/ADIABATIC BOUNDARY CONDITIONS
-  
-
-! flux(:,1) = (4.0/3.0)*h(:,2) - (1.0/3.0)*h(:,3) ! bottom
-! flux(:,2) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
-!  h(:,1) = flux(:,1)
-!  h(:,yn) = flux(:,2)
-!  h(1,:) = 0.5
-! h(xn,:) = -0.5
-  
-
-  
-
-! BENCHMARK 
-!rhs0 = - 1000.0*partial(h,xn,yn,dx,dy,1) 
-! OLD METHOD
-
-!rhs0 = - (permeability/(viscosity))*rho_fluid*g*alpha*partial(h,xn,yn,dx,dy,1)
 rhs0 = - (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
-
-! LOTS OF COEFFICIENTS FOR SOME REASON
-!rhs0 = - cp*g*alpha*200.0*1300.0*rho_fluid/(viscosity*lambda)*partial(h,xn,yn,dx,dy,1)
 
 psi = psi_next(h, rhs0, psi, permeable, rho)
 
@@ -294,14 +229,7 @@ psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
 psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
 psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
 permeable = psi(:,yn)
-
-
-! BENCHMARK
-!psi(:,yn) = 0.0
-!psi(:,1) = 0.0
-!psi(1,:) = 0.0
-!psi(xn,:) = 0.0
-
+psi(:,yn) = 0.0
 
 ! VELOCITIES
 velocities0 = velocities(psi)
@@ -437,9 +365,7 @@ end interface
   real(8) ::  velocities0(xn,2*yn)
   ! matrix stuff
   real(8) :: h(xn,yn), h_next(xn,yn), psi(xn,yn)
-!  real(8) :: aa((xn-2)*(yn-2),(xn-2)*(yn-2)), a((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
   real(8) :: aBand((xn-2)*(yn-2),5), bBand((xn-2)*(yn-2),5)
-!  real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
   real(8) :: h0(xn,yn), uVec((xn-2)*(yn-2)), h_nextRow((xn-2)*(yn-2))
   real(8) :: kMatLong((xn-2)*(yn-2))
   real(8) :: mn(xn,yn)
@@ -493,79 +419,6 @@ h0 = h
 uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 
 
-!  aa = 0.0
-
-  
-!  do i = 1,(xn-2)*(yn-2)
-
-  ! 4th order central difference (last edge)
-!  aa(i,i) = 1.0+sx
-!    if (i .gt. 1) then
-!  	aa(i,i-1) = -sx/2.0 - uLong(i)*qx/2.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)) then
-!  	aa(i,i+1) = -sx/2.0 + uLong(i)*qx/2.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)-1) then
-!  	aa(i,i+2) = 0.0
-!  	end if
-!  	if (i .gt. 2) then
-!  	aa(i,i-2) = 0.0
-!  	end if
-  	
-  	
-  	! edges
-
-  ! fwd diff at first edge no matter what
-!  if (any(mod((/i-1, i-2, i-3/),xn-2) .eq. 0.0)) then
-!  aa(i,i) = 1.0+ sx/2.0 - 3.0*uLong(i)*qx/2.0
-!   if (i .gt. 1) then
-!  	aa(i,i-1) =  0.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)) then
-!  	aa(i,i+1) = -2.0*sx/2.0 + 4.0*uLong(i)*qx/2.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)-1) then
-!  	aa(i,i+2) = sx/2.0 - 1.0*uLong(i)*qx/2.0
-!  	end if
-!  	if (i .gt. 2) then
-!  	aa(i,i-2) = 0.0
-!  	end if
-!  end if
-  
-  ! bckwrd diff at last edge no matter what
-!  if (any(mod((/i, i+1, i+2/),xn-2) .eq. 0.0)) then
-!  aa(i,i) = 1.0 + sx/2.0 + 3.0*uLong(i)*qx/2.0
-!   if (i .gt. 1) then
-!  	aa(i,i-1) = -2.0*sx/2.0 - 4.0*uLong(i)*qx/2.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)) then
-!  	aa(i,i+1) = 0.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)-1) then
-!  	aa(i,i+2) = 0.0
-!  	end if
-!  	if (i .gt. 2) then
-!  	aa(i,i-2) = sx/2.0 + 1.0*uLong(i)*qx/2.0
-!  	end if
-!  end if
-
-!  end do
-  
-  
-!  do i = 1,((xn-2)-1)
-!    ii = i*(xn-2)
-!    aa(ii+1,ii) = 0.0
-!  	aa(ii,ii+1) = 0.0
-!  	aa(ii+2,ii) = 0.0
-!  	aa(ii,ii+2) = 0.0
-!  	aa(ii+1,ii-1) = 0.0
-!  	aa(ii-1,ii+1) = 0.0
-!  end do
-
-
-
-  
   ! MAKE THE BAND
   aBand = 0.0
   do i = 1,(xn-2)*(yn-2)
@@ -607,15 +460,8 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   aBand(ii+1,1) = 0.0
   end do
   
-  ! SOLVING EQUATION
-!  a(1:(xn-2)*(yn-2),1:(xn-2)*(yn-2)) = aa
-!  a(:,(xn-2)*(yn-2)+1) = uVec
-  
   !!!!!!!!!!!! THIS !!!!!!!!!!!
   h_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),uVec,(xn-2)*(yn-2))
-
-!  aBand = band(aBand,m,(xn-2)*(yn-2))
-!  h_nextRow = solve(aBand,uVec,m,(xn-2)*(yn-2))
 
 
   h(2:xn-1,2:yn-1) = reshape(h_nextRow, (/xn-2, yn-2/))
@@ -637,78 +483,6 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   h_nextRow = reshape(transpose(h(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
  
-!  bb = 0.0
-! do i = 1,(xn-2)*(yn-2)
-  
-    
-! CENTRAL DIFFERENCE (first edge)
-!-------------------------------------------------!
-!  bb(i,i) = 1.0+sy
-!   if (i .gt. 1) then
-!  	bb(i,i-1) = -sy/2.0 - vLong(i)*qy/2.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)) then
-!  	bb(i,i+1) = -sy/2.0 + vLong(i)*qy/2.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)-1) then
-!  	bb(i,i+2) = 0.0
-!  	end if
-!  	if (i .gt. 2) then
-!  	bb(i,i-2) = 0.0
-!  	end if
-!-------------------------------------------------!
-
-  	! edges
-
-  ! fwd diff at first edge no matter what
-!  if (any(mod((/i-1, i-2, i-3/),xn-2) .eq. 0.0)) then
-!  bb(i,i) = 1.0+ sy/2.0 - 3.0*vLong(i)*qy/2.0
-!   if (i .gt. 1) then
-!  	bb(i,i-1) =  0.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)) then
-!  	bb(i,i+1) = -2.0*sy/2.0 + 4.0*vLong(i)*qy/2.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)-1) then
-!  	bb(i,i+2) = sy/2.0 - 1.0*vLong(i)*qy/2.0
-!  	end if
-!  	if (i .gt. 2) then
-!  	bb(i,i-2) = 0.0
-!  	end if
-!  end if
-  
-  ! bckwrd diff at last edge no matter what
-!  if (any(mod((/i, i+1, i+2/),xn-2) .eq. 0.0)) then
-!  bb(i,i) = 1.0 + sy/2.0 + 3.0*vLong(i)*qy/2.0
-!   if (i .gt. 1) then
-!  	bb(i,i-1) = -2.0*sy/2.0 - 4.0*vLong(i)*qy/2.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)) then
-!  	bb(i,i+1) = 0.0
-!  	end if
-!  	if (i .lt. (xn-2)*(yn-2)-1) then
-!  	bb(i,i+2) = 0.0
-!  	end if
-!  	if (i .gt. 2) then
-!  	bb(i,i-2) = sy/2.0 + 1.0*vLong(i)*qy/2.0
-!  	end if
-!  end if
-
-!end do
-  
-!  do i = 1,((xn-2)-1)
-!    ii = i*(xn-2)
-!    bb(ii+1,ii) = 0.0
-!  	bb(ii,ii+1) = 0.0
-!  	bb(ii+2,ii) = 0.0
-!  	bb(ii,ii+2) = 0.0
-!  	bb(ii+1,ii-1) = 0.0
-!  	bb(ii-1,ii+1) = 0.0
-!  end do
-  
- 
-
-
     ! MAKE THE BAND
   bBand = 0.0
   do i = 1,(xn-2)*(yn-2)
@@ -750,10 +524,6 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   bBand(ii+1,1) = 0.0
   end do
 
-  ! SOLVING EQUATION
-!  b(1:(xn-2)*(yn-2),1:(xn-2)*(yn-2)) = bb
-!  b(:,(xn-2)*(yn-2)+1) = h_nextRow
-  !h_nextRow = tridiag(b,(xn-2)*(yn-2))
   
   h_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),h_nextRow,(xn-2)*(yn-2))
 
@@ -868,47 +638,16 @@ permyLong = reshape(permy,(/(xn-2)*(yn-2)/))
  rhs1(yn-1,:) = rhs1(xn-1,:) 
  rhs1(:,2) = rhs1(:,2) 
  rhs1(:,xn-1) = rhs1(:,xn-1)
- rhs1(2:xn-1,xn-1) = rhs1(2:xn-1,xn-1) +&
- & permeable(2:xn-1)/(4.0/(dx*dx*(permeability(2:xn-1,xn-1)*rho_in(2:xn-1,xn-1))))
+ rhs1(2:xn-1,xn-1) = rhs1(2:xn-1,xn-1) !+&
+ !& top_in(2:xn-1,1)/(4.0/(dx*dx*(permeability(2:xn-1,xn-1)*rho_in(2:xn-1,xn-1))))
 
-  !aa0 = 0.0
-  do i = 1,(xn-2)*(yn-2)
-  	!aa0(i,i) = (4.0)/(dx*dx)
-  	if (i .gt. 1) then
-  	!aa0(i,i-1) = (-1.0)/(dx*dx) !- permLong(i)*permxLong(i)*dt0/(2.0*dx)
-  	end if
-  	if (i .lt. (xn-2)*(yn-2)) then
-  	!aa0(i,i+1) = (-1.0)/(dx*dx) !+ permLong(i)*permxLong(i)*dt0/(2.0*dx)
-  	end if
-  	if (i-(xn-2) .gt. 0) then
-  	!aa0(i,i-(xn-2)) = (-1.0*dt0)/(dx*dx) + permLong(i)*permyLong(i)*dt0/(2.0*dx)
-  	!aa0(i-(xn-2),i) = (-1.0*dt0)/(dx*dx) + permLong(i)*permyLong(i)*dt0/(2.0*dx)
-  	end if
-  	if (i+(xn-2) .le. (xn-2)*(yn-2)) then
-  	!aa0(i,i+(xn-2)) = (-1.0*dt0)/(dx*dx) - (permLong(i)*permyLong(i)*dt0)/(2.0*dx)
-  	!aa0(i+(xn-2),i) = (-1.0*dt0)/(dx*dx) - (permLong(i)*permyLong(i)*dt0)/(2.0*dx)
-  	end if
-  end do
-  
-  do i = 1,((xn-2)-1)
-    j = i*(xn-2)
-    !aa0(j+1,j) = 0.0
-  	!aa0(j,j+1) = 0.0
-  end do
+
 
 ! BANDED WAY
   uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
-!  aBand = band(aBand,m,(xn-2)*(yn-2))
-!  psi_nextRow = solve(aBand,uVec,m,(xn-2)*(yn-2))
-!  uVec = reshape(transpose(psi_next(2:xn-1,2:yn-1)),(/(xn-2)*(yn-2)/))
-!  psi_nextRow = -solve(aBand,uVec,m,(xn-2)*(yn-2)) 
-!  psi_next(2:xn-1,2:yn-1) = transpose(reshape(psi_nextRow, (/xn-2, yn-2/)))
 
 psi_next = 0.0
 
-!uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
-!a0(1:(xn-2)*(yn-2),1:(xn-2)*(yn-2)) = aa0
-!a0(:,(xn-2)*(yn-2)+1) = -uVec
 
 !----------------------------------------------------------!
 ! MAKE THE BAND
@@ -927,7 +666,7 @@ psi_next = 0.0
   if (i .le. (xn-2)*(yn-2)-(xn-2)) then
   	aBand0(i,m) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) - (permyLong(i))/(2.0*dx)
   end if
-  if (i .ge. (xn-2)) then
+  if (i .gt. (xn-2)) then
   	aBand0(i,1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) + (permyLong(i))/(2.0*dx)
   end if
   end do
@@ -964,9 +703,6 @@ interp = 4.0*restr
 
 !write(*,"(F30.5)") permy*dx
 
-!BENCHMARK
-!rho_in = 1.0
-!permeability = 1.0
 
 !do n=1,800
 !do i=2,xn-1
@@ -1008,73 +744,6 @@ write(*,*) "deltaPSI"
 write(*,*) maxval(abs((mn(2:xn-1,2:yn-1)-psi_next(2:xn-1,2:yn-1))/psi_next(2:xn-1,2:yn-1)))
 
 
-!----------------------------------------------------------!
-!multigridz
-!----------------------------------------------------------!
-
-!rh = rhs1 - psi_next
-!
-!r2h = 0.0
-!do i=1,(xn-1)/2
-!do j=1,(xn-1)/2
-!	r2h(i,j) = sum(restr*rh(2*i:2*i+2,2*j:2*j+2))
-!end do
-!end do
-!
-!
-!
-!e2h(:,:) = 0.0
-!
-!do n=1,3
-!do i=2,(xn-1)/2
-!do j=2,(xn-1)/2
-!e2h(i,j) = 1/((2.0/(4.0*dx*dx*(permeability(i/2,j/2)*rho_in(i/2,j/2))))+(2.0/(4.0*dy*dy*(permeability(i/2,j/2)*rho_in(i/2,j/2)))))&
-!&*(e2h(i+1,j)/(permeability(i/2,j/2)*rho_in(i/2,j/2)*4.0*dx*dx)&
-!&+e2h(i-1,j)/(permeability(i/2,j/2)*rho_in(i/2,j/2)*4.0*dx*dx)&
-!&+(permy(i/2,j/2)*e2h(i,j+1) - permy(i/2,j/2)*e2h(i,j-1))/(2.0*dy)&
-!&-(permx(i/2,j/2)*e2h(i+1,j) + permx(i/2,j/2)*e2h(i-1,j))/(2.0*dx)&
-!&+e2h(i,j+1)/(permeability(i/2,j/2)*rho_in(i/2,j/2)*4.0*dy*dy)&
-!&+e2h(i,j-1)/(permeability(i/2,j/2)*rho_in(i/2,j/2)*4.0*dy*dy)&
-!&+r2h(i,j))
-!end do
-!end do
-!end do
-!
-!
-!
-!do i=1,(xn-1)/2
-!do j=1,(yn-1)/2
-!eh(2*i,2*j) = e2h(i,j)
-!eh(2*i,2*j+1) = (dy/dx)*0.5*(e2h(i,j) + e2h(i,j+1))
-!
-!eh(2*i+1,2*j) = (dx/dy)*0.5*(e2h(i,j) + e2h(i+1,j))
-!eh(2*i+1,2*j+1) = (dx/dy)*0.25*(e2h(i,j) + e2h(i+1,j)) + .25*(dy/dx)*(e2h(i,j+1) + e2h(i+1,j+1))
-!end do
-!end do
-!
-!
-!psi_next = psi_next + eh
-!
-!
-!do n=1,100
-!do i=2,xn-1
-!do j=2,yn-1
-!psi_next(i,j) = 1/((2.0/(dx*dx*(permeability(i,j)*rho_in(i,j))))+(2.0/(dy*dy*(permeability(i,j)*rho_in(i,j)))))&
-!&*(psi_next(i+1,j)/(permeability(i,j)*rho_in(i,j)*dx*dx)&
-!&+psi_next(i-1,j)/(permeability(i,j)*rho_in(i,j)*dx*dx)&
-!&+(permy(i,j)*psi_next(i,j+1) - permy(i,j)*psi_next(i,j-1))/(dy)&
-!&-(permx(i,j)*psi_next(i+1,j) + permx(i,j)*psi_next(i-1,j))/(dx)&
-!&+psi_next(i,j+1)/(permeability(i,j)*rho_in(i,j)*dy*dy)&
-!&+psi_next(i,j-1)/(permeability(i,j)*rho_in(i,j)*dy*dy)&
-!&+rhs1(i,j))
-!end do
-!end do
-!if (n .eq. 100) then
-!write(*,"(F30.26)") (maxval(abs(psi_next)) &
-!&- maxval(abs((mn))))/(maxval(abs((mn))))
-!end if
-!mn = psi_next(2:xn-1,2:yn-1)
-!end do
 
 
 
