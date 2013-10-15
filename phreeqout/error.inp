@@ -123,7 +123,7 @@ KINETICS_RAW                 1
   -equal_increments           1
   -count                     100
   -steps             
-    1.57e+18 
+    1.57e+20 
   # KINETICS workspace variables #
   -totals                    
 EQUILIBRIUM_PHASES_RAW       1 

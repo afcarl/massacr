@@ -111,7 +111,7 @@ p3, = ax.plot(out[:,0],out[:,19]*mHem/mass, 'gold', label='Hematite',linewidth=1
 ##p3, = ax.plot(out[:,0],out[:,25]*230.0/mass, 'k:', label='',linewidth=1)
 ##p3, = ax.plot(out[:,0],out[:,27]*230.0/mass, 'k:', label='',linewidth=1)
 ##p3, = ax.plot(out[:,0],out[:,29]*230.0/mass, 'k:', label='',linewidth=1)
-#p3, = ax.plot(out[:,0],out[:,31]*230.0/mass, 'k:', label='',linewidth=1)
+#p3, = ax.plot(out[:,0],out[:,33]*230.0/mass, 'k', label='calcite',linewidth=3)
 
 
 handles, labels = ax.get_legend_handles_labels()
@@ -119,7 +119,7 @@ plt.legend(handles[::-1], labels[::-1])
 
 plt.ylabel('MASS FRACTION',fontsize=8)
 plt.xlabel('TIME',fontsize=8)
-plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=2)
+plt.legend(handles, labels,loc=2,prop={'size':6}, ncol=2)
 
 
 
@@ -146,7 +146,7 @@ plt.legend(handles[::-1], labels[::-1])
 plt.yticks(np.arange(0,.5,.05))
 plt.ylabel('MASS FRACTION',fontsize=8)
 plt.xlabel('TIME',fontsize=8)
-plt.legend(handles, labels,loc='best',prop={'size':8})
+plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=2)
 
 ###########
 # pH plot #
@@ -185,4 +185,4 @@ plt.xlabel('TIME',fontsize=8)
 plt.legend(handles, labels,loc='best',prop={'size':8})
 
 
-plt.savefig('glass1006.png')
+plt.savefig('glass1014.png')
