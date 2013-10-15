@@ -4,16 +4,8 @@
 ! MAIN MASSACR METHOD
 ! 
 ! SUMMARY: Solve governing equations (conservation of momentum and thermal energy) 
-!          in 2D and writes data to text (.txt) and netCDF (.nc) files. 
-! PARAMETERS: dx,dy : x,y grid spacing
-!             dt : timestep
-!             t : computation times
-!             x,y : gridpoints
-!             bcx0, bcy0 : boundary conditions
-!             ic0 : initial conditions
-!             u,v : vector field components
-!             
-! RETURNS:
+!          in 2D and writes output to text (.txt) and netCDF (.nc) files. 
+! 
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -110,15 +102,6 @@ use globals
 
 end function write_vec
 
-function v_next(dPdy_in, rho_in)
-use globals
-use initialize
-  implicit none
-  
-  integer :: i,j
-  real(8) :: dPdy_in(xn,yn), rho_in(xn,yn), v_next(xn,yn)
-end function v_next
-
    
 end interface
 
@@ -181,7 +164,6 @@ vmat(1:xn,1:yn) = v
 
 
 
-
 do j = 2, tn
 
 write(*,*) j
@@ -190,22 +172,17 @@ write(*,*) j
 
   ! bottom
   do i = 1,xn
-  !flux(i,1) = -h(i,3)/3.0 +4.0*h(i,2)/3.0 +(.27+.01*cos(2.0*x(i)*3.14/x_max))*2.0*dx/(lambda*3.0)
   flux(i,1) = h(i,2) +(.27)*dy/(lambda)
-!  flux(i,1) = 400.0
+  !flux(i,1) = 400.0
   end do
   
-  !write(*,*) maxval(flux(:,1))
   ! top
   do i = 1,xn
-  !flux(i,2) = -h(i,xn-2)/3.0 +4.0*h(i,xn-1)/3.0 -.27*2.0*dy/(lambda*3.0)
-  flux(i,2) = h(i,xn-2) -(.27+.1*cos(4.0*x(i)*3.14/x_max))*dy/(lambda)
   flux(i,2) = h(i,xn-2) -(.27)*dy/(lambda)
-!  flux(i,2) = 200.0
 
   end do
   
-  
+! SOLVE THERMAL NRG EQUATION
   rho = rho_next(h)
   h = h_next(h, psi,rho, flux)
   
@@ -215,8 +192,10 @@ write(*,*) j
   h(:,1) = flux(:,1)
   h(:,yn) = flux(:,2)
   
+
 rhs0 = - (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 
+! SOLVE STREAMFUNCTION-VORTICITY EQUATION
 psi = psi_next(h, rhs0, psi, permeable, rho)
 
 ! PUT IN BOUNDARY CONDITIONS BETWEEN STEPS
@@ -229,7 +208,8 @@ psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
 psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
 psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
 permeable = psi(:,yn)
-psi(:,yn) = 0.0
+
+
 
 ! VELOCITIES
 velocities0 = velocities(psi)
@@ -320,19 +300,12 @@ END PROGRAM main
 !
 ! SUMMARY: Computers the thermal profile of the next timestep
 !
-! INPUTS: xn,yn : number of x,y gridpoints
-!         x,y : values of x,y gridpoints
-!         bcx0,bcy0 : boundary conditions
-!         h : thermal profile of the previous timestep
-!         rhs0 : source/sink term
-!         u,v : x,y velocity field
-!         dx,dy : x,y grid spacing
-!         k : thermal diffusivity
+! INPUTS: h(xn,yn) : temperature profile of previous timestep
+!         psi(xn,yn) : 2D streamfunction array
+!         rho_in(xn,yn) : 2D density array
+!         flux(xn,2) : top and bottom heat flux boundary conditions
 !
-! FUNCTIONS USED: Gsselm : gaussian elimination
-!                 tridiag : solves tridiagonal system
-!
-! RETURNS: h_next(xn,yn)
+! RETURNS: h_next(xn,yn) : temperature profile of current timestep
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -365,7 +338,9 @@ end interface
   real(8) ::  velocities0(xn,2*yn)
   ! matrix stuff
   real(8) :: h(xn,yn), h_next(xn,yn), psi(xn,yn)
+!  real(8) :: aa((xn-2)*(yn-2),(xn-2)*(yn-2)), a((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
   real(8) :: aBand((xn-2)*(yn-2),5), bBand((xn-2)*(yn-2),5)
+!  real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
   real(8) :: h0(xn,yn), uVec((xn-2)*(yn-2)), h_nextRow((xn-2)*(yn-2))
   real(8) :: kMatLong((xn-2)*(yn-2))
   real(8) :: mn(xn,yn)
@@ -405,9 +380,6 @@ h0 = h
   qy = dt/(dy)
   sx = (2.0*dt*lambda)/(4186.0*dx*dx)
   sy = (2.0*dt*lambda)/(4186.0*dy*dy)
-  ! BENCHMARK
-!  sx = (2.0*dt)/(dx*dx)
-!  sy = (2.0*dt)/(dy*dy)
 
 ! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
  h(2,:) = h(2,:) + h0(1,:)*sx/2.0  ! left
@@ -415,7 +387,6 @@ h0 = h
  !h(2:xn-1,2) = h(2:xn-1,2) + h0(2:xn-1,1)*sy/2.0
  !h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h0(2:xn-1,xn)*sy/2.0
  
-
 uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 
 
@@ -460,8 +431,12 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   aBand(ii+1,1) = 0.0
   end do
   
+  
   !!!!!!!!!!!! THIS !!!!!!!!!!!
   h_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),uVec,(xn-2)*(yn-2))
+
+!  aBand = band(aBand,m,(xn-2)*(yn-2))
+!  h_nextRow = solve(aBand,uVec,m,(xn-2)*(yn-2))
 
 
   h(2:xn-1,2:yn-1) = reshape(h_nextRow, (/xn-2, yn-2/))
@@ -479,10 +454,9 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
  h(:,xn-1) = h(:,xn-1) + flux(:,2)*sy/2.0 !+ h(2:xn-1,xn)*qx*u(2:xn-1,xn) ! top
 
 
-
   h_nextRow = reshape(transpose(h(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
- 
+
     ! MAKE THE BAND
   bBand = 0.0
   do i = 1,(xn-2)*(yn-2)
@@ -526,11 +500,6 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 
   
   h_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),h_nextRow,(xn-2)*(yn-2))
-
-!  bBand = band(bBand,m,(xn-2)*(yn-2))
-!  h_nextRow = solve(bBand,h_nextRow,m,(xn-2)*(yn-2))
-
-
   h_next(2:xn-1,2:yn-1) = transpose(reshape(h_nextRow, (/xn-2, yn-2/)))
 
 
@@ -553,19 +522,13 @@ end function h_next
 !
 ! SUMMARY: Computers the velocity field of the next timestep
 !
-! INPUTS: xn,yn : number of x,y gridpoints
-!         x,y : values of x,y gridpoints
-!         bcx0,bcy0 : boundary conditions
-!         h : thermal profile of the previous timestep
-!         rhs0 : source/sink term
-!         u,v : x,y velocity field
-!         dx,dy : x,y grid spacing
-!         k : thermal diffusivity
+! INPUTS: h(xn,yn) : temperature profile
+!         rhs0(xn,yn) : right hand side of streamfunction-vorticity equation
+!         psi(xn,yn) : 2D streamfunction array of previous timestep
+!         top_in(xn,1) : permeable upper boundary
+!         rho_in(xn,yn) : 2D density array
 !
-! FUNCTIONS USED: Gsselm : gaussian elimination
-!                 tridiag : solves tridiagonal system
-!
-! RETURNS: psi_next(xn,yn)
+! RETURNS: psi_next(xn,yn): 2D streamfunction array for current timestep
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -608,11 +571,6 @@ end interface
   real(8) :: way1((xn-2)*(yn-2)), way2((xn-2)*(yn-2))
   real(8) :: yep, top_in(xn,1)
   real(8) :: mn(xn,yn)
-  !multigrid
-  real(8) :: restr(3,3), interp(3,3), rh(xn,yn), eh(xn,yn)
-  real(8) :: r2h((xn-1)/2,(xn-1)/2), e2h((xn-1)/2,(xn-1)/2), ee2h((xn-1)/2,(xn-1)/2)
-  real(8) :: perm2h((xn-1)/2,(xn-1)/2), rho2h((xn-1)/2,(xn-1)/2)
-  real(8) :: r4h(((xn-1)/2-1)/2,((xn-1)/2-1)/2), e4h(((xn-1)/2-1)/2,((xn-1)/2-1)/2)
  ! back to band
   real(8) :: aBand0((xn-2)*(yn-2),2*(xn-2) + 1)
 
@@ -638,12 +596,12 @@ permyLong = reshape(permy,(/(xn-2)*(yn-2)/))
  rhs1(yn-1,:) = rhs1(xn-1,:) 
  rhs1(:,2) = rhs1(:,2) 
  rhs1(:,xn-1) = rhs1(:,xn-1)
- rhs1(2:xn-1,xn-1) = rhs1(2:xn-1,xn-1) !+&
- !& top_in(2:xn-1,1)/(4.0/(dx*dx*(permeability(2:xn-1,xn-1)*rho_in(2:xn-1,xn-1))))
+ rhs1(2:xn-1,xn-1) = rhs1(2:xn-1,xn-1) +&
+ & permeable(2:xn-1)/(4.0/(dx*dx*(permeability(2:xn-1,xn-1)*rho_in(2:xn-1,xn-1))))
 
 
 
-! BANDED WAY
+
   uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
 psi_next = 0.0
@@ -666,7 +624,7 @@ psi_next = 0.0
   if (i .le. (xn-2)*(yn-2)-(xn-2)) then
   	aBand0(i,m) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) - (permyLong(i))/(2.0*dx)
   end if
-  if (i .gt. (xn-2)) then
+  if (i .ge. (xn-2)) then
   	aBand0(i,1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) + (permyLong(i))/(2.0*dx)
   end if
   end do
@@ -682,19 +640,7 @@ psi_next = 0.0
   psi_nextRow = solve(aBand0,uVec,m,(xn-2)*(yn-2))
   psi_next(2:xn-1,2:yn-1) = reshape(psi_nextRow, (/xn-2, yn-2/))
 
-  
-!----------------------------------------------------------!
-!multigridz
-!----------------------------------------------------------!
 
-restr(1,:) = (/.0625/2 +(.0625/2), .125, .0625/2 +(.0625/2)/)
-restr(2,:) = (/.125, .250, .125/)
-restr(3,:) = (/.0625/2 +(.0625/2), .125, .0625/2 +(.0625/2)/)
-
-interp = 4.0*restr
-
-!write(*,"(3F6.4)") restr
-!write(*,"(3F6.4)") interp
   
   
 !----------------------------------------------------------!
@@ -703,18 +649,13 @@ interp = 4.0*restr
 
 !write(*,"(F30.5)") permy*dx
 
+!BENCHMARK
+!rho_in = 1.0
+!permeability = 1.0
 
 !do n=1,800
 !do i=2,xn-1
 !do j=2,yn-1
-
-	!psi_next(i,j) = (1.0/4.0)*(psi_next(i+1,j)+psi_next(i-1,j)&
-	!&+psi_next(i,j+1)+psi_next(i,j-1)+dx*dx*rhs1(i,j))
-	
-	
-	!psi_next(i,j) = ((1.0/(co*dx*dx))*psi_next(i+1,j)+(1.0/(co*dx*dx))*psi_next(i-1,j)&
-!	&+permeability(i,j)*permy(i,j)*psi_next(i,j+1)*dx/(dy*dy) - permeability(i,j)*permy(i,j)*psi_next(i,j-1)*dx/(dy*dy)&
-	!&+(1.0/(co*dy*dy))*psi_next(i,j+1)+(1.0/(co*dy*dy))*psi_next(i,j-1)+rhs1(i,j)/co)
 
 ! this is good.
 !psi_next(i,j) = ((dx*dx*permeability(i,j)*rho_in(i,j))/4.0)&
@@ -746,7 +687,6 @@ write(*,*) maxval(abs((mn(2:xn-1,2:yn-1)-psi_next(2:xn-1,2:yn-1))/psi_next(2:xn-
 
 
 
-
 !psi_next(1,:) = ((4.0/3.0)*psi_next(2,:) - (1.0/3.0)*psi_next(3,:))
 !psi_next(xn,:) = ((4.0/3.0)*psi_next(xn-1,:) - (1.0/3.0)*psi_next(xn-2,:))
 
@@ -758,12 +698,6 @@ end function psi_next
 ! ----------------------------------------------------------------------------------%%
 !
 ! RHO_NEXT
-!
-! SUMMARY: Computes the updated fluid densities based on temperature profile
-!
-! INPUTS: h : temperature matrix, which is how density is calculated
-!
-! RETURNS: rho_next(xn,yn)
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -786,43 +720,10 @@ use initialize
 end function rho_next
 
 
-! ----------------------------------------------------------------------------------%%
-!
-! V_NEXT
-!
-! SUMMARY: for psi boundary condish
-!
-! INPUTS: 
-!
-! RETURNS: 
-!
-! ----------------------------------------------------------------------------------%%
-
-function v_next(dPdy_in, rho_in)
-use globals
-use initialize
-  implicit none
-  
-  integer :: i,j
-  real(8) :: dPdy_in(xn,yn), rho_in(xn,yn), v_next(xn,yn)
-
-  v_next = -(permeability/viscosity)*(dPdy_in-rho_in*g)
-
-  
-  return
-
-end function v_next
-
-
-
-
 
 ! ----------------------------------------------------------------------------------%%
 !
 ! VELOCITIES
-!
-! Updating this function to use velocity formulation instead of the streamfunction
-! formulation.
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -862,32 +763,6 @@ end function velocities
 
 ! ----------------------------------------------------------------------------------%%
 !
-! CONTINUITY
-!
-! Updating this function to use velocity formulation instead of the streamfunction
-! formulation.
-!
-! ----------------------------------------------------------------------------------%%
-
-function continuity(u_in,v_in)
-use globals
-use initialize
-implicit none
-
-real(8) :: u_in(xn,yn), v_in(xn,yn)
-real(8) :: u_out(xn,yn), v_out(xn,yn)
-real(8) :: continuity(xn,2*yn)
-
-continuity(1:xn,1:yn) = u_out
-continuity(1:xn,yn+1:2*yn) = v_out
-
-
-return
-end function continuity
-
-
-! ----------------------------------------------------------------------------------%%
-!
 ! PARTIAL
 !
 ! second-order accurate partial derivative of given array with respect to
@@ -910,11 +785,6 @@ jj = 0
 d = d1
 partial(1,:) = ( -3.0*array(1,:) + 4.0*array(2,:) -array(3,:)) / (2.0*d)
 partial(rows,:) = ( 3.0*array(rows,:) - 4.0*array(rows-1,:) + array(rows-2,:) ) / (2.0*d)
-
-!partial(2,:) = ( -3.0*array(2,:) + 4.0*array(3,:) -array(4,:)) / (2.0*d)
-!partial(rows-1,:) = ( 3.0*array(rows-1,:) - 4.0*array(rows-2,:) + array(rows-3,:) ) / (2.0*d)
-
-
 end if
 
 if (dim .eq. 2) then
@@ -923,29 +793,12 @@ jj = 1
 d = d2
 partial(:,1) = ( -3.0*array(:,1) + 4.0*array(:,2) -array(:,3)) / (2.0*d)
 partial(:,cols) = ( 3.0*array(:,cols) - 4.0*array(:,cols-1) + array(:,cols-2) ) / (2.0*d)
-
-!partial(:,2) = ( -3.0*array(:,2) + 4.0*array(:,3) -array(:,4)) / (2.0*d)
-!partial(:,cols-1) = ( 3.0*array(:,cols-1) - 4.0*array(:,cols-2) + array(:,cols-3) ) / (2.0*d)
-
-
 end if
 
 
     do i = 2-jj,rows-1+jj
     do j = 2-ii,cols-1+ii
     partial(i,j) = (array(i+ii,j+jj)-array(i-ii,j-jj))/(2.0*d)
-   
-    
-    ! positive derivative gets upwind forward
-    !if (abs((array(i+ii,j+jj)-array(i,j))/d) .gt. abs((array(i,j)-array(i-ii,j-jj))/d)) then
-    !	partial(i,j) = ( -3.0*array(i,j) + 4.0*array(i+ii,j+jj) -array(i+2*ii,j+2*jj)) / (2.0*d)
-	!end if
-	
-	! negative derivative gets upwind backward
-    !if (abs((array(i+ii,j+jj)-array(i,j))/d) .lt. abs((array(i,j)-array(i-ii,j-jj))/d)) then
-    !	partial(i,j) = ( 3.0*array(i,j) - 4.0*array(i-ii,j-jj) +array(i-2*ii,j-2*jj)) / (2.0*d)
-	!end if
-	
 	end do
     end do
 
