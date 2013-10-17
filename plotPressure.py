@@ -4,11 +4,13 @@ import matplotlib.cm as cm
 import math
 plt.rcParams['contour.negative_linestyle'] = 'solid'
 
+#####################
+# LOAD MODEL OUTPUT #
+#####################
+
 t = np.loadtxt('t1.txt',delimiter='\n')
 x0 = np.loadtxt('x1.txt',delimiter='\n')
-#x0=x0/np.max(x0)
 y0 = np.loadtxt('y1.txt',delimiter='\n')
-#y0=y0/np.max(np.abs(y0))
 
 x=x0
 y=y0
@@ -16,31 +18,27 @@ bits = len(x)
 x = np.append(x0, np.max(x0)+.001)
 y = np.append(y0, np.max(y0)+(y0[-1]-y0[-2]))
 
-
 xg, yg = np.meshgrid(x[:],y[:])
-
 
 h = np.loadtxt('h1.txt')
 u= np.loadtxt('uMat1.txt')
 v= np.loadtxt('vMat1.txt')
 psi = np.loadtxt('psiMat1.txt')
-#pr = np.loadtxt('pMat.txt')
 rho = np.loadtxt('rho1.txt')
 viscosity = 1e-3
 permeability = np.loadtxt('permeability1.txt')
 permeability = permeability
 
 i=3
-#wut = u0[i*len(y):((i)*len(y)+len(x)),:]
 
 fig=plt.figure()
 
-count = 1
+
 i=99
 
-
-
-
+#######################
+# MAKE DATA PLOTTABLE #
+#######################
 
 h = np.append(h, h[-1:,:], axis=0)
 h = np.append(h, h[:,-1:], axis=1)
@@ -105,7 +103,7 @@ print len(uniques)
 cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 cbar.set_label(r'log of permeability',fontsize=8)
 
-plt.savefig('oct14.png')
+plt.savefig('oct17.png')
 print "yeah!"
 
 

@@ -33,9 +33,7 @@ interface
   real(8) ::  velocities0(xn,2*yn)
 ! matrix stuff
   real(8) :: h(xn,yn), h_next(xn,yn), psi(xn,yn)
-!  real(8) :: aa((xn-2)*(yn-2),(xn-2)*(yn-2)), a((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
   real(8) :: aBand((xn-2)*(yn-2),5), bBand((xn-2)*(yn-2),5)
-!  real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
   real(8) :: h0(xn,yn), uVec((xn-2)*(yn-2)), h_nextRow((xn-2)*(yn-2))
   real(8) :: kMatLong((xn-2)*(yn-2))
   end function h_next
@@ -141,7 +139,6 @@ real(8) :: hc=20.0
 call init()
 
 
-  
 ! PUT BOUNDARY CONDITIONS IN
 psi(1,1:yn) = bcyPsi(1,1:yn)
 psi(xn,1:yn) = bcyPsi(2,1:yn)
@@ -178,8 +175,8 @@ write(*,*) j
   
   ! top
   do i = 1,xn
-  flux(i,2) = h(i,xn-2) -(.27)*dy/(lambda)
-
+  flux(i,2) = h(i,xn-1) -(.27)*dy/(lambda)
+  !flux(i,2) = ( 273.0 + h(i,xn-1) ) / 2
   end do
   
 ! SOLVE THERMAL NRG EQUATION
@@ -200,11 +197,8 @@ psi = psi_next(h, rhs0, psi, permeable, rho)
 
 ! PUT IN BOUNDARY CONDITIONS BETWEEN STEPS
 psi(1,1:yn) = bcyPsi(1,1:yn) ! left
-!psi(1,:) = ((4.0/3.0)*psi(2,:) - (1.0/3.0)*psi(3,:)) ! left
 psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
-!psi(xn,:)  = ((4.0/3.0)*psi(xn-1,:) - (1.0/3.0)*psi(xn-2,:)) ! right
 psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
-!psi(:,1) = ((4.0/3.0)*psi(:,2) - (1.0/3.0)*psi(:,3)) !bottom
 psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
 psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
 permeable = psi(:,yn)
@@ -355,21 +349,19 @@ v = velocities0(1:xn,yn+1:2*yn)
 uLong = reshape(u(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 vLong = reshape(transpose(v(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
-! PRINT VELOCITIES AT EACH TIMESTEP TO GIVE SCOPE
+! PRINT CONVERGENCE CONDITIONS AT EACH TIMESTEP
 write(*,*) " "
 write(*,*) "max u"
 write(*,*) maxval(abs(u))
 write(*,*) "max v"
 write(*,*) maxval(abs(v))
 
-!write(*,*) (2.0*dt)/(dy*dy)
 write(*,*) " "
 write(*,*) "velocity check"
 write(*,"(F10.5)") (dt*maxval(abs(u)))/(dx)
 write(*,"(F10.5)") (dt*maxval(abs(v)))/(dy)
 write(*,*) "conduction check"
 write(*,"(F10.5)") (2.0*dt*lambda)/(4186.0*dy*dy)
-!write(*,*) (2.0*dt)/(dy*dy)
 write(*,*) " "
 
 
@@ -381,11 +373,9 @@ h0 = h
   sx = (2.0*dt*lambda)/(4186.0*dx*dx)
   sy = (2.0*dt*lambda)/(4186.0*dy*dy)
 
-! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
+! VERTICAL BOUNDARY CONDITIONS
  h(2,:) = h(2,:) + h0(1,:)*sx/2.0  ! left
  h(yn-1,:) = h(yn-1,:) + h0(xn,:)*sx/2.0  ! right
- !h(2:xn-1,2) = h(2:xn-1,2) + h0(2:xn-1,1)*sy/2.0
- !h(2:xn-1,xn-1) = h(2:xn-1,xn-1) + h0(2:xn-1,xn)*sy/2.0
  
 uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 
@@ -435,23 +425,13 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   !!!!!!!!!!!! THIS !!!!!!!!!!!
   h_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),uVec,(xn-2)*(yn-2))
 
-!  aBand = band(aBand,m,(xn-2)*(yn-2))
-!  h_nextRow = solve(aBand,uVec,m,(xn-2)*(yn-2))
-
 
   h(2:xn-1,2:yn-1) = reshape(h_nextRow, (/xn-2, yn-2/))
-!  h(:,1) =  bcx0(:,1) ! bottom
-!  h(:,yn) = bcx0(:,2) ! top
-
-!h(:,1) = (4.0/3.0)*h(:,2) - (1.0/3.0)*h(:,3) ! bottom
-!h(:,yn) = (4.0/3.0)*h(:,xn-1) - (1.0/3.0)*h(:,xn-2) ! top
 
 
-! ACCOUNT FOR BOUNDARY CONDITIONS IN THE MATRIX
-! h(2,2:yn-1) = h(2,2:yn-1) + h0(1,2:yn-1)*sx/2.0
-! h(yn-1,2:yn-1) = h(yn-1,2:yn-1) + h0(yn,2:yn-1)*sx/2.0 
- h(:,2) = h(:,2) + flux(:,1)*sy/2.0 !- h(2:xn-1,1)*qx*u(2:xn-1,1) ! bottom
- h(:,xn-1) = h(:,xn-1) + flux(:,2)*sy/2.0 !+ h(2:xn-1,xn)*qx*u(2:xn-1,xn) ! top
+! HORIZONTAL BOUNDARY CONDITIONS
+ h(:,2) = h(:,2) + flux(:,1)*sy/2.0 ! bottom
+ h(:,xn-1) = h(:,xn-1) + flux(:,2)*sy/2.0 ! top
 
 
   h_nextRow = reshape(transpose(h(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
@@ -502,7 +482,7 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
   h_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),h_nextRow,(xn-2)*(yn-2))
   h_next(2:xn-1,2:yn-1) = transpose(reshape(h_nextRow, (/xn-2, yn-2/)))
 
-
+! PRINT DELTA T
 write(*,*) "deltaT"
 write(*,*) maxval(abs((mn(2:xn-1,2:yn-1)-h_next(2:xn-1,2:yn-1))/h_next(2:xn-1,2:yn-1)))
 
@@ -587,8 +567,6 @@ permLong = reshape(permeability,(/(xn-2)*(yn-2)/))
 permxLong = reshape(permx,(/(xn-2)*(yn-2)/))
 permyLong = reshape(permy,(/(xn-2)*(yn-2)/))
 
- uVec = 0.0
- !uVec = reshape(rhs0,(/ (xn-2)*(yn-2) /))
 
  rhs1 = rhs0
 
@@ -607,18 +585,16 @@ permyLong = reshape(permy,(/(xn-2)*(yn-2)/))
 psi_next = 0.0
 
 
-!----------------------------------------------------------!
 ! MAKE THE BAND
- ! put this in for consistency permeLong(i)*rhoLong(i)*
   aBand0 = 0.0
   m = 2*(xn-2) + 1
   do i = 1,(xn-2)*(yn-2)
   aBand0(i,(m+1)/2) = (4.0)/(permLong(i)*rhoLong(i)*dx*dx)
   if (i .gt. 1) then
-  	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) !(-1.0)/(dx*dx)
+  	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx)
   end if
   if (i .lt. (xn-2)*(yn-2)) then
-  	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) !(-1.0)/(dx*dx)
+  	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx)
   end if
     ! extra columns
   if (i .le. (xn-2)*(yn-2)-(xn-2)) then
@@ -628,6 +604,7 @@ psi_next = 0.0
   	aBand0(i,1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) + (permyLong(i))/(2.0*dx)
   end if
   end do
+  
   
   do i=1,((xn-2)-1)
   ii = i*(xn-2)
@@ -642,16 +619,8 @@ psi_next = 0.0
 
 
   
-  
-!----------------------------------------------------------!
 
 ! ENTIRELY JACOBIFIED !
-
-!write(*,"(F30.5)") permy*dx
-
-!BENCHMARK
-!rho_in = 1.0
-!permeability = 1.0
 
 !do n=1,800
 !do i=2,xn-1
@@ -684,11 +653,6 @@ psi_next = 0.0
 write(*,*) "deltaPSI"
 write(*,*) maxval(abs((mn(2:xn-1,2:yn-1)-psi_next(2:xn-1,2:yn-1))/psi_next(2:xn-1,2:yn-1)))
 
-
-
-
-!psi_next(1,:) = ((4.0/3.0)*psi_next(2,:) - (1.0/3.0)*psi_next(3,:))
-!psi_next(xn,:) = ((4.0/3.0)*psi_next(xn-1,:) - (1.0/3.0)*psi_next(xn-2,:))
 
 return
 
