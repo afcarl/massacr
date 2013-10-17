@@ -562,10 +562,12 @@ mn = psi
 permx = partial((1/(permeability*rho_in)),xn,yn,dx,dy,1)
 permy = partial((1/(permeability*rho_in)),xn,yn,dx,dy,2)
 
-rhoLong = reshape(rho_in,(/(xn-2)*(yn-2)/))
-permLong = reshape(permeability,(/(xn-2)*(yn-2)/))
-permxLong = reshape(permx,(/(xn-2)*(yn-2)/))
-permyLong = reshape(permy,(/(xn-2)*(yn-2)/))
+
+
+rhoLong = reshape(rho_in(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
+permLong = reshape(permeability(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
+permxLong = reshape(permx(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
+permyLong = reshape(permy(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
 
  rhs1 = rhs0
