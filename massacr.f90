@@ -108,7 +108,9 @@ end interface
   real(8) :: cfl, test(10,11)
   real(8) :: h(xn,yn), psi(xn,yn) ! xn ROWS DEEP & yn COLUMNS WIDE 
 !  real(8) :: hmat(xn,(yn*tn)), psimat(xn,(yn*tn)), umat(xn,(yn*tn)), vmat(xn,(yn*tn))
-  real(8) :: hmat(xn,(yn)), psimat(xn,(yn)), umat(xn,(yn)), vmat(xn,(yn))
+  real(8) :: umat(xn,(yn)), vmat(xn,(yn))
+  !hmat(xn,(yn)), psimat(xn,(yn)),
+  real(8) :: hmat(xn,(yn*tn/10)), psimat(xn,(yn*tn/10))
   real(8) :: rhs0(xn,yn), velocities0(xn,2*yn)
   real(8) :: u(xn,yn), uLong(xn*yn), v(xn,yn), vLong(xn*yn)
   real(8), allocatable :: linsp(:)
@@ -169,7 +171,7 @@ write(*,*) j
 
   ! bottom
   do i = 1,xn
-  flux(i,1) = h(i,2) +(.27)*dy/(lambda)
+  flux(i,1) = h(i,2) +((.27)+0.1*i)*dy/(lambda)
   !flux(i,1) = 400.0
   end do
   
@@ -209,14 +211,16 @@ permeable = psi(:,yn)
 velocities0 = velocities(psi)
 u = velocities0(1:xn,1:yn)/rho
 v = velocities0(1:xn,yn+1:2*yn)/rho
-   
+
+if (mod(j,10) .eq. 0) then
 ! ADD EACH TIMESTEP TO MATRICES
-!	 hmat(1:xn,1+yn*(j-1):1+yn*(j)) = h
-!	 psimat(1:xn,1+yn*(j-1):1+yn*(j)) = psi
+	 hmat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = h
+	 psimat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = psi
+end if
 !    umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
 !    vmat(1:xn,1+yn*(j-1):1+yn*(j)) = v
-hmat(1:xn,1:yn) = h
-psimat(1:xn,1:yn) = psi
+!hmat(1:xn,1:yn) = h
+!psimat(1:xn,1:yn) = psi
 umat(1:xn,1:yn) = u
 vmat(1:xn,1:yn) = v
 
@@ -239,12 +243,12 @@ end do
 yep = write_vec ( xn, real(x,kind=4), 'x1.txt' )
 yep = write_vec ( yn, real(y,kind=4), 'y1.txt' )
 yep = write_vec ( tn, real(t, kind=4), 't1.txt' )
-!yep = write_matrix ( xn, yn*tn, real(hmat, kind = 4), 'hT.txt' )
-!yep = write_matrix ( xn, yn*tn, real(psimat,kind=4), 'psiMat.txt' )
+yep = write_matrix ( xn, yn*tn/10, real(hmat, kind = 4), 'hMat.txt' )
+yep = write_matrix ( xn, yn*tn/10, real(psimat,kind=4), 'psiMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )
-yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h1.txt' )
-yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat1.txt' )
+!yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h3.txt' )
+!yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat3.txt' )
 yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat1.txt' )
 yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat1.txt' )
 yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho1.txt' )
@@ -557,12 +561,8 @@ end interface
 
 mn = psi
 
-!permLong = reshape(permeability,(/(xn-2)*(yn-2)/))
-
 permx = partial((1/(permeability*rho_in)),xn,yn,dx,dy,1)
 permy = partial((1/(permeability*rho_in)),xn,yn,dx,dy,2)
-
-
 
 rhoLong = reshape(rho_in(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 permLong = reshape(permeability(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
@@ -614,7 +614,7 @@ psi_next = 0.0
   aBand0(ii+1,((m+1)/2)-1) = 0.0
   end do
   
-! THIS IS FOR SOLVING IF THE MATRIX WORKED
+! THIS IS FOR SOLVING
   aBand0 = band(aBand0,m,(xn-2)*(yn-2))
   psi_nextRow = solve(aBand0,uVec,m,(xn-2)*(yn-2))
   psi_next(2:xn-1,2:yn-1) = reshape(psi_nextRow, (/xn-2, yn-2/))

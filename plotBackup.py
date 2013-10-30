@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import math
-import streamplot as sp
 plt.rcParams['contour.negative_linestyle'] = 'solid'
 
 #####################
@@ -21,32 +20,29 @@ y = np.append(y0, np.max(y0)+(y0[-1]-y0[-2]))
 
 xg, yg = np.meshgrid(x[:],y[:])
 
-h0 = np.loadtxt('hMat.txt')
+h = np.loadtxt('h1.txt')
 u= np.loadtxt('uMat1.txt')
 v= np.loadtxt('vMat1.txt')
-psi0 = np.loadtxt('psiMat.txt')
+psi = np.loadtxt('psiMat1.txt')
 rho = np.loadtxt('rho1.txt')
 viscosity = 1e-3
 permeability = np.loadtxt('permeability1.txt')
 permeability = permeability
 
+i=3
 
 fig=plt.figure()
 
 
-i=1
-
-print h0.shape
+i=99
 
 #######################
 # MAKE DATA PLOTTABLE #
 #######################
 
-h = h0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
 h = np.append(h, h[-1:,:], axis=0)
 h = np.append(h, h[:,-1:], axis=1)
 
-psi = psi0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
 psi = np.append(psi, psi[-1:,:], axis=0)
 psi = np.append(psi, psi[:,-1:], axis=1)
 
@@ -63,43 +59,49 @@ rho = np.append(rho, rho[-1:,:], axis=0)
 rho = np.append(rho, rho[:,-1:], axis=1)
 
 
-vmin0=np.min(h[h.shape[0]*1300.0/3000.0:,:])
-vmax0=np.max(h[h.shape[0]*1300.0/3000.0:,:])
-
-# TRYING SOMETHING
-
-h = h[h.shape[0]*1700.0/3000.0:,:]
-psi = psi[psi.shape[0]*1700.0/3000.0:,:]
-xg = xg[xg.shape[0]*1700.0/3000.0:,:]
-yg = yg[yg.shape[0]*1700.0/3000.0:,:]
-
 ####################
 # STREAM FUNCTIONS #
 ####################
 
-ax1=fig.add_subplot(1,1,1, aspect='equal')
+ax1=fig.add_subplot(2,1,1, aspect='equal')
 
-p = plt.contourf(xg,yg,h,20,cmap=cm.rainbow)
-#CS = plt.contour(xg, yg, psi, 20, colors='k',linewidths=np.array([1.4]))
+p = plt.pcolor(xg,yg,np.log10(permeability),cmap=cm.summer)
+print np.gradient(h)[1].shape
+print xg.shape
+CS = plt.contour(xg, yg, psi, 30, colors='k',linewidths=np.array([1.6]))
 
-#plt.clabel(CS,CS.levels[CS.levels>0],inline=False,fmt='>',fontsize=12,fontweight='bold')
-#plt.clabel(CS,CS.levels[CS.levels<0],inline=False,fmt='<',fontsize=12,fontweight='bold')
-
-#plt.title("STREAMFUNCTIONS",fontsize=8)
+plt.title("STREAMFUNCTIONS",fontsize=8)
 
 plt.xlim(np.min(x), np.max(x))
-#plt.ylim(-1300, np.max(y))
+plt.ylim(-1300, np.max(y))
+
+#############
+# ISOTHERMS #
+#############
+
+ax1=fig.add_subplot(2,1,2, aspect='equal')
+
+CS = plt.contour(xg, yg, h, 35, colors='#660066',linewidths=np.array([2.0]))
+plt.clabel(CS, fontsize=9, inline=1,fmt='%3.0f')
+
+
+plt.title("ISOTHERMS",fontsize=8)
+
+plt.xlim(np.min(x), np.max(x))
+plt.ylim(-1300, np.max(y))
+#plt.ylim(np.min(y), np.max(y))
+
 
     
 plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 
-#cax = fig.add_axes([0.2, 0.1, 0.6, 0.03])
-cax = fig.add_axes([0.2, 0.2, 0.6, 0.03])
-cbar = plt.colorbar(p, cax=cax,orientation='horizontal',ticks=[])
-cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
+cax = fig.add_axes([0.2, 0.1, 0.6, 0.03])
+cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 
-plt.savefig('v001.png')
+uniques = np.unique(np.log10(permeability))
+print len(uniques)
+cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
+cbar.set_label(r'log of permeability',fontsize=8)
+
+plt.savefig('oct17.png')
 print "yeah!"
-
-
-
