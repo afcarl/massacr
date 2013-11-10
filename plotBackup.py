@@ -103,5 +103,5 @@ print len(uniques)
 cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 cbar.set_label(r'log of permeability',fontsize=8)
 
-plt.savefig('oct17.png')
+plt.savefig('nn10.png')
 print "yeah!"

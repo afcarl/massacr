@@ -34,7 +34,7 @@ permeability = permeability
 fig=plt.figure()
 
 
-i=1
+i=150
 
 print h0.shape
 
@@ -80,7 +80,7 @@ yg = yg[yg.shape[0]*1700.0/3000.0:,:]
 ax1=fig.add_subplot(1,1,1, aspect='equal')
 
 p = plt.contourf(xg,yg,h,20,cmap=cm.rainbow)
-#CS = plt.contour(xg, yg, psi, 20, colors='k',linewidths=np.array([1.4]))
+CS = plt.contour(xg, yg, psi, 20, colors='k',linewidths=np.array([1.4]))
 
 #plt.clabel(CS,CS.levels[CS.levels>0],inline=False,fmt='>',fontsize=12,fontweight='bold')
 #plt.clabel(CS,CS.levels[CS.levels<0],inline=False,fmt='<',fontsize=12,fontweight='bold')
@@ -98,7 +98,7 @@ cax = fig.add_axes([0.2, 0.2, 0.6, 0.03])
 cbar = plt.colorbar(p, cax=cax,orientation='horizontal',ticks=[])
 cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
 
-plt.savefig('v001.png')
+plt.savefig('n10.png')
 print "yeah!"
 
 
