@@ -86,8 +86,8 @@ ax1=fig.add_subplot(1,1,1, aspect='equal')
 p = plt.contourf(xg,yg,h,20,cmap=cm.rainbow)
 #plt.clabel(p,inline=True,fontsize=12,fontweight='bold')
 
-#CS = plt.contour(xg, yg, psi, 40, colors='k',linewidths=np.array([1.4]))
-plt.quiver(xg,yg,u,v)
+CS = plt.contour(xg, yg, psi, 40, colors='k',linewidths=np.array([1.4]))
+#plt.quiver(xg,yg,u,v)
 
 #plt.clabel(CS,CS.levels[CS.levels>0],inline=False,fmt='>',fontsize=12,fontweight='bold')
 #plt.clabel(CS,CS.levels[CS.levels<0],inline=False,fmt='<',fontsize=12,fontweight='bold')
@@ -105,8 +105,20 @@ cax = fig.add_axes([0.2, 0.2, 0.6, 0.03])
 cbar = plt.colorbar(p, cax=cax,orientation='horizontal',ticks=[])
 cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
 
-plt.savefig('n10.png')
+plt.savefig('n14.png')
 print "yeah!"
 
+#####################
+# TOP "HEAT" OUTPUT #
+#####################
 
+##ax1=fig.add_subplot(1,1,1)
+##
+##print x.shape
+##print h[-1,:].shape
+##
+##plt.plot(x,h[-1,:])
+##
+##plt.savefig('heat.png')
+##print "yeah!"
 

@@ -57,6 +57,16 @@ interface
 	real(8) :: aa((xn-2)*(yn-2),(xn-2)*(yn-2)), a((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
 	real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
 	end function psi_next
+	
+	function alt_next (temp)
+	use globals
+	use initialize
+	use alteration
+	! declare yo shit
+	real(8) :: temp
+	real(8) :: alt_next(1,49)
+	real(8) :: alter0(1,49)
+	end function alt_next
 
 	function rho_next (h_in)
 	use globals
@@ -126,7 +136,7 @@ integer :: i, j, ii, m, n
 
 real(8) :: nusseltLocalv(xn,1), nuBar
 real(8) :: hc=20.0
-real(8) :: alter0
+real(8) :: alt0(1,49)
 
 ! INITIALIZE
 call init()
@@ -276,9 +286,7 @@ yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
 write(*,*) " "
 write(*,*) "ALL DONE!"
 
-alter0 = alter("fake")
-
-write(*,*) alter0
+alt0 = alt_next(h(1,1))
 
 write(*,*) mod(0,10)
 END PROGRAM main
@@ -639,6 +647,44 @@ write(*,*) maxval(abs((mn(2:xn-1,2:yn-1)-psi_next(2:xn-1,2:yn-1))/psi_next(2:xn-
 return
 
 end function psi_next
+
+! ----------------------------------------------------------------------------------%%
+!
+! ALT_NEXT
+!
+! SUMMARY: Alters a single grid cell
+!
+! INPUTS: temp : temperature of grid cell
+!
+! RETURNS: alt_next(?,?): not sure yet
+!
+! ----------------------------------------------------------------------------------%%
+
+! i will come back to this after some circulation tests
+
+function alt_next (temp)
+use globals
+use initialize
+use alteration
+implicit none
+
+interface
+end interface
+
+! declare yo shit
+real(8) :: temp
+real(8) :: alt_next(1,49)
+real(8) :: alter0(1,49)
+
+! grab EVERYTHING from the alteration module
+alter0 = alter("fake")
+
+write(*,*) alter0
+
+! maybe organize it into something useful down here
+alt_next = alter0
+
+end function alt_next
 
 
 ! ----------------------------------------------------------------------------------%%
