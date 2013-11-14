@@ -22,8 +22,8 @@ y = np.append(y0, np.max(y0)+(y0[-1]-y0[-2]))
 xg, yg = np.meshgrid(x[:],y[:])
 
 h0 = np.loadtxt('hMat.txt')
-u= np.loadtxt('uMat1.txt')
-v= np.loadtxt('vMat1.txt')
+u0= np.loadtxt('uMat1.txt')
+v0= np.loadtxt('vMat1.txt')
 psi0 = np.loadtxt('psiMat.txt')
 rho = np.loadtxt('rho1.txt')
 viscosity = 1e-3
@@ -50,9 +50,11 @@ psi = psi0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
 psi = np.append(psi, psi[-1:,:], axis=0)
 psi = np.append(psi, psi[:,-1:], axis=1)
 
+v = v0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
 v = np.append(v, v[-1:,:], axis=0)
 v = np.append(v, v[:,-1:], axis=1)
 
+u = u0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
 u = np.append(u, u[-1:,:], axis=0)
 u = np.append(u, u[:,-1:], axis=1)
 
@@ -63,8 +65,8 @@ rho = np.append(rho, rho[-1:,:], axis=0)
 rho = np.append(rho, rho[:,-1:], axis=1)
 
 
-vmin0=np.min(h[h.shape[0]*1300.0/3000.0:,:])
-vmax0=np.max(h[h.shape[0]*1300.0/3000.0:,:])
+#vmin0=np.min(h[h.shape[0]*1300.0/3000.0:,:])
+#vmax0=np.max(h[h.shape[0]*1300.0/3000.0:,:])
 
 # TRYING SOMETHING
 
@@ -72,6 +74,8 @@ h = h[h.shape[0]*1700.0/3000.0:,:]
 psi = psi[psi.shape[0]*1700.0/3000.0:,:]
 xg = xg[xg.shape[0]*1700.0/3000.0:,:]
 yg = yg[yg.shape[0]*1700.0/3000.0:,:]
+u = u[u.shape[0]*1700.0/3000.0:,:]
+v = v[v.shape[0]*1700.0/3000.0:,:]
 
 ####################
 # STREAM FUNCTIONS #
@@ -80,7 +84,10 @@ yg = yg[yg.shape[0]*1700.0/3000.0:,:]
 ax1=fig.add_subplot(1,1,1, aspect='equal')
 
 p = plt.contourf(xg,yg,h,20,cmap=cm.rainbow)
-CS = plt.contour(xg, yg, psi, 20, colors='k',linewidths=np.array([1.4]))
+#plt.clabel(p,inline=True,fontsize=12,fontweight='bold')
+
+#CS = plt.contour(xg, yg, psi, 40, colors='k',linewidths=np.array([1.4]))
+plt.quiver(xg,yg,u,v)
 
 #plt.clabel(CS,CS.levels[CS.levels>0],inline=False,fmt='>',fontsize=12,fontweight='bold')
 #plt.clabel(CS,CS.levels[CS.levels<0],inline=False,fmt='<',fontsize=12,fontweight='bold')

@@ -1,27 +1,22 @@
 module globals
 save
 
-  integer, parameter :: testInt = 31, xn =71, yn = 71
-  integer, parameter :: tn = 1600
-  real(8) :: x_min = 0.0D+00, x_max = 3000.0D+00, y_min = -3000.0D+00, y_max = 0.0D+00
-  real(8) :: t_min = 0.0D+00, t_max = 1000000000.0 
-  real(8) :: dt, dx, dy, dt0 = 0.001
-  !real(8) :: topo(xn), s(xn,yn), ds(xn)
-  real(8) :: ki = .56, ra = 100.0, viscosity = 4.3e-4, cp = 4186.0, alpha =8.0e-4, k
-  real(8) :: lambda = 2.5
-  real(8) :: g = 9.8
-  real(8) :: rho_fluid = 1000.0
-  real(8) :: one_array(xn,yn) = 1.0
-  real(8) :: pec = 200.0
-  real(8) :: dTdx(xn,yn), dTdy(xn,yn), dPdx(xn,yn), dPdy(xn,yn)
+integer, parameter :: testInt = 31, xn =51, yn = 51
+integer, parameter :: tn = 1600
+real(8) :: x_min = 0.0D+00, x_max = 3000.0D+00, y_min = -3000.0D+00, y_max = 0.0D+00
+real(8) :: t_min = 0.0D+00, t_max = 1000000000.0 
+real(8) :: dt, dx, dy, dt0 = 0.001
+!real(8) :: topo(xn), s(xn,yn), ds(xn)
+real(8) :: ki = .56, ra = 100.0, viscosity = 4.3e-4, cp = 4186.0, alpha =8.0e-4, k
+real(8) :: lambda = 2.5
+real(8) :: g = 9.8
+real(8) :: rho_fluid = 1000.0
+real(8) :: one_array(xn,yn) = 1.0
+real(8) :: pec = 200.0
+real(8) :: dTdx(xn,yn), dTdy(xn,yn), dPdx(xn,yn), dPdy(xn,yn)
 
+contains
   
-  
-
-  contains
-  
-  
- 
   
 ! ----------------------------------------------------------------------------------%%
 !
@@ -29,14 +24,15 @@ save
 !
 ! ----------------------------------------------------------------------------------%%
 
-    subroutine check(status)
-    integer, intent ( in) :: status
-    
-    !if(status /= nf90_noerr) then 
-      !print *, trim(nf90_strerror(status))
-      !stop "Stopped"
-    !end if
-  end subroutine check  
+subroutine check(status)
+integer, intent ( in) :: status
+
+	!if(status /= nf90_noerr) then 
+	  !print *, trim(nf90_strerror(status))
+	  !stop "Stopped"
+	!end if
+	
+end subroutine check  
   
   
 ! ----------------------------------------------------------------------------------%%
@@ -58,7 +54,7 @@ save
 ! ----------------------------------------------------------------------------------%%
 
   
-  function band(a,m,n)
+function band(a,m,n)
 
 implicit none
 integer g,h,i,j,k,m,n,r
@@ -487,26 +483,4 @@ integer :: m, i, j, i1, i2, k1, k2, iflag, nd, n
 
 End function moving_average
 
-
-
-
-
-
-  
 end module globals
-
-! ----------------------------------------------------------------------------------%%
-!
-! MAIN METHOD
-! 
-! SUMMARY: Need a main method to generate a .mod file that I can use in my model
-!
-! RETURNS: A globals.mod file in the working directory
-!
-! ----------------------------------------------------------------------------------%%
-
-!program main
-!use globals
-!
-!  
-!end program main

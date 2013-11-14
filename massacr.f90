@@ -6,6 +6,9 @@
 ! SUMMARY: Solve governing equations (conservation of momentum and thermal energy) 
 !          in 2D and writes output to text (.txt) and netCDF (.nc) files. 
 ! 
+! gfortran -c -O3 -I/usr/local/include -L/usr/local/lib -lnetcdff globals.f90 initialize.f90 massacr.f90
+! gfortran -I/usr/local/include -L/usr/local/lib -lnetcdff globals.o initialize.o massacr.o
+!
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -14,6 +17,7 @@ PROGRAM main
 
 use globals
 use initialize
+use alteration
 
 implicit none
 
@@ -100,9 +104,10 @@ end interface
 real(8) :: cfl, test(10,11)
 real(8) :: h(xn,yn), psi(xn,yn) ! xn ROWS DEEP & yn COLUMNS WIDE 
 !  real(8) :: hmat(xn,(yn*tn)), psimat(xn,(yn*tn)), umat(xn,(yn*tn)), vmat(xn,(yn*tn))
-real(8) :: umat(xn,(yn)), vmat(xn,(yn))
+!real(8) :: umat(xn,(yn)), vmat(xn,(yn))
 !hmat(xn,(yn)), psimat(xn,(yn)),
 real(8) :: hmat(xn,(yn*tn/10)), psimat(xn,(yn*tn/10))
+real(8) :: umat(xn,(yn*tn/10)), vmat(xn,(yn*tn/10))
 real(8) :: rhs0(xn,yn), velocities0(xn,2*yn)
 real(8) :: u(xn,yn), uLong(xn*yn), v(xn,yn), vLong(xn*yn)
 real(8), allocatable :: linsp(:)
@@ -121,6 +126,7 @@ integer :: i, j, ii, m, n
 
 real(8) :: nusseltLocalv(xn,1), nuBar
 real(8) :: hc=20.0
+real(8) :: alter0
 
 ! INITIALIZE
 call init()
@@ -154,7 +160,7 @@ write(*,*) j
 
 	! bottom
 	do i = 1,xn
-	flux(i,1) = h(i,2) +((.27)+0.0*i)*dy/(lambda)
+	flux(i,1) = h(i,2) +((.27))*dy/(lambda)
 	!flux(i,1) = 400.0
 	end do
 
@@ -174,7 +180,7 @@ h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
 h(:,1) = flux(:,1)
 h(:,yn) = flux(:,2)
   
-rhs0 = - (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
+rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 
 ! SOLVE STREAMFUNCTION-VORTICITY EQUATION
 psi = psi_next(h, rhs0, psi, permeable, rho)
@@ -196,13 +202,15 @@ if (mod(j,10) .eq. 0) then
 ! ADD EACH TIMESTEP TO MATRICES
 	 hmat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = h
 	 psimat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = psi
+	 umat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = u
+	 vmat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = v
 end if
 ! umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
 ! vmat(1:xn,1+yn*(j-1):1+yn*(j)) = v
 ! hmat(1:xn,1:yn) = h
 ! psimat(1:xn,1:yn) = psi
-umat(1:xn,1:yn) = u
-vmat(1:xn,1:yn) = v
+! umat(1:xn,1:yn) = u
+! vmat(1:xn,1:yn) = v
 
 ! NUSSELT NUMBER STUFF
 
@@ -211,8 +219,8 @@ do i=1,yn
 	nusseltLocalv = -partial(h(:,i),xn,1,dx,dy,1)
 	nuBar = nuBar + nusseltLocalv(1,1)*dy
 end do
-write(*,*) "nu Bar"
-write(*,*) nuBar
+!write(*,*) "nu Bar"
+!write(*,*) nuBar
 
 end do
 
@@ -225,12 +233,14 @@ yep = write_vec ( yn, real(y,kind=4), 'y1.txt' )
 yep = write_vec ( tn, real(t, kind=4), 't1.txt' )
 yep = write_matrix ( xn, yn*tn/10, real(hmat, kind = 4), 'hMat.txt' )
 yep = write_matrix ( xn, yn*tn/10, real(psimat,kind=4), 'psiMat.txt' )
+yep = write_matrix ( xn, yn*tn/10, real(umat, kind = 4), 'uMat1.txt' )
+yep = write_matrix ( xn, yn*tn/10, real(vmat,kind=4), 'vMat1.txt' )
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )
 !yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h3.txt' )
 !yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat3.txt' )
-yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat1.txt' )
-yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat1.txt' )
+!yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat1.txt' )
+!yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat1.txt' )
 yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho1.txt' )
 yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
 
@@ -266,6 +276,9 @@ yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
 write(*,*) " "
 write(*,*) "ALL DONE!"
 
+alter0 = alter("fake")
+
+write(*,*) alter0
 
 write(*,*) mod(0,10)
 END PROGRAM main
@@ -352,8 +365,8 @@ sx = (2.0*dt*lambda)/(4186.0*dx*dx)
 sy = (2.0*dt*lambda)/(4186.0*dy*dy)
 
 ! VERTICAL BOUNDARY CONDITIONS
- h(2,:) = h(2,:) + h0(1,:)*sx/2.0  ! left
- h(yn-1,:) = h(yn-1,:) + h0(xn,:)*sx/2.0  ! right
+h(2,:) = h(2,:) + h0(1,:)*sx/2.0  ! left
+h(yn-1,:) = h(yn-1,:) + h0(xn,:)*sx/2.0  ! right
  
 uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 
@@ -364,20 +377,20 @@ do i = 1,(xn-2)*(yn-2)
 	  
 	aBand(i,2) = 1.0+sx
 	if (i-1 .gt. 0) then
-	aBand(i,1) = -sx/2.0 + uLong(i)*qx/2.0
+	aBand(i,1) = -sx/2.0 - uLong(i)*qx/2.0
 	end if
 	if (i+1 .le. (xn-2)*(yn-2)) then
-	aBand(i,3) = -sx/2.0 - uLong(i)*qx/2.0
+	aBand(i,3) = -sx/2.0 + uLong(i)*qx/2.0
 	end if
 
 	! first edge
 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 + sy + uLong(i)*qy
+	aBand(i,2) = 1.0 + sy - uLong(i)*qy
 	if (i .gt. 1) then
 	aBand(i,1) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand(i,3) = -sy/2.0 - uLong(i)*qy
+	aBand(i,3) = -sy/2.0 + uLong(i)*qy
 	end if
 	end if
 
@@ -417,31 +430,31 @@ bBand = 0.0
 do i = 1,(xn-2)*(yn-2)
 	bBand(i,2) = 1.0+sy
 	if (i-1 .gt. 0) then
-	bBand(i,1) = -sy/2.0 + vLong(i)*qy/2.0
+	bBand(i,1) = -sy/2.0 - vLong(i)*qy/2.0
 	end if
 	if (i+1 .le. (xn-2)*(yn-2)) then
-	bBand(i,3) = -sy/2.0 - vLong(i)*qy/2.0
+	bBand(i,3) = -sy/2.0 + vLong(i)*qy/2.0
 	end if
 
 	! first edge
 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-	bBand(i,2) = 1.0 + sy + vLong(i)*qy
+	bBand(i,2) = 1.0 + sy - vLong(i)*qy
 	if (i .gt. 1) then
 	bBand(i,1) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	bBand(i,3) = -sy/2.0 - vLong(i)*qy
+	bBand(i,3) = -sy/2.0 + vLong(i)*qy
 	end if
 	end if
 
 	! last edge
 	if (any(mod((/i/),xn-2) .eq. 0.0)) then
-	bBand(i,2) = 1.0 + sy - vLong(i)*qy
+	bBand(i,2) = 1.0 + sy + vLong(i)*qy
 	if (i .gt. 1) then
 	bBand(i,3) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	bBand(i,1) = -sy/2.0 + vLong(i)*qy
+	bBand(i,1) = -sy/2.0 - vLong(i)*qy
 	end if
 	end if
 end do
@@ -543,8 +556,8 @@ rhs1(2,:) = rhs1(2,:)
 rhs1(yn-1,:) = rhs1(xn-1,:) 
 rhs1(:,2) = rhs1(:,2) 
 rhs1(:,xn-1) = rhs1(:,xn-1)
-rhs1(2:xn-1,xn-1) = rhs1(2:xn-1,xn-1) +&
-& permeable(2:xn-1)/(4.0/(dx*dx*(permeability(2:xn-1,xn-1)*rho_in(2:xn-1,xn-1))))
+rhs1(:,xn-1) = rhs1(:,xn-1) +&
+& top_in(:,1)/(4.0/(dx*dx*(permeability(:,xn-1)*rho_in(:,xn-1))))
 
 uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
