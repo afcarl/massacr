@@ -83,8 +83,8 @@ v = v[v.shape[0]*1700.0/3000.0:,:]
 
 ax1=fig.add_subplot(1,1,1, aspect='equal')
 
-p = plt.contourf(xg,yg,h,20,cmap=cm.rainbow)
-#plt.clabel(p,inline=True,fontsize=12,fontweight='bold')
+p = plt.contour(xg,yg,h,20,cmap=cm.rainbow)
+plt.clabel(p,inline=True,fontsize=12,fontweight='bold')
 
 CS = plt.contour(xg, yg, psi, 40, colors='k',linewidths=np.array([1.4]))
 #plt.quiver(xg,yg,u,v)

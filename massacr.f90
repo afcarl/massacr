@@ -58,14 +58,14 @@ interface
 	real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
 	end function psi_next
 	
-	function alt_next (temp)
+	function alt_next (temp, timestep)
 	use globals
 	use initialize
 	use alteration
 	! declare yo shit
-	real(8) :: temp
-	real(8) :: alt_next(1,49)
-	real(8) :: alter0(1,49)
+	real(8) :: temp, timestep
+	real(8) :: alt_next(1,58)
+	real(8) :: alter0(1,58)
 	end function alt_next
 
 	function rho_next (h_in)
@@ -136,7 +136,7 @@ integer :: i, j, ii, m, n
 
 real(8) :: nusseltLocalv(xn,1), nuBar
 real(8) :: hc=20.0
-real(8) :: alt0(1,49)
+real(8) :: alt0(1,58)
 
 ! INITIALIZE
 call init()
@@ -286,9 +286,9 @@ yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
 write(*,*) " "
 write(*,*) "ALL DONE!"
 
-alt0 = alt_next(h(1,1))
+! PLAYING AROUND WITH NEW ALTERATION MODULE 
+alt0 = alt_next(h(1,1),dt)
 
-write(*,*) mod(0,10)
 END PROGRAM main
 
 
@@ -662,7 +662,7 @@ end function psi_next
 
 ! i will come back to this after some circulation tests
 
-function alt_next (temp)
+function alt_next (temp, timestep)
 use globals
 use initialize
 use alteration
@@ -672,14 +672,15 @@ interface
 end interface
 
 ! declare yo shit
-real(8) :: temp
-real(8) :: alt_next(1,49)
-real(8) :: alter0(1,49)
+real(8) :: temp, timestep
+real(8) :: alt_next(1,58)
+real(8) :: alter0(1,58)
 
 ! grab EVERYTHING from the alteration module
-alter0 = alter("fake")
+alter0 = alter(temp-275.0, timestep)
 
-write(*,*) alter0
+! PRINT ONLY THE FIRST VALUE (THE TIMESTEP)
+write(*,*) alter0!(1,1)
 
 ! maybe organize it into something useful down here
 alt_next = alter0

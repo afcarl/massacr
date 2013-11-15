@@ -31,15 +31,15 @@ contains
 !
 ! ----------------------------------------------------------------------------------%%
 
-function alter ( fake_in )
+function alter ( temp, timestep )
 
 implicit none
 INTEGER(KIND=4) :: id
 INTEGER(KIND=4) :: i
-CHARACTER(LEN=900) :: line
+CHARACTER(LEN=1100) :: line
 character(len=10200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,49)
+real(8) :: alter(1,58)
 real(8), allocatable :: outmat(:,:)
 
 
@@ -69,21 +69,23 @@ real(8) :: glass ! primary
 real(8) :: d_glass ! primary variation
 real(8) :: si_glass ! i don't know what this is
 real(8) :: siderite ! secondary
-real(8) :: temp ! something important
-character(len=20) :: s_siderite ! secondary
-character(len=20) :: s_glass ! primary
-character(len=20) :: s_temp ! something important
+real(8) :: temp, timestep ! something important
+character(len=50) :: s_siderite ! secondary
+character(len=50) :: s_glass ! primary
+character(len=50) :: s_temp, s_timestep ! something important
 
 glass = 2.0
 siderite = 0.0
-temp = 40.0
 
-write(s_siderite,'(F15.10)') siderite
-write(s_glass,'(F15.10)') glass
-write(s_temp,'(F15.10)') temp
+
+write(s_siderite,'(F25.10)') siderite
+write(s_glass,'(F25.10)') glass
+write(s_temp,'(F25.10)') temp
+write(s_timestep,'(F25.10)') timestep
+
 
 write(*,*) trim(s_temp)
-
+write(*,*) trim(s_timestep)
 
 ! ----------------------------------%%
 ! INITIAL AQUEOUS PHASE CONSITUENTS
@@ -237,7 +239,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
 &"-m0 96.77" //NEW_LINE('')// &
 
-&"    -step 3.14e11 in 2" //NEW_LINE('')// &
+&"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
 
 &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
 
@@ -299,6 +301,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    -reset false" //NEW_LINE('')// &
 &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
 &"    -ph" //NEW_LINE('')// &
+&"    -totals Ca Mg Na K Fe S(6) Si Cl Al" //NEW_LINE('')// &
 &"    -molalities HCO3-" //NEW_LINE('')// &
 &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
 &"    -p pyrite hematite goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
@@ -344,6 +347,7 @@ DO i=1,GetOutputStringLineCount(id)
 END DO
   
 WRITE(*,*) "WRITING TO 2D ARRAY AND OUTPUT FILES"
+WRITE(*,*) "NUMBER OF LINES:"
 WRITE(*,*) GetSelectedOutputStringLineCount(id)
   
   
@@ -351,20 +355,20 @@ WRITE(*,*) GetSelectedOutputStringLineCount(id)
 OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
   
 ! WRITE AWAY
-allocate(outmat(GetSelectedOutputStringLineCount(id)+1,49))
+allocate(outmat(GetSelectedOutputStringLineCount(id)+1,58))
 DO i=1,GetSelectedOutputStringLineCount(id)
 	call GetSelectedOutputStringLine(id, i, line)
 	! HEADER BITS YOU MAY WANT
 	if (i .eq. 1) then
  	   !write(12,*) trim(line)
-	   write(*,*) trim(line)
+	   write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
 	end if
 	! MEAT
 	if (i .gt. 1) then
 		read(line,*) outmat(i,:)
 		!write(12,"(4F12.5)") outmat(i,:)
 		write(12,*) outmat(i,:)
-		!write(*,*) trim(line)
+		!write(*,*) trim(line) ! PRINT EVERY GOD DAMN LINE
 	end if
 END DO
   
@@ -375,8 +379,8 @@ END IF
 
 ! ALL DONE!
 write(*,*) "phreequm dress"
-write(*,*) outmat(2,46)
 
+! OUTPUT TO THE MAIN MASSACR METHOD
 alter(1,:) = outmat(2,:)
 
 return
