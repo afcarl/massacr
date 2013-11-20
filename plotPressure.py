@@ -4,6 +4,8 @@ import matplotlib.cm as cm
 import math
 import streamplot as sp
 plt.rcParams['contour.negative_linestyle'] = 'solid'
+plt.rc('xtick', labelsize=8)
+plt.rc('ytick', labelsize=8)
 
 #####################
 # LOAD MODEL OUTPUT #
@@ -34,7 +36,7 @@ permeability = permeability
 fig=plt.figure()
 
 
-i=150
+i=470
 
 print h0.shape
 
@@ -64,11 +66,7 @@ permeability = np.append(permeability, permeability[:,-1:], axis=1)
 rho = np.append(rho, rho[-1:,:], axis=0)
 rho = np.append(rho, rho[:,-1:], axis=1)
 
-
-#vmin0=np.min(h[h.shape[0]*1300.0/3000.0:,:])
-#vmax0=np.max(h[h.shape[0]*1300.0/3000.0:,:])
-
-# TRYING SOMETHING
+# SELECT RELEVANT PART OF MODEL DOMAIN
 
 h = h[h.shape[0]*1700.0/3000.0:,:]
 psi = psi[psi.shape[0]*1700.0/3000.0:,:]
@@ -81,44 +79,66 @@ v = v[v.shape[0]*1700.0/3000.0:,:]
 # STREAM FUNCTIONS #
 ####################
 
-ax1=fig.add_subplot(1,1,1, aspect='equal')
-
-p = plt.contour(xg,yg,h,20,cmap=cm.rainbow)
-plt.clabel(p,inline=True,fontsize=12,fontweight='bold')
+ax1=fig.add_subplot(2,1,1, aspect='equal')
 
 CS = plt.contour(xg, yg, psi, 40, colors='k',linewidths=np.array([1.4]))
 #plt.quiver(xg,yg,u,v)
-
-#plt.clabel(CS,CS.levels[CS.levels>0],inline=False,fmt='>',fontsize=12,fontweight='bold')
-#plt.clabel(CS,CS.levels[CS.levels<0],inline=False,fmt='<',fontsize=12,fontweight='bold')
 
 #plt.title("STREAMFUNCTIONS",fontsize=8)
 
 plt.xlim(np.min(x), np.max(x))
 #plt.ylim(-1300, np.max(y))
 
+
+#############
+# ISOTHERMS #
+#############
+
+
+ax1=fig.add_subplot(2,1,2, aspect='equal')
+
+p = plt.contour(xg,yg,h-273.0,20,color='k') #,cmap=cm.rainbow
+plt.clabel(p,inline=True,fontsize=12,fontweight='bold')
+
+
+plt.xlim(np.min(x), np.max(x))
+
+
+
+
     
 plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 
-#cax = fig.add_axes([0.2, 0.1, 0.6, 0.03])
-cax = fig.add_axes([0.2, 0.2, 0.6, 0.03])
-cbar = plt.colorbar(p, cax=cax,orientation='horizontal',ticks=[])
+cax = fig.add_axes([0.2, 0.1, 0.6, 0.03])
+#cax = fig.add_axes([0.2, 0.2, 0.6, 0.03])
+cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
 
-plt.savefig('n14.png')
-print "yeah!"
+plt.savefig('n20.png')
+print "flow field plots"
 
-#####################
-# TOP "HEAT" OUTPUT #
-#####################
+###################
+# BENCHMARK PLOTS #
+###################
 
-##ax1=fig.add_subplot(1,1,1)
-##
-##print x.shape
-##print h[-1,:].shape
-##
-##plt.plot(x,h[-1,:])
-##
-##plt.savefig('heat.png')
-##print "yeah!"
+fig=plt.figure()
+
+# TOP HEAT FLUX
+ax1=fig.add_subplot(2,2,1)
+plt.plot([0,3000],[-.27,-.27],'r-')
+plt.plot(x,2.6*(h[-1,:]-h[-3,:])/(x[2]-x[1]))
+plt.xlim(0,3000)
+plt.xlabel('x [m]',fontsize=8)
+plt.ylabel('HEAT FLUX [W/m^2]',fontsize=8)
+
+# TOP FLUID FLUX
+ax1=fig.add_subplot(2,2,2)
+plt.plot([0,3000],[0.0,0.0],'r-')
+plt.plot(x,v[-1,:])
+plt.xlim(0,3000)
+plt.xlabel('x [m]',fontsize=8)
+plt.ylabel('FLUID FLUX [m/s]',fontsize=8)
+
+plt.savefig('benchGraphs.png')
+print "benchmark plots"
 

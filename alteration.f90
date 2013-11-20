@@ -1,4 +1,5 @@
 module alteration
+use globals
 INCLUDE "IPhreeqc.f90.inc"
 save
 
@@ -39,7 +40,7 @@ INTEGER(KIND=4) :: i
 CHARACTER(LEN=1100) :: line
 character(len=10200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,58)
+real(8) :: alter(1,altnum)
 real(8), allocatable :: outmat(:,:)
 
 
@@ -65,14 +66,15 @@ real(8), allocatable :: outmat(:,:)
 ! 	write(*,*) trim(line)
 ! end if
 
+! REAL GRABS
 real(8) :: glass ! primary
-real(8) :: d_glass ! primary variation
-real(8) :: si_glass ! i don't know what this is
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep ! something important
+real(8) :: temp, timestep ! important information
+
+! STRINGS
 character(len=50) :: s_siderite ! secondary
 character(len=50) :: s_glass ! primary
-character(len=50) :: s_temp, s_timestep ! something important
+character(len=50) :: s_temp, s_timestep ! important information
 
 glass = 2.0
 siderite = 0.0
@@ -355,7 +357,7 @@ WRITE(*,*) GetSelectedOutputStringLineCount(id)
 OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
   
 ! WRITE AWAY
-allocate(outmat(GetSelectedOutputStringLineCount(id)+1,58))
+allocate(outmat(GetSelectedOutputStringLineCount(id)+1,altnum))
 DO i=1,GetSelectedOutputStringLineCount(id)
 	call GetSelectedOutputStringLine(id, i, line)
 	! HEADER BITS YOU MAY WANT

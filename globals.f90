@@ -1,10 +1,10 @@
 module globals
 save
 
-integer, parameter :: testInt = 31, xn =91, yn = 91
-integer, parameter :: tn = 1600
+integer, parameter :: testInt = 31, xn =91, yn = 91, altnum = 58
+integer, parameter :: tn = 6400
 real(8) :: x_min = 0.0D+00, x_max = 3000.0D+00, y_min = -3000.0D+00, y_max = 0.0D+00
-real(8) :: t_min = 0.0D+00, t_max = 1000000000.0 
+real(8) :: t_min = 0.0D+00, t_max = 4000000000.0 
 real(8) :: dt, dx, dy, dt0 = 0.001
 !real(8) :: topo(xn), s(xn,yn), ds(xn)
 real(8) :: ki = .56, ra = 100.0, viscosity = 4.3e-4, cp = 4186.0, alpha =8.0e-4, k
@@ -14,6 +14,7 @@ real(8) :: rho_fluid = 1000.0
 real(8) :: one_array(xn,yn) = 1.0
 real(8) :: pec = 200.0
 real(8) :: dTdx(xn,yn), dTdy(xn,yn), dPdx(xn,yn), dPdy(xn,yn)
+
 
 contains
   

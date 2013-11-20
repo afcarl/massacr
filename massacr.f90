@@ -64,8 +64,8 @@ interface
 	use alteration
 	! declare yo shit
 	real(8) :: temp, timestep
-	real(8) :: alt_next(1,58)
-	real(8) :: alter0(1,58)
+	real(8) :: alt_next(1,altnum)
+	real(8) :: alter0(1,altnum)
 	end function alt_next
 
 	function rho_next (h_in)
@@ -111,6 +111,7 @@ interface
 	
 end interface
 
+! DECLARE EVERYTHING
 real(8) :: cfl, test(10,11)
 real(8) :: h(xn,yn), psi(xn,yn) ! xn ROWS DEEP & yn COLUMNS WIDE 
 !  real(8) :: hmat(xn,(yn*tn)), psimat(xn,(yn*tn)), umat(xn,(yn*tn)), vmat(xn,(yn*tn))
@@ -136,7 +137,17 @@ integer :: i, j, ii, m, n
 
 real(8) :: nusseltLocalv(xn,1), nuBar
 real(8) :: hc=20.0
-real(8) :: alt0(1,58)
+real(8) :: alt0(1,altnum)
+
+! ALTERATION 3D ARRAYS
+real(8) :: primary(xn,yn,5), secondary(xn,yn,10)
+
+
+
+
+
+
+
 
 ! INITIALIZE
 call init()
@@ -171,13 +182,14 @@ write(*,*) j
 	! bottom
 	do i = 1,xn
 	flux(i,1) = h(i,2) +((.27))*dy/(lambda)
-	!flux(i,1) = 400.0
+	flux(i,1) = 600.0
 	end do
 
 	! top
 	do i = 1,xn
 	flux(i,2) = h(i,xn-1) -(.27)*dy/(lambda)
 	!flux(i,2) = ( 273.0 + h(i,xn-1) ) / 2
+	flux(i,2) = 273.0
 	end do
   
 ! SOLVE THERMAL NRG EQUATION
@@ -287,7 +299,7 @@ write(*,*) " "
 write(*,*) "ALL DONE!"
 
 ! PLAYING AROUND WITH NEW ALTERATION MODULE 
-alt0 = alt_next(h(1,1),dt)
+!alt0 = alt_next(h(1,1),dt)
 
 END PROGRAM main
 
