@@ -6,8 +6,8 @@
 ! SUMMARY: Solve governing equations (conservation of momentum and thermal energy) 
 !          in 2D and writes output to text (.txt) and netCDF (.nc) files. 
 ! 
-! gfortran -c -O3 -I/usr/local/include -L/usr/local/lib -lnetcdff globals.f90 initialize.f90 massacr.f90
-! gfortran -I/usr/local/include -L/usr/local/lib -lnetcdff globals.o initialize.o massacr.o
+! gfortran -c -O3 -I/usr/local/include -L/usr/local/lib -lnetcdff -liphreeqc globals.f90 initialize.f90 alteration.f90 massacr.f90
+! gfortran -I/usr/local/include -L/usr/local/lib -lnetcdff -liphreeqc globals.o initialize.o alteration.o massacr.o
 !
 !
 ! ----------------------------------------------------------------------------------%%
@@ -58,7 +58,7 @@ interface
 	real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
 	end function psi_next
 	
-	function alt_next (temp, timestep)
+	function alt_next (temp, timestep, primaryList, secondaryList)
 	use globals
 	use initialize
 	use alteration
@@ -118,8 +118,8 @@ real(8) :: h(xn,yn), psi(xn,yn) ! xn ROWS DEEP & yn COLUMNS WIDE
 !  real(8) :: hmat(xn,(yn*tn)), psimat(xn,(yn*tn)), umat(xn,(yn*tn)), vmat(xn,(yn*tn))
 !real(8) :: umat(xn,(yn)), vmat(xn,(yn))
 !hmat(xn,(yn)), psimat(xn,(yn)),
-real(8) :: hmat(xn,(yn*tn/10)), psimat(xn,(yn*tn/10))
-real(8) :: umat(xn,(yn*tn/10)), vmat(xn,(yn*tn/10))
+real(8) :: hmat(xn,(yn*tn/100)), psimat(xn,(yn*tn/100))
+real(8) :: umat(xn,(yn*tn/100)), vmat(xn,(yn*tn/100))
 real(8) :: rhs0(xn,yn), velocities0(xn,2*yn)
 real(8) :: u(xn,yn), uLong(xn*yn), v(xn,yn), vLong(xn*yn)
 real(8), allocatable :: linsp(:)
@@ -141,7 +141,7 @@ real(8) :: hc=20.0
 real(8) :: alt0(1,altnum)
 
 ! ALTERATION 3D ARRAYS
-real(8) :: primaryMat(xn,yn,tn,5), secondaryMat(xn,yn,tn,16), solutes(xn,yn,tn,11)
+real(8) :: primaryMat(xn,yn,tn/100,5), secondaryMat(xn,yn,tn/100,16), solutes(xn,yn,tn/100,11)
 
 
 
@@ -221,21 +221,24 @@ velocities0 = velocities(psi)
 u = velocities0(1:xn,1:yn)/rho
 v = velocities0(1:xn,yn+1:2*yn)/rho
 
+! THINGS DONE ONLY EVERY 10th TIMESTEP GO HERE
+if (mod(j,100) .eq. 0) then
 
 ! PLAYING AROUND WITH NEW ALTERATION MODULE 
 do m=1,xn
 	do n=1,yn
-		!alt0 = alt_next(h(1,1),dt)
+		alt0 = alt_next(h(m,n),dt,primaryMat(m,n,j/100,:),secondaryMat(m,n,j/100,:))
 		! THIS IS A GOOD PLACE TO PARSE THE ALTERATION OUTPUT
 	end do
 end do
 
-if (mod(j,10) .eq. 0) then
+
 ! ADD EACH TIMESTEP TO MATRICES
 	 hmat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = h
 	 psimat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = psi
 	 umat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = u
 	 vmat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = v
+	 
 end if
 ! umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
 ! vmat(1:xn,1+yn*(j-1):1+yn*(j)) = v
@@ -681,7 +684,7 @@ end function psi_next
 
 ! i will come back to this after some circulation tests
 
-function alt_next (temp, timestep)
+function alt_next (temp, timestep, primaryList, secondaryList)
 use globals
 use initialize
 use alteration
@@ -697,10 +700,10 @@ real(8) :: alter0(1,58)
 real(8) :: primaryList(5), secondaryList(16)
 
 ! grab EVERYTHING from the alteration module
-alter0 = alter(temp-275.0, timestep,primaryList,secondaryList)
+alter0 = alter(temp-275.0, timestep, primaryList, secondaryList)
 
 ! PRINT ONLY THE FIRST VALUE (THE TIMESTEP)
-write(*,*) alter0!(1,1)
+write(*,*) "got em"!(1,1)
 
 ! maybe organize it into something useful down here
 alt_next = alter0

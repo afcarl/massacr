@@ -80,7 +80,7 @@ character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! p
 
 character(len=50) :: s_temp, s_timestep ! important information
 
-character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk
+character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk ! solutes
 
 glass = 2.0
 siderite = 0.0
@@ -397,8 +397,8 @@ WRITE(*,*) "NUMBER OF LINES:"
 WRITE(*,*) GetSelectedOutputStringLineCount(id)
   
   
-! OPEN FILE
-OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
+! OPEN FILE (don't need no file) (USEFUL)
+!OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
   
 ! WRITE AWAY
 allocate(outmat(GetSelectedOutputStringLineCount(id)+1,altnum))
@@ -407,13 +407,13 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	! HEADER BITS YOU MAY WANT
 	if (i .eq. 1) then
  	   !write(12,*) trim(line)
-	   write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
+	   !!write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
 	end if
 	! MEAT
 	if (i .gt. 1) then
 		read(line,*) outmat(i,:)
 		!write(12,"(4F12.5)") outmat(i,:)
-		write(12,*) outmat(i,:)
+		!!!!!write(12,*) outmat(i,:) ! this writes to file, which i don't need (USEFUL)
 		!write(*,*) trim(line) ! PRINT EVERY GOD DAMN LINE
 	end if
 END DO
