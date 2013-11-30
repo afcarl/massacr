@@ -32,7 +32,7 @@ contains
 !
 ! ----------------------------------------------------------------------------------%%
 
-function alter ( temp, timestep )
+function alter ( temp, timestep, primary, secondary )
 
 implicit none
 INTEGER(KIND=4) :: id
@@ -69,21 +69,65 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep ! important information
+real(8) :: temp, timestep, primary(5), secondary(16), solutes(11) ! important information
 
 ! STRINGS
-character(len=50) :: s_siderite ! secondary
-character(len=50) :: s_glass ! primary
+character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
+character(len=50) :: s_sio2, s_albite, s_calcite, s_hematite, s_smectite, s_saponite ! secondary
+character(len=50) :: s_stilbite, s_dawsonite, s_magnesite, s_clinoptilolite, s_pyrite ! secondary
+
+character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! primary
+
 character(len=50) :: s_temp, s_timestep ! important information
+
+character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk
 
 glass = 2.0
 siderite = 0.0
 
+! SOLUTES TO STRINGS
+write(s_ph,'(F25.10)') solutes(1)
+write(s_ca,'(F25.10)') solutes(2)
+write(s_mg,'(F25.10)') solutes(3)
+write(s_na,'(F25.10)') solutes(4)
+write(s_k,'(F25.10)') solutes(5)
+write(s_fe,'(F25.10)') solutes(6)
+write(s_s,'(F25.10)') solutes(7)
+write(s_si,'(F25.10)') solutes(8)
+write(s_cl,'(F25.10)') solutes(9)
+write(s_al,'(F25.10)') solutes(10)
+write(s_alk,'(F25.10)') solutes(11)
 
-write(s_siderite,'(F25.10)') siderite
-write(s_glass,'(F25.10)') glass
+! PRIMARIES TO STRINGS
+write(s_feldspar,'(F25.10)') primary(1)
+write(s_augite,'(F25.10)') primary(2)
+write(s_pigeonite,'(F25.10)') primary(3)
+write(s_glass,'(F25.10)') primary(4)
+write(s_magnetite,'(F25.10)') primary(5)
+
+! SECONDARIES TO STRINGS
+write(s_siderite,'(F25.10)') secondary(1)
+write(s_kaolinite,'(F25.10)') secondary(2)
+write(s_goethite,'(F25.10)') secondary(3)
+write(s_dolomite,'(F25.10)') secondary(4)
+write(s_celadonite,'(F25.10)') secondary(5)
+write(s_sio2,'(F25.10)') secondary(6)
+write(s_albite,'(F25.10)') secondary(7)
+write(s_calcite,'(F25.10)') secondary(8)
+write(s_hematite,'(F25.10)') secondary(9)
+write(s_smectite,'(F25.10)') secondary(10)
+write(s_saponite,'(F25.10)') secondary(11)
+write(s_stilbite,'(F25.10)') secondary(12)
+write(s_dawsonite,'(F25.10)') secondary(13)
+write(s_magnesite,'(F25.10)') secondary(14)
+write(s_clinoptilolite,'(F25.10)') secondary(15)
+write(s_pyrite,'(F25.10)') secondary(16)
+
+! OTHER INFORMATION TO STRINGS
 write(s_temp,'(F25.10)') temp
 write(s_timestep,'(F25.10)') timestep
+
+! REMINDER: most of these strings are not in yet
 
 
 write(*,*) trim(s_temp)

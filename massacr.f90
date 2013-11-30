@@ -64,8 +64,9 @@ interface
 	use alteration
 	! declare yo shit
 	real(8) :: temp, timestep
-	real(8) :: alt_next(1,altnum)
-	real(8) :: alter0(1,altnum)
+	real(8) :: alt_next(1,58)
+	real(8) :: alter0(1,58)
+	real(8) :: primaryList(5), secondaryList(16)
 	end function alt_next
 
 	function rho_next (h_in)
@@ -140,7 +141,7 @@ real(8) :: hc=20.0
 real(8) :: alt0(1,altnum)
 
 ! ALTERATION 3D ARRAYS
-real(8) :: primary(xn,yn,5), secondary(xn,yn,10)
+real(8) :: primaryMat(xn,yn,tn,5), secondaryMat(xn,yn,tn,16), solutes(xn,yn,tn,11)
 
 
 
@@ -182,7 +183,7 @@ write(*,*) j
 	! bottom
 	do i = 1,xn
 	flux(i,1) = h(i,2) +((.27))*dy/(lambda)
-	flux(i,1) = 600.0
+	!flux(i,1) = 773.0
 	end do
 
 	! top
@@ -219,6 +220,15 @@ permeable = psi(:,yn)
 velocities0 = velocities(psi)
 u = velocities0(1:xn,1:yn)/rho
 v = velocities0(1:xn,yn+1:2*yn)/rho
+
+
+! PLAYING AROUND WITH NEW ALTERATION MODULE 
+do m=1,xn
+	do n=1,yn
+		!alt0 = alt_next(h(1,1),dt)
+		! THIS IS A GOOD PLACE TO PARSE THE ALTERATION OUTPUT
+	end do
+end do
 
 if (mod(j,10) .eq. 0) then
 ! ADD EACH TIMESTEP TO MATRICES
@@ -297,9 +307,6 @@ yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
 
 write(*,*) " "
 write(*,*) "ALL DONE!"
-
-! PLAYING AROUND WITH NEW ALTERATION MODULE 
-!alt0 = alt_next(h(1,1),dt)
 
 END PROGRAM main
 
@@ -687,9 +694,10 @@ end interface
 real(8) :: temp, timestep
 real(8) :: alt_next(1,58)
 real(8) :: alter0(1,58)
+real(8) :: primaryList(5), secondaryList(16)
 
 ! grab EVERYTHING from the alteration module
-alter0 = alter(temp-275.0, timestep)
+alter0 = alter(temp-275.0, timestep,primaryList,secondaryList)
 
 ! PRINT ONLY THE FIRST VALUE (THE TIMESTEP)
 write(*,*) alter0!(1,1)

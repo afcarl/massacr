@@ -36,10 +36,15 @@ t = linspace ( tn, t_min, t_max)
   
 ! BOUNDARY CONDITIONS
 ic0(:,:) = 300.0 ! IC
+do j=1,yn
+do i=1,xn
+	ic0(i,j) = 273.0 + 5.0*cos(3.14*x(i)/750)
+end do
+end do
 
 bcx0(:,1) = 273.0 ! bottom
 do i=1,xn
-	bcx0(i,1) = 273.0 !+ 5.0*cos(3.14*x(i)/750)
+	bcx0(i,1) = 273.0 + 5.0*cos(3.14*x(i)/750)
 end do
 bcx0(:,2) = 273.0 ! top
 

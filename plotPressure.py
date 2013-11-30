@@ -27,16 +27,16 @@ h0 = np.loadtxt('hMat.txt')
 u0= np.loadtxt('uMat1.txt')
 v0= np.loadtxt('vMat1.txt')
 psi0 = np.loadtxt('psiMat.txt')
-rho = np.loadtxt('rho1.txt')
+#rho = np.loadtxt('rho1.txt')
 viscosity = 1e-3
-permeability = np.loadtxt('permeability1.txt')
-permeability = permeability
+#permeability = np.loadtxt('permeability1.txt')
+#permeability = permeability
 
 
 fig=plt.figure()
 
 
-i=470
+i=1270
 
 print h0.shape
 
@@ -60,11 +60,11 @@ u = u0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
 u = np.append(u, u[-1:,:], axis=0)
 u = np.append(u, u[:,-1:], axis=1)
 
-permeability = np.append(permeability, permeability[-1:,:], axis=0)
-permeability = np.append(permeability, permeability[:,-1:], axis=1)
+#permeability = np.append(permeability, permeability[-1:,:], axis=0)
+#permeability = np.append(permeability, permeability[:,-1:], axis=1)
 
-rho = np.append(rho, rho[-1:,:], axis=0)
-rho = np.append(rho, rho[:,-1:], axis=1)
+#rho = np.append(rho, rho[-1:,:], axis=0)
+#rho = np.append(rho, rho[:,-1:], axis=1)
 
 # SELECT RELEVANT PART OF MODEL DOMAIN
 
@@ -80,8 +80,12 @@ v = v[v.shape[0]*1700.0/3000.0:,:]
 ####################
 
 ax1=fig.add_subplot(2,1,1, aspect='equal')
-
-CS = plt.contour(xg, yg, psi, 40, colors='k',linewidths=np.array([1.4]))
+levels00 = np.linspace(.00015, np.max(psi), 15)
+levels0 = np.linspace(np.min(psi), -.00015, 15)
+levels = np.append(levels0,levels00,axis=1)
+CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([1.4]))
+#CS = plt.contour(xg, yg, psi, levels0, colors='k',linewidths=np.array([1.4]))
+#plt.clabel(CS,inline=True,fontsize=8,fontweight='bold')
 #plt.quiver(xg,yg,u,v)
 
 #plt.title("STREAMFUNCTIONS",fontsize=8)
@@ -97,8 +101,8 @@ plt.xlim(np.min(x), np.max(x))
 
 ax1=fig.add_subplot(2,1,2, aspect='equal')
 
-p = plt.contour(xg,yg,h-273.0,20,color='k') #,cmap=cm.rainbow
-plt.clabel(p,inline=True,fontsize=12,fontweight='bold')
+p = plt.contour(xg,yg,h-273.0,np.arange(0,150,10),cmap=cm.autumn,linewidths=np.array([2.0])) #,cmap=cm.rainbow
+plt.clabel(p,inline=True,fontsize=8,fontweight='bold')
 
 
 plt.xlim(np.min(x), np.max(x))
@@ -109,12 +113,12 @@ plt.xlim(np.min(x), np.max(x))
     
 plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 
-cax = fig.add_axes([0.2, 0.1, 0.6, 0.03])
-#cax = fig.add_axes([0.2, 0.2, 0.6, 0.03])
-cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
-cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
+#cax = fig.add_axes([0.2, 0.1, 0.6, 0.03])
+##cax = fig.add_axes([0.2, 0.2, 0.6, 0.03])
+#cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
+#cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
 
-plt.savefig('n20.png')
+plt.savefig('n26.png')
 print "flow field plots"
 
 ###################
@@ -124,21 +128,27 @@ print "flow field plots"
 fig=plt.figure()
 
 # TOP HEAT FLUX
-ax1=fig.add_subplot(2,2,1)
-plt.plot([0,3000],[-.27,-.27],'r-')
-plt.plot(x,2.6*(h[-1,:]-h[-3,:])/(x[2]-x[1]))
+ax1=fig.add_subplot(2,1,1)
+plt.plot([0,3000],[.27,.27],'r-')
+plt.plot(x,-2.6*(h[-3,:]-h[-4,:])/(x[2]-x[1]))
 plt.xlim(0,3000)
+plt.ylim(0,1)
 plt.xlabel('x [m]',fontsize=8)
 plt.ylabel('HEAT FLUX [W/m^2]',fontsize=8)
+plt.title('HEAT FLUX')
 
 # TOP FLUID FLUX
-ax1=fig.add_subplot(2,2,2)
+ax1=fig.add_subplot(2,1,2)
 plt.plot([0,3000],[0.0,0.0],'r-')
-plt.plot(x,v[-1,:])
+plt.plot(x,-v[-1,:])
 plt.xlim(0,3000)
+plt.ylim(-10.0e-12,10.0e-12)
+plt.yticks([-10e-12, -5e-12, 0, 5e-12, 10e-12])
 plt.xlabel('x [m]',fontsize=8)
 plt.ylabel('FLUID FLUX [m/s]',fontsize=8)
+plt.title('FLUID FLUX')
 
 plt.savefig('benchGraphs.png')
 print "benchmark plots"
 
+print sum(sum(np.sqrt(u**2+v**2)))

@@ -97,15 +97,16 @@ print out[:,48]
 
 ax = plt.subplot(2,2,3)
 this = out[:,1]
-p3, = ax.plot(out[:,0],out[:,3]*mStil/mass, 'b:', label='Stilbite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,5]*mSi/mass, 'b', label='SiO2',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,7]*mKao/mass, 'k', label='Kaolinite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,9]*mAlb/mass, 'g', label='Albite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,11]*mSap/mass, 'm--', label='Saponite-Mg',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,13]*mCel/mass, 'r', label='Celadonite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,15]*mClin/mass, 'm', label='Clinoptilolite-Ca',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,17]*mPyr/mass, 'r--', label='Pyrite',linewidth=1)
-p3, = ax.plot(out[:,0],out[:,19]*mHem/mass, 'gold', label='Hematite',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,3]*mStil/mass, 'b:', label='Stilbite',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,5]*mSi/mass, 'b', label='SiO2',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,7]*mKao/mass, 'k', label='Kaolinite',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,9]*mAlb/mass, 'g', label='Albite',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,11]*mSap/mass, 'm--', label='Saponite-Mg',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,13]*mCel/mass, 'r', label='Celadonite',linewidth=2)
+#p3, = ax.plot(out[:,0],out[:,15]*mClin/mass, 'm', label='Clinoptilolite-Ca',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,17]*mPyr/mass, 'r--', label='Pyrite',linewidth=2)
+#p3, = ax.plot(out[:,0],out[:,19]*mHem/mass, 'gold', label='Hematite',linewidth=2)
+
 ##p3, = ax.plot(out[:,0],out[:,21]*230.0/mass, 'k:', label='',linewidth=1)
 ##p3, = ax.plot(out[:,0],out[:,23]*230.0/mass, 'k:', label='',linewidth=1)
 ##p3, = ax.plot(out[:,0],out[:,25]*230.0/mass, 'k:', label='',linewidth=1)
@@ -118,9 +119,9 @@ handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 
 plt.ylabel('MASS FRACTION',fontsize=8)
-plt.xlabel('TIME',fontsize=8)
+plt.xlabel('TIME [yr]',fontsize=8)
 plt.legend(handles, labels,loc=2,prop={'size':6}, ncol=2)
-
+plt.title('SECONDARY MINERAL PRECIPITATION',fontsize=10)
 
 
 ###############
@@ -145,8 +146,10 @@ handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 plt.yticks(np.arange(0,.5,.05))
 plt.ylabel('MASS FRACTION',fontsize=8)
-plt.xlabel('TIME',fontsize=8)
+plt.xlabel('TIME [yr]',fontsize=8)
 plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=2)
+plt.title('PRIMARY BASALT DISSOLUTION',fontsize=10)
+
 
 ###########
 # pH plot #
@@ -158,14 +161,14 @@ p3, = ax.plot(out[:,0],out[:,1], 'r', label='pH',linewidth=2)
 plt.grid(True)
 
 handles, labels = ax.get_legend_handles_labels()
-plt.legend(handles[::-1], labels[::-1])
+#plt.legend(handles[::-1], labels[::-1])
 
 plt.ylim(3,8)
 plt.yticks(np.arange(3,8,.5))
 plt.ylabel('pH',fontsize=8)
-plt.xlabel('TIME',fontsize=8)
-plt.legend(handles, labels,loc='best',prop={'size':8})
-
+plt.xlabel('TIME [yr]',fontsize=8)
+#plt.legend(handles, labels,loc='best',prop={'size':8})
+plt.title('HYDROTHERMAL FLUID pH',fontsize=10)
 
 
 
@@ -175,14 +178,19 @@ plt.legend(handles, labels,loc='best',prop={'size':8})
 
 ax = plt.subplot(2,2,4)
 this = out[:,1]
-p3, = ax.plot(out[:,0],out[:,31]*mSid/mass, 'm--', label='Siderite',linewidth=1)
+p3, = ax.plot(out[:,0],out[:,31]*mSid/mass, 'm--', label='Siderite',linewidth=2)
 
 handles, labels = ax.get_legend_handles_labels()
-plt.legend(handles[::-1], labels[::-1])
+#plt.legend(handles[::-1], labels[::-1])
 
 plt.ylabel('MASS FRACTION',fontsize=8)
-plt.xlabel('TIME',fontsize=8)
-plt.legend(handles, labels,loc='best',prop={'size':8})
+plt.xlabel('TIME [yr]',fontsize=8)
+#plt.legend(handles, labels,loc='best',prop={'size':8})
+plt.title('PRECIPITATED CARBONATES',fontsize=10)
 
 
-plt.savefig('glass1114.png')
+
+
+plt.subplots_adjust(hspace=.3, wspace=.3)
+
+plt.savefig('glass27.eps')
