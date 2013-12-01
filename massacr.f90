@@ -58,7 +58,7 @@ interface
 	real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
 	end function psi_next
 	
-	function alt_next (temp, timestep, primaryList, secondaryList)
+	function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
 	use globals
 	use initialize
 	use alteration
@@ -66,7 +66,7 @@ interface
 	real(8) :: temp, timestep
 	real(8) :: alt_next(1,58)
 	real(8) :: alter0(1,58)
-	real(8) :: primaryList(5), secondaryList(16)
+	real(8) :: primaryList(5), secondaryList(16), soluteList(11)
 	end function alt_next
 
 	function rho_next (h_in)
@@ -118,8 +118,8 @@ real(8) :: h(xn,yn), psi(xn,yn) ! xn ROWS DEEP & yn COLUMNS WIDE
 !  real(8) :: hmat(xn,(yn*tn)), psimat(xn,(yn*tn)), umat(xn,(yn*tn)), vmat(xn,(yn*tn))
 !real(8) :: umat(xn,(yn)), vmat(xn,(yn))
 !hmat(xn,(yn)), psimat(xn,(yn)),
-real(8) :: hmat(xn,(yn*tn/100)), psimat(xn,(yn*tn/100))
-real(8) :: umat(xn,(yn*tn/100)), vmat(xn,(yn*tn/100))
+real(8) :: hmat(xn,(yn*tn/mstep)), psimat(xn,(yn*tn/mstep))
+real(8) :: umat(xn,(yn*tn/mstep)), vmat(xn,(yn*tn/mstep))
 real(8) :: rhs0(xn,yn), velocities0(xn,2*yn)
 real(8) :: u(xn,yn), uLong(xn*yn), v(xn,yn), vLong(xn*yn)
 real(8), allocatable :: linsp(:)
@@ -140,15 +140,32 @@ real(8) :: nusseltLocalv(xn,1), nuBar
 real(8) :: hc=20.0
 real(8) :: alt0(1,altnum)
 
-! ALTERATION 3D ARRAYS
-real(8) :: primaryMat(xn,yn,tn/100,5), secondaryMat(xn,yn,tn/100,16), solutes(xn,yn,tn/100,11)
+! ALTERATION ARRAYS
+real(8) :: primary(xn,yn,5), secondary(xn,yn,16), solute(xn,yn,11)
+real(8) :: primaryMat(xn,yn*tn/mstep,5), secondaryMat(xn,yn*tn/mstep,16), soluteMat(xn,yn*tn/mstep,11)
 
 
 
+! INITIALIZE CHEMISTRY
+primary(:,:,1) = 12.96 ! feldspar
+primary(:,:,2) = 6.96 ! augite
+primary(:,:,3) = 1.26 ! pigeonite
+primary(:,:,4) = .4 ! magnetite
+primary(:,:,5) = 96.77 ! basaltic glass
 
+secondary(:,:,:) = 0.0
 
-
-
+solute(:,:,1) = 7.5 ! ph
+solute(:,:,2) = 6.0e-4 ! Ca
+solute(:,:,3) = 2.0e-5 ! Mg
+solute(:,:,4) = 1.0e-3 ! Na
+solute(:,:,5) = 1.0e-4 ! K
+solute(:,:,6) = 1.2e-6 ! Fe
+solute(:,:,7) = 1.0e-4 ! S(6)
+solute(:,:,8) = 2.0e-4 ! Si
+solute(:,:,9) = 3.0e-4 ! Cl
+solute(:,:,10) = 1.0e-6 ! Al
+solute(:,:,11) = 2.0e-3 ! Alk
 
 ! INITIALIZE
 call init()
@@ -177,7 +194,7 @@ vmat(1:xn,1:yn) = v
 do j = 2, tn
 
 write(*,*) j
-write(*,*) "FINALLY!"
+
 
 ! HEAT FLUX BOUNDARY CONDITIONS
 
@@ -223,23 +240,36 @@ u = velocities0(1:xn,1:yn)/rho
 v = velocities0(1:xn,yn+1:2*yn)/rho
 
 ! THINGS DONE ONLY EVERY 10th TIMESTEP GO HERE
-if (mod(j,100) .eq. 0) then
+if (mod(j,mstep) .eq. 0) then
 
 ! PLAYING AROUND WITH NEW ALTERATION MODULE 
-!do m=1,xn
-	!do n=1,yn
-		!write(*,*) h(m,n)-273.0
-		!alt0 = alt_next(h(m,n),dt,primaryMat(m,n,j/100,:),secondaryMat(m,n,j/100,:))
-		!! THIS IS A GOOD PLACE TO PARSE THE ALTERATION OUTPUT
-	!end do
-!end do
+do m=1,xn
+	do n=1,yn
+		write(*,*) h(m,n)
+		alt0 = alt_next(h(m,n),dt,primary(m,n,:),secondary(m,n,:),solute(m,n,:))
+		
+		!PARSING
+		solute(m,n,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+		alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
+		
+		secondary(m,n,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
+		alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
+		alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
+		
+		primary(m,n,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
+	end do
+end do
 
 
 ! ADD EACH TIMESTEP TO MATRICES
-	 hmat(1:xn,1+yn*(j/100-1):1+yn*(j/100)) = h
-	 psimat(1:xn,1+yn*(j/100-1):1+yn*(j/100)) = psi
-	 umat(1:xn,1+yn*(j/100-1):1+yn*(j/100)) = u
-	 vmat(1:xn,1+yn*(j/100-1):1+yn*(j/100)) = v
+	 hmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = h
+	 psimat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = psi
+	 umat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = u
+	 vmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = v
+	 
+	 primaryMat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep),:) = primary
+	 secondaryMat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep),:) = secondary
+	 soluteMat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep),:) = solute
 	 
 end if
 ! umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
@@ -249,15 +279,6 @@ end if
 ! umat(1:xn,1:yn) = u
 ! vmat(1:xn,1:yn) = v
 
-! NUSSELT NUMBER STUFF
-
-nuBar = 0.0
-do i=1,yn
-	nusseltLocalv = -partial(h(:,i),xn,1,dx,dy,1)
-	nuBar = nuBar + nusseltLocalv(1,1)*dy
-end do
-!write(*,*) "nu Bar"
-!write(*,*) nuBar
 
 end do
 
@@ -268,10 +289,14 @@ end do
 yep = write_vec ( xn, real(x,kind=4), 'x1.txt' )
 yep = write_vec ( yn, real(y,kind=4), 'y1.txt' )
 yep = write_vec ( tn, real(t, kind=4), 't1.txt' )
-yep = write_matrix ( xn, yn*tn/100, real(hmat, kind = 4), 'hMat.txt' )
-yep = write_matrix ( xn, yn*tn/100, real(psimat,kind=4), 'psiMat.txt' )
-yep = write_matrix ( xn, yn*tn/100, real(umat, kind = 4), 'uMat1.txt' )
-yep = write_matrix ( xn, yn*tn/100, real(vmat,kind=4), 'vMat1.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(hmat, kind = 4), 'hMat.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat1.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat1.txt' )
+
+yep = write_matrix ( xn, yn*tn/mstep, real(primaryMat(:,:,1),kind=4), 'feldsparMat.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(primaryMat(:,:,5),kind=4), 'glassMat.txt' )
+
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )
 !yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h3.txt' )
@@ -686,7 +711,7 @@ end function psi_next
 
 ! i will come back to this after some circulation tests
 
-function alt_next (temp, timestep, primaryList, secondaryList)
+function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
 use globals
 use initialize
 use alteration
@@ -699,13 +724,10 @@ end interface
 real(8) :: temp, timestep
 real(8) :: alt_next(1,58)
 real(8) :: alter0(1,58)
-real(8) :: primaryList(5), secondaryList(16)
+real(8) :: primaryList(5), secondaryList(16), soluteList(11)
 
 ! grab EVERYTHING from the alteration module
-alter0 = alter(temp-273.0, timestep, primaryList, secondaryList)
-
-! PRINT ONLY THE FIRST VALUE (THE TIMESTEP)
-write(*,*) "got em"!(1,1)
+alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList)
 
 ! maybe organize it into something useful down here
 alt_next = alter0

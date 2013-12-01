@@ -32,7 +32,7 @@ contains
 !
 ! ----------------------------------------------------------------------------------%%
 
-function alter ( temp, timestep, primary, secondary )
+function alter ( temp, timestep, primary, secondary, solute )
 
 implicit none
 INTEGER(KIND=4) :: id
@@ -69,7 +69,7 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(16), solutes(11) ! important information
+real(8) :: temp, timestep, primary(5), secondary(16), solute(11) ! important information
 
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
@@ -86,24 +86,24 @@ glass = 2.0
 siderite = 0.0
 
 ! SOLUTES TO STRINGS
-write(s_ph,'(F25.10)') solutes(1)
-write(s_ca,'(F25.10)') solutes(2)
-write(s_mg,'(F25.10)') solutes(3)
-write(s_na,'(F25.10)') solutes(4)
-write(s_k,'(F25.10)') solutes(5)
-write(s_fe,'(F25.10)') solutes(6)
-write(s_s,'(F25.10)') solutes(7)
-write(s_si,'(F25.10)') solutes(8)
-write(s_cl,'(F25.10)') solutes(9)
-write(s_al,'(F25.10)') solutes(10)
-write(s_alk,'(F25.10)') solutes(11)
+write(s_ph,'(F25.10)') solute(1)
+write(s_ca,'(F25.10)') solute(2)
+write(s_mg,'(F25.10)') solute(3)
+write(s_na,'(F25.10)') solute(4)
+write(s_k,'(F25.10)') solute(5)
+write(s_fe,'(F25.10)') solute(6)
+write(s_s,'(F25.10)') solute(7)
+write(s_si,'(F25.10)') solute(8)
+write(s_cl,'(F25.10)') solute(9)
+write(s_al,'(F25.10)') solute(10)
+write(s_alk,'(F25.10)') solute(11)
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)
 write(s_augite,'(F25.10)') primary(2)
 write(s_pigeonite,'(F25.10)') primary(3)
-write(s_glass,'(F25.10)') primary(4)
-write(s_magnetite,'(F25.10)') primary(5)
+write(s_magnetite,'(F25.10)') primary(4)
+write(s_glass,'(F25.10)') primary(5)
 
 ! SECONDARIES TO STRINGS
 write(s_siderite,'(F25.10)') secondary(1)
@@ -138,19 +138,19 @@ write(*,*) trim(s_timestep)
 ! ----------------------------------%%
 
 inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
-&"    pH 7.5" //NEW_LINE('')// &
+&"    pH " // trim(s_pH) //NEW_LINE('')// &
 &"    units   mol/kgw" //NEW_LINE('')// &
 &"    temp" // trim(s_temp) //NEW_LINE('')// &
-&"    Ca 6.0e-4" //NEW_LINE('')// &
-&"    Mg 2.0e-5" //NEW_LINE('')// &
-&"    Na 1.0e-3" //NEW_LINE('')// &
-&"    K 1.0e-4" //NEW_LINE('')// &
-&"    Fe 1.2e-6" //NEW_LINE('')// &
-&"    S(6) 1.0e-4 as SO4" //NEW_LINE('')// &
-&"    Si 2.0e-4" //NEW_LINE('')// &
-&"    Cl 3.0e-4" //NEW_LINE('')// &
-&"    Al 1.0e-6" //NEW_LINE('')// &
-&"    Alkalinity 2.0e-3 as HCO3" //NEW_LINE('')// &
+&"    Ca " // trim(s_ca) //NEW_LINE('')// &
+&"    Mg " // trim(s_mg) //NEW_LINE('')// &
+&"    Na " // trim(s_na) //NEW_LINE('')// &
+&"    K " // trim(s_k) //NEW_LINE('')// &
+&"    Fe " // trim(s_fe) //NEW_LINE('')// &
+&"    S(6) "// trim(s_s) // " as SO4" //NEW_LINE('')// &
+&"    Si " // trim(s_si) //NEW_LINE('')// &
+&"    Cl " // trim(s_cl) //NEW_LINE('')// &
+&"    Al " // trim(s_al) //NEW_LINE('')// &
+&"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
 &"    -water		.38	# kg" //NEW_LINE('')// &
 &"END" //NEW_LINE('')// &
 
@@ -273,17 +273,17 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 &"KINETICS" //NEW_LINE('')// &
 &"Plagioclase" //NEW_LINE('')// &
-&"-m0 12.96" //NEW_LINE('')// &
+&"-m0 " // trim(s_feldspar) //NEW_LINE('')// &
 &"Augite" //NEW_LINE('')// &
-&"-m0 6.96" //NEW_LINE('')// &
+&"-m0 " // trim(s_augite) //NEW_LINE('')// &
 &"Pigeonite" //NEW_LINE('')// &
-&"-m0 1.26" //NEW_LINE('')// &
+&"-m0 " // trim(s_pigeonite) //NEW_LINE('')// &
 &"Magnetite" //NEW_LINE('')// &
-&"-m0 .4" //NEW_LINE('')// &
+&"-m0 " // trim(s_magnetite) //NEW_LINE('')// &
 &"BGlass" //NEW_LINE('')// &
 &"-f Ca 0.015 Fe 0.095 Mg 0.065 " //&
 & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
-&"-m0 96.77" //NEW_LINE('')// &
+&"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
 
@@ -384,17 +384,16 @@ IF (RunString(id, inputz0).NE.0) THEN
 	STOP
 END IF
   
-write(*,*) "it works!"
-  
 ! PRINT DUMP/OUTPUT
 DO i=1,GetOutputStringLineCount(id)
 	call GetOutputStringLine(id, i, line)
 	!write(*,*) trim(line)
 END DO
   
-WRITE(*,*) "WRITING TO 2D ARRAY AND OUTPUT FILES"
-WRITE(*,*) "NUMBER OF LINES:"
-WRITE(*,*) GetSelectedOutputStringLineCount(id)
+! NOW KINDA USELESS PRINT STATEMENTS FOR WRITING TO FILES
+!WRITE(*,*) "WRITING TO 2D ARRAY AND OUTPUT FILES"
+!WRITE(*,*) "NUMBER OF LINES:"
+!WRITE(*,*) GetSelectedOutputStringLineCount(id)
   
   
 ! OPEN FILE (don't need no file) (USEFUL)
@@ -407,7 +406,7 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	! HEADER BITS YOU MAY WANT
 	if (i .eq. 1) then
  	   !write(12,*) trim(line)
-	   !!write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
+	   write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
 	end if
 	! MEAT
 	if (i .gt. 1) then
@@ -424,7 +423,7 @@ IF (DestroyIPhreeqc(id).NE.IPQ_OK) THEN
 END IF
 
 ! ALL DONE!
-write(*,*) "phreequm dress"
+write(*,*) "phreeqed out"
 
 ! OUTPUT TO THE MAIN MASSACR METHOD
 alter(1,:) = outmat(2,:)
