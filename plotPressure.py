@@ -27,17 +27,15 @@ h0 = np.loadtxt('hMat.txt')
 u0= np.loadtxt('uMat1.txt')
 v0= np.loadtxt('vMat1.txt')
 psi0 = np.loadtxt('psiMat.txt')
-#rho = np.loadtxt('rho1.txt')
-viscosity = 1e-3
-#permeability = np.loadtxt('permeability1.txt')
-#permeability = permeability
+feldspar0 = np.loadtxt('feldsparMat.txt')
+glass0 = np.loadtxt('glassMat.txt')
 
 
 fig=plt.figure()
 
 
-i=63
-
+i=3
+cell = 20
 print h0.shape
 
 #######################
@@ -60,11 +58,13 @@ u = u0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
 u = np.append(u, u[-1:,:], axis=0)
 u = np.append(u, u[:,-1:], axis=1)
 
-#permeability = np.append(permeability, permeability[-1:,:], axis=0)
-#permeability = np.append(permeability, permeability[:,-1:], axis=1)
+#feldspar = feldspar0[i*len(y/cell)-i:((i)*len(y/cell)+len(x/cell))-i-1,:]
+#feldspar = np.append(feldspar, feldspar[-1:,:], axis=0)
+#feldspar = np.append(feldspar, feldspar[:,-1:], axis=1)
 
-#rho = np.append(rho, rho[-1:,:], axis=0)
-#rho = np.append(rho, rho[:,-1:], axis=1)
+#glass = glass0[i*len(y)/cell-i:((i)*len(y)/cell+len(x)/cell)-i-1,:]
+#glass = np.append(glass, glass[-1:,:], axis=0)
+#glass = np.append(glass, glass[:,-1:], axis=1)
 
 # SELECT RELEVANT PART OF MODEL DOMAIN
 
@@ -74,43 +74,58 @@ xg = xg[xg.shape[0]*1700.0/3000.0:,:]
 yg = yg[yg.shape[0]*1700.0/3000.0:,:]
 u = u[u.shape[0]*1700.0/3000.0:,:]
 v = v[v.shape[0]*1700.0/3000.0:,:]
+#feldspar = feldspar[feldspar.shape[0]*1700.0/3000.0:,:]
+#glass = glass[glass.shape[0]*1700.0/3000.0:,:]
 
 ####################
 # STREAM FUNCTIONS #
 ####################
 
-ax1=fig.add_subplot(2,1,1, aspect='equal')
+ax1=fig.add_subplot(2,2,1, aspect='equal')
 levels00 = np.linspace(.00015, np.max(psi), 15)
 levels0 = np.linspace(np.min(psi), -.00015, 15)
 levels = np.append(levels0,levels00,axis=1)
 CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([1.4]))
-#CS = plt.contour(xg, yg, psi, levels0, colors='k',linewidths=np.array([1.4]))
-#plt.clabel(CS,inline=True,fontsize=8,fontweight='bold')
 #plt.quiver(xg,yg,u,v)
 
-#plt.title("STREAMFUNCTIONS",fontsize=8)
+plt.title("STREAMFUNCTIONS",fontsize=8)
 
 plt.xlim(np.min(x), np.max(x))
-#plt.ylim(-1300, np.max(y))
 
 
 #############
 # ISOTHERMS #
 #############
 
-
-ax1=fig.add_subplot(2,1,2, aspect='equal')
-
-p = plt.contour(xg,yg,h-273.0,np.arange(0,150,10),cmap=cm.autumn,linewidths=np.array([2.0])) #,cmap=cm.rainbow
+ax1=fig.add_subplot(2,2,2, aspect='equal')
+p = plt.contour(xg,yg,h-273.0,np.arange(0,150,10),cmap=cm.autumn,linewidths=np.array([2.0]))
 plt.clabel(p,inline=True,fontsize=8,fontweight='bold')
-
 
 plt.xlim(np.min(x), np.max(x))
 
 
+########################
+# FELDSPAR DISSOLUTION #
+########################
+
+ax1=fig.add_subplot(2,2,3)
+p = plt.contourf(feldspar0,20,cmap=cm.spectral)
+#plt.clabel(p,inline=True,fontsize=8,fontweight='bold')
 
 
-    
+
+##############################
+# BASALTIC GLASS DISSOLUTION #
+##############################
+
+
+ax1=fig.add_subplot(2,2,4)
+p = plt.contourf(glass0,20,cmap=cm.spectral)
+#plt.clabel(p,inline=True,fontsize=8,fontweight='bold')
+
+
+
+
 plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 
 #cax = fig.add_axes([0.2, 0.1, 0.6, 0.03])

@@ -17,11 +17,13 @@ PROGRAMS = massacr
 # "make" builds all
 all: $(PROGRAMS)
 
-# initialize.o: globals.o
-# initialize: globals.o
-# 
-# alteration.o: globals.o
-# alteration: globals.o
+globals:
+
+initialize.o: globals.o
+initialize: globals.o
+ 
+alteration.o: globals.o
+alteration: globals.o
 
 massacr.o: globals.o initialize.o alteration.o
 massacr: globals.o initialize.o alteration.o

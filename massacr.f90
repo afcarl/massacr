@@ -141,8 +141,9 @@ real(8) :: hc=20.0
 real(8) :: alt0(1,altnum)
 
 ! ALTERATION ARRAYS
-real(8) :: primary(xn,yn,5), secondary(xn,yn,16), solute(xn,yn,11)
-real(8) :: primaryMat(xn,yn*tn/mstep,5), secondaryMat(xn,yn*tn/mstep,16), soluteMat(xn,yn*tn/mstep,11)
+real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,16), solute(xn/cell,yn/cell,11)
+real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),16)
+real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),11)
 
 
 
@@ -243,21 +244,25 @@ v = velocities0(1:xn,yn+1:2*yn)/rho
 if (mod(j,mstep) .eq. 0) then
 
 ! PLAYING AROUND WITH NEW ALTERATION MODULE 
-do m=1,xn
-	do n=1,yn
-		write(*,*) h(m,n)
-		alt0 = alt_next(h(m,n),dt,primary(m,n,:),secondary(m,n,:),solute(m,n,:))
+do m=1,xn/cell
+	!if (mod(m,cell) .eq. 0) then
+		do n=1,yn/cell
+			!if (mod(n,cell) .eq. 0) then
+				write(*,*) m,n
+				alt0 = alt_next(h(m,n),dt,primary(m,n,:),secondary(m,n,:),solute(m,n,:))
 		
-		!PARSING
-		solute(m,n,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
-		alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
+				!PARSING
+				solute(m,n,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+				alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
 		
-		secondary(m,n,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
-		alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
-		alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
+				secondary(m,n,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
+				alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
+				alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
 		
-		primary(m,n,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
-	end do
+				primary(m,n,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
+			!end if
+		end do
+	!end if 
 end do
 
 
@@ -267,9 +272,9 @@ end do
 	 umat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = u
 	 vmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = v
 	 
-	 primaryMat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep),:) = primary
-	 secondaryMat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep),:) = secondary
-	 soluteMat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep),:) = solute
+	 primaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = primary
+	 secondaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = secondary
+	 soluteMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = solute
 	 
 end if
 ! umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
@@ -294,8 +299,8 @@ yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat.txt' )
 yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat1.txt' )
 yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat1.txt' )
 
-yep = write_matrix ( xn, yn*tn/mstep, real(primaryMat(:,:,1),kind=4), 'feldsparMat.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(primaryMat(:,:,5),kind=4), 'glassMat.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,1),kind=4), 'feldsparMat.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'glassMat.txt' )
 
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )

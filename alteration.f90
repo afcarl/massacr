@@ -127,11 +127,7 @@ write(s_pyrite,'(F25.10)') secondary(16)
 write(s_temp,'(F25.10)') temp
 write(s_timestep,'(F25.10)') timestep
 
-! REMINDER: most of these strings are not in yet
 
-
-write(*,*) trim(s_temp)
-write(*,*) trim(s_timestep)
 
 ! ----------------------------------%%
 ! INITIAL AQUEOUS PHASE CONSITUENTS
@@ -160,22 +156,22 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
 &"    CO2(g) 2 1000000" //NEW_LINE('')// &
-&"    Siderite 0.0 0.0" //NEW_LINE('')// &
-&"    Kaolinite 0.0 0.0" //NEW_LINE('')// &
-&"    Goethite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Dolomite 0.0 0.0" //NEW_LINE('')// &
-&"    Celadonite 0.0 0.0" //NEW_LINE('')// &
-&"    SiO2(am) 0.0 0.0" //NEW_LINE('')// &
-&"    Albite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Calcite 0.0 0.0" //NEW_LINE('')// &
-&"    Hematite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Smectite-high-Fe-Mg 0.0 0.0" //NEW_LINE('')// &
-&"    Saponite-Mg 0.0 0.0" //NEW_LINE('')// &
-&"    Stilbite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Dawsonite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Magnesite 0.0 0.0" //NEW_LINE('')// &
-&"    Clinoptilolite-Ca 0.0 0.0" //NEW_LINE('')// &
-&"    Pyrite 0.0 0.0" //NEW_LINE('')// &
+&"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
+&"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
+&"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
+!  &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+&"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
+&"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
+&"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
+!  &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
+&"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
+!  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
+&"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
+&"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
+!  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
+!  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
+&"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
+&"    Pyrite 0.0 " // trim(s_pyrite) //NEW_LINE('')// &
 !  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
 
 ! ----------------------------------%%
@@ -406,7 +402,7 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	! HEADER BITS YOU MAY WANT
 	if (i .eq. 1) then
  	   !write(12,*) trim(line)
-	   write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
+	   !write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
 	end if
 	! MEAT
 	if (i .gt. 1) then
@@ -423,7 +419,7 @@ IF (DestroyIPhreeqc(id).NE.IPQ_OK) THEN
 END IF
 
 ! ALL DONE!
-write(*,*) "phreeqed out"
+!write(*,*) "phreeqed out"
 
 ! OUTPUT TO THE MAIN MASSACR METHOD
 alter(1,:) = outmat(2,:)
