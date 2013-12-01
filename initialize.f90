@@ -35,21 +35,21 @@ t = linspace ( tn, t_min, t_max)
   
   
 ! BOUNDARY CONDITIONS
-ic0(:,:) = 300.0 ! IC
+ic0(:,:) = 280.0 ! IC
 do j=1,yn
 do i=1,xn
-	ic0(i,j) = 273.0 + 5.0*cos(3.14*x(i)/750)
+	ic0(i,j) = 280.0 + 5.0*cos(3.14*x(i)/750)
 end do
 end do
 
-bcx0(:,1) = 273.0 ! bottom
+bcx0(:,1) = 280.0 ! bottom
 do i=1,xn
-	bcx0(i,1) = 273.0 + 5.0*cos(3.14*x(i)/750)
+	bcx0(i,1) = 280.0 + 5.0*cos(3.14*x(i)/750)
 end do
-bcx0(:,2) = 273.0 ! top
+bcx0(:,2) = 280.0 ! top
 
-bcy0(1,:) = 273.0 ! left
-bcy0(2,:) = 273.0 ! right
+bcy0(1,:) = 280.0 ! left
+bcy0(2,:) = 280.0 ! right
 
 bcyPsi(1,1:yn) = 0.0 ! left
 bcyPsi(2,1:yn) = 0.0 ! right

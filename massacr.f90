@@ -177,6 +177,7 @@ vmat(1:xn,1:yn) = v
 do j = 2, tn
 
 write(*,*) j
+write(*,*) "FINALLY!"
 
 ! HEAT FLUX BOUNDARY CONDITIONS
 
@@ -225,19 +226,20 @@ v = velocities0(1:xn,yn+1:2*yn)/rho
 if (mod(j,100) .eq. 0) then
 
 ! PLAYING AROUND WITH NEW ALTERATION MODULE 
-do m=1,xn
-	do n=1,yn
-		alt0 = alt_next(h(m,n),dt,primaryMat(m,n,j/100,:),secondaryMat(m,n,j/100,:))
-		! THIS IS A GOOD PLACE TO PARSE THE ALTERATION OUTPUT
-	end do
-end do
+!do m=1,xn
+	!do n=1,yn
+		!write(*,*) h(m,n)-273.0
+		!alt0 = alt_next(h(m,n),dt,primaryMat(m,n,j/100,:),secondaryMat(m,n,j/100,:))
+		!! THIS IS A GOOD PLACE TO PARSE THE ALTERATION OUTPUT
+	!end do
+!end do
 
 
 ! ADD EACH TIMESTEP TO MATRICES
-	 hmat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = h
-	 psimat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = psi
-	 umat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = u
-	 vmat(1:xn,1+yn*(j/10-1):1+yn*(j/10)) = v
+	 hmat(1:xn,1+yn*(j/100-1):1+yn*(j/100)) = h
+	 psimat(1:xn,1+yn*(j/100-1):1+yn*(j/100)) = psi
+	 umat(1:xn,1+yn*(j/100-1):1+yn*(j/100)) = u
+	 vmat(1:xn,1+yn*(j/100-1):1+yn*(j/100)) = v
 	 
 end if
 ! umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
@@ -266,10 +268,10 @@ end do
 yep = write_vec ( xn, real(x,kind=4), 'x1.txt' )
 yep = write_vec ( yn, real(y,kind=4), 'y1.txt' )
 yep = write_vec ( tn, real(t, kind=4), 't1.txt' )
-yep = write_matrix ( xn, yn*tn/10, real(hmat, kind = 4), 'hMat.txt' )
-yep = write_matrix ( xn, yn*tn/10, real(psimat,kind=4), 'psiMat.txt' )
-yep = write_matrix ( xn, yn*tn/10, real(umat, kind = 4), 'uMat1.txt' )
-yep = write_matrix ( xn, yn*tn/10, real(vmat,kind=4), 'vMat1.txt' )
+yep = write_matrix ( xn, yn*tn/100, real(hmat, kind = 4), 'hMat.txt' )
+yep = write_matrix ( xn, yn*tn/100, real(psimat,kind=4), 'psiMat.txt' )
+yep = write_matrix ( xn, yn*tn/100, real(umat, kind = 4), 'uMat1.txt' )
+yep = write_matrix ( xn, yn*tn/100, real(vmat,kind=4), 'vMat1.txt' )
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )
 !yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h3.txt' )
@@ -700,7 +702,7 @@ real(8) :: alter0(1,58)
 real(8) :: primaryList(5), secondaryList(16)
 
 ! grab EVERYTHING from the alteration module
-alter0 = alter(temp-275.0, timestep, primaryList, secondaryList)
+alter0 = alter(temp-273.0, timestep, primaryList, secondaryList)
 
 ! PRINT ONLY THE FIRST VALUE (THE TIMESTEP)
 write(*,*) "got em"!(1,1)

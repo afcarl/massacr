@@ -36,7 +36,7 @@ viscosity = 1e-3
 fig=plt.figure()
 
 
-i=1270
+i=63
 
 print h0.shape
 
@@ -118,7 +118,7 @@ plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 #cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 #cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
 
-plt.savefig('n26.png')
+plt.savefig('n1201.png')
 print "flow field plots"
 
 ###################
@@ -148,7 +148,7 @@ plt.xlabel('x [m]',fontsize=8)
 plt.ylabel('FLUID FLUX [m/s]',fontsize=8)
 plt.title('FLUID FLUX')
 
-plt.savefig('benchGraphs.png')
+plt.savefig('benchGraphs0.png')
 print "benchmark plots"
 
 print sum(sum(np.sqrt(u**2+v**2)))
