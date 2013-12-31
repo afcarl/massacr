@@ -3,12 +3,16 @@
 !
 ! MAIN MASSACR METHOD
 ! 
-! SUMMARY: Solve governing equations (conservation of momentum and thermal energy) 
-!          in 2D and writes output to text (.txt) and netCDF (.nc) files. 
+! SUMMARY: main method runs fluid dynamic simulation coupled to geochemical
+!          simulation, writes errthing to file
 ! 
-! gfortran -c -O3 -I/usr/local/include -L/usr/local/lib -lnetcdff -liphreeqc globals.f90 initialize.f90 alteration.f90 massacr.f90
-! gfortran -I/usr/local/include -L/usr/local/lib -lnetcdff -liphreeqc globals.o initialize.o alteration.o massacr.o
+! gfortran -c -O3 -I/usr/local/include -L/usr/local/lib -lnetcdff -liphreeqc 
+! globals.f90 initialize.f90 alteration.f90 massacr.f90
 !
+! gfortran -I/usr/local/include -L/usr/local/lib -lnetcdff -liphreeqc 
+! globals.o initialize.o alteration.o massacr.o
+!
+! I HAVE A MAKEFILE NOW
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -113,18 +117,15 @@ interface
 end interface
 
 ! DECLARE EVERYTHING
-real(8) :: cfl, test(10,11)
 real(8) :: h(xn,yn), psi(xn,yn) ! xn ROWS DEEP & yn COLUMNS WIDE 
-!  real(8) :: hmat(xn,(yn*tn)), psimat(xn,(yn*tn)), umat(xn,(yn*tn)), vmat(xn,(yn*tn))
-!real(8) :: umat(xn,(yn)), vmat(xn,(yn))
-!hmat(xn,(yn)), psimat(xn,(yn)),
+! real(8) :: hmat(xn,(yn*tn)), psimat(xn,(yn*tn)) 
+! real(8) :: umat(xn,(yn*tn)), vmat(xn,(yn*tn))
+! real(8) :: umat(xn,(yn)), vmat(xn,(yn))
+! hmat(xn,(yn)), psimat(xn,(yn)),
 real(8) :: hmat(xn,(yn*tn/mstep)), psimat(xn,(yn*tn/mstep))
 real(8) :: umat(xn,(yn*tn/mstep)), vmat(xn,(yn*tn/mstep))
 real(8) :: rhs0(xn,yn), velocities0(xn,2*yn)
 real(8) :: u(xn,yn), uLong(xn*yn), v(xn,yn), vLong(xn*yn)
-real(8), allocatable :: linsp(:)
-
-real(8) :: pressure0(xn,yn), pressure(xn,yn)
 real(8) :: rho(xn,yn), flux(xn,2)
 
 integer :: unit
@@ -137,15 +138,12 @@ integer :: x_varid, y_varid, t_varid, h_varid, u_varid, v_varid
 integer :: i, j, ii, m, n
 
 real(8) :: nusseltLocalv(xn,1), nuBar
-real(8) :: hc=20.0
 real(8) :: alt0(1,altnum)
 
 ! ALTERATION ARRAYS
 real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,16), solute(xn/cell,yn/cell,11)
 real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),16)
 real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),11)
-
-
 
 ! INITIALIZE CHEMISTRY
 primary(:,:,1) = 12.96 ! feldspar
@@ -191,92 +189,85 @@ umat(1:xn,1:yn) = u
 vmat(1:xn,1:yn) = v
 
 
-
+! THIS IS THE MAIN LOOP
 do j = 2, tn
-
 write(*,*) j
 
-
-! HEAT FLUX BOUNDARY CONDITIONS
-
+	! HEAT FLUX BOUNDARY CONDITIONS
 	! bottom
 	do i = 1,xn
-	flux(i,1) = h(i,2) +((.27))*dy/(lambda)
-	!flux(i,1) = 773.0
+	flux(i,1) = h(i,2) +((.27))*dy/(1.6)
 	end do
-
 	! top
 	do i = 1,xn
-	flux(i,2) = h(i,xn-1) -(.27)*dy/(lambda)
-	!flux(i,2) = ( 273.0 + h(i,xn-1) ) / 2
 	flux(i,2) = 273.0
 	end do
   
-! SOLVE THERMAL NRG EQUATION
-rho = rho_next(h)
-h = h_next(h, psi,rho, flux)
+	! SOLVE THERMAL NRG EQUATION
+	rho = rho_next(h)
+	h = h_next(h, psi,rho, flux)
   
-!!!!!!!!!!!! THIS !!!!!!!!!!!
-h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
-h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
-h(:,1) = flux(:,1)
-h(:,yn) = flux(:,2)
+	! PUT HEAT FLUX BOUNDARY CONDITIONS IN ARRAY
+	h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
+	h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
+	h(:,1) = flux(:,1)
+	h(:,yn) = flux(:,2)
   
-rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 
-! SOLVE STREAMFUNCTION-VORTICITY EQUATION
-psi = psi_next(h, rhs0, psi, permeable, rho)
+	! SOLVE STREAMFUNCTION-VORTICITY EQUATION
+	rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
+	psi = psi_next(h, rhs0, psi, permeable, rho)
 
-! PUT IN BOUNDARY CONDITIONS BETWEEN STEPS
-psi(1,1:yn) = bcyPsi(1,1:yn) ! left
-psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
-psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
-psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
-psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
-permeable = psi(:,yn)
+	! PUT IN STREAMFUNCTION BOUNDARY CONDITIONS BETWEEN STEPS
+	psi(1,1:yn) = bcyPsi(1,1:yn) ! left
+	psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
+	psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
+	psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
+	psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
+	permeable = psi(:,yn)
 
-! VELOCITIES
-velocities0 = velocities(psi)
-u = velocities0(1:xn,1:yn)/rho
-v = velocities0(1:xn,yn+1:2*yn)/rho
+	! GET VELOCITIES
+	velocities0 = velocities(psi)
+	u = velocities0(1:xn,1:yn)/rho
+	v = velocities0(1:xn,yn+1:2*yn)/rho
 
-! THINGS DONE ONLY EVERY 10th TIMESTEP GO HERE
-if (mod(j,mstep) .eq. 0) then
+	! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
+	if (mod(j,mstep) .eq. 0) then
 
-! PLAYING AROUND WITH NEW ALTERATION MODULE 
-do m=1,xn/cell
-	!if (mod(m,cell) .eq. 0) then
-		do n=1,yn/cell
-			!if (mod(n,cell) .eq. 0) then
+! LOOP THROUGH EVERY cellTH GRID CELL, SOVE FOR EQUILIBRIUM
+do m=1,xn
+	if (mod(m,cell) .eq. 0) then
+		do n=1,yn
+			if (mod(n,cell) .eq. 0) then
 				write(*,*) m,n
-				alt0 = alt_next(h(m,n),dt,primary(m,n,:),secondary(m,n,:),solute(m,n,:))
+				!alt0 = alt_next(h(m,n),dt,primary(m/cell,n/cell,:),secondary(m/cell,n/cell,:),solute(m/cell,n/cell,:))
 		
 				!PARSING
-				solute(m,n,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
-				alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
+				!solute(m/cell,n/cell,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+				!alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
 		
-				secondary(m,n,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
-				alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
-				alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
+				!secondary(m/cell,n/cell,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
+				!alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
+				!alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
 		
-				primary(m,n,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
-			!end if
+				!primary(m/cell,n/cell,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
+			end if
 		end do
-	!end if 
+	end if 
 end do
 
 
-! ADD EACH TIMESTEP TO MATRICES
+	! ADD EACH TIMESTEP TO MATRICES
 	 hmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = h
 	 psimat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = psi
 	 umat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = u
 	 vmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = v
-	 
 	 primaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = primary
 	 secondaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = secondary
 	 soluteMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = solute
 	 
 end if
+
 ! umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
 ! vmat(1:xn,1+yn*(j-1):1+yn*(j)) = v
 ! hmat(1:xn,1:yn) = h
@@ -290,7 +281,7 @@ end do
 
 
 
-! WRITE EVERYTHING TO TEXT FILES
+! WRITE EVERYTHING TO FILE
 yep = write_vec ( xn, real(x,kind=4), 'x1.txt' )
 yep = write_vec ( yn, real(y,kind=4), 'y1.txt' )
 yep = write_vec ( tn, real(t, kind=4), 't1.txt' )
@@ -302,12 +293,15 @@ yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat1.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,1),kind=4), 'feldsparMat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'glassMat.txt' )
 
+
+! WRITE TO FILE FOR LAST TIMESTEP CASE
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
 !yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )
 !yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h3.txt' )
 !yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat3.txt' )
 !yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat1.txt' )
 !yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat1.txt' )
+
 yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho1.txt' )
 yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
 
@@ -351,7 +345,7 @@ END PROGRAM main
 !
 ! H_NEXT
 !
-! SUMMARY: Computers the thermal profile of the next timestep
+! SUMMARY: computes the 2D temperature profile for the current timestep
 !
 ! INPUTS: h(xn,yn) : temperature profile of previous timestep
 !         psi(xn,yn) : 2D streamfunction array
@@ -447,23 +441,23 @@ do i = 1,(xn-2)*(yn-2)
 
 	! first edge
 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 + sy - uLong(i)*qy
+	aBand(i,2) = 1.0 + sx - uLong(i)*qx
 	if (i .gt. 1) then
 	aBand(i,1) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand(i,3) = -sy/2.0 + uLong(i)*qy
+	aBand(i,3) = -sx/2.0 + uLong(i)*qx
 	end if
 	end if
 
 	! last edge
 	if (any(mod((/i/),xn-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 + sy - uLong(i)*qy
+	aBand(i,2) = 1.0 + sx - uLong(i)*qx
 	if (i .gt. 1) then
 	aBand(i,3) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand(i,1) = -sy/2.0 + uLong(i)*qy
+	aBand(i,1) = -sx/2.0 + uLong(i)*qx
 	end if
 	end if
   
@@ -549,7 +543,7 @@ end function h_next
 !
 ! PSI_NEXT
 !
-! SUMMARY: Computers the velocity field of the next timestep
+! SUMMARY: computes the 2D streamfunction array of the current timestep
 !
 ! INPUTS: h(xn,yn) : temperature profile
 !         rhs0(xn,yn) : right hand side of streamfunction-vorticity equation
@@ -619,7 +613,7 @@ rhs1(yn-1,:) = rhs1(xn-1,:)
 rhs1(:,2) = rhs1(:,2) 
 rhs1(:,xn-1) = rhs1(:,xn-1)
 rhs1(:,xn-1) = rhs1(:,xn-1) +&
-& top_in(:,1)/(4.0/(dx*dx*(permeability(:,xn-1)*rho_in(:,xn-1))))
+& top_in(:,1)/(4.0/(dy*dy*(permeability(:,xn-1)*rho_in(:,xn-1))))
 
 uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
@@ -631,7 +625,7 @@ aBand0 = 0.0
 m = 2*(xn-2) + 1
 do i = 1,(xn-2)*(yn-2)
 	
-	aBand0(i,(m+1)/2) = (4.0)/(permLong(i)*rhoLong(i)*dx*dx)
+	aBand0(i,(m+1)/2) = (2.0)/(permLong(i)*rhoLong(i)*dx*dx) + (2.0)/(permLong(i)*rhoLong(i)*dy*dy)
 	
 	if (i .gt. 1) then
 	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx)
@@ -643,11 +637,11 @@ do i = 1,(xn-2)*(yn-2)
 	
 	! extra columns
 	if (i .le. (xn-2)*(yn-2)-(xn-2)) then
-	aBand0(i,m) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) - (permyLong(i))/(2.0*dx)
+	aBand0(i,m) = (-1.0)/(permLong(i)*rhoLong(i)*dy*dy) - (permyLong(i))/(2.0*dy)
 	end if
 	
 	if (i .ge. (xn-2)) then
-	aBand0(i,1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) + (permyLong(i))/(2.0*dx)
+	aBand0(i,1) = (-1.0)/(permLong(i)*rhoLong(i)*dy*dy) + (permyLong(i))/(2.0*dy)
 	end if
 	
 end do
@@ -706,15 +700,18 @@ end function psi_next
 !
 ! ALT_NEXT
 !
-! SUMMARY: Alters a single grid cell
+! SUMMARY: solves for equilibrium at a single grid cell using PHREEQC
 !
 ! INPUTS: temp : temperature of grid cell
+!         timestep : time elapsed
+!         primaryList(5) : amounts of primary minerals
+!         secondaryList(16) : amounts of secondary minerals
+!         soluteList(11) : concentrations of solutes
 !
-! RETURNS: alt_next(?,?): not sure yet
+! RETURNS: alt_next(1,altnum): returns everything from PHREEQC in a big pile
+!          and it gets parsed in the main method's geochem loop
 !
 ! ----------------------------------------------------------------------------------%%
-
-! i will come back to this after some circulation tests
 
 function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
 use globals
@@ -725,16 +722,16 @@ implicit none
 interface
 end interface
 
-! declare yo shit
+! DECLARE YO SHIT
 real(8) :: temp, timestep
 real(8) :: alt_next(1,58)
 real(8) :: alter0(1,58)
 real(8) :: primaryList(5), secondaryList(16), soluteList(11)
 
-! grab EVERYTHING from the alteration module
+! GRAB EVERYTHING FROM THE ALTERATION MODULE
 alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList)
 
-! maybe organize it into something useful down here
+! RENAME IT FOR A REASON THAT I FORGET
 alt_next = alter0
 
 end function alt_next
@@ -743,6 +740,12 @@ end function alt_next
 ! ----------------------------------------------------------------------------------%%
 !
 ! RHO_NEXT
+!
+! SUMMARY : solves for density using linear thermally expansive equation of state
+!
+! INPUTS : h_in(xn,yn) : 2D temperature array of current timestep
+!
+! RETURNS : rho_next(xn,yn) : 2D density array of current timestep
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -769,6 +772,13 @@ end function rho_next
 ! ----------------------------------------------------------------------------------%%
 !
 ! VELOCITIES
+!
+! SUMMARY : computes the darcy velocity (specific discharge) from the streamfunction
+!           using finite difference partial derivatives
+!
+! INPUTS : psi(xn,yn) : 2D streamfunction array of current timestep
+!
+! RETURNS : velocities(xn,2*yn) : both u and v velocities in one matrix
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -810,8 +820,15 @@ end function velocities
 !
 ! PARTIAL
 !
-! second-order accurate partial derivative of given array with respect to
-! given dimension
+! SUMMARY : versatile function for solving for second-order accurate partial 
+!           derivatives of 1D or 2D arrays with respect to specified dimension
+!           
+! INPUTS : array(rows,cols) : array to be partially differentiated
+!          rows : number of rows
+!          cols : number of columns
+!          d1 : grid spacing in first dimension
+!          d2 : grid spacing in second dimension
+!          dim : dimension you differentiate w.r.t.
 !
 ! ----------------------------------------------------------------------------------%%
 
