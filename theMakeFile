@@ -3,13 +3,15 @@
 # 
 
 # macros go here
-FC=gfortran 
+#FC=gfortran 
+FC=mpif90
 FCFLAGS = -O3
 #FCFLAGS += -I/usr/include
-FCFLAGS += -I/usr/local/include
+FCFLAGS += -I/usr/local/include 
+
 
 # libraries needed for linking, unused in the examples
-LDFLAGS = -L/usr/local/lib -lnetcdff -liphreeqc
+LDFLAGS = -L/usr/local/lib -lnetcdff -liphreeqc 
 
 # List of executables to be built within the package
 PROGRAMS = massacr

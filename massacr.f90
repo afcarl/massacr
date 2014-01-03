@@ -25,6 +25,10 @@ use alteration
 
 implicit none
 
+include 'mpif.h'
+
+
+
 interface
 	
 	function h_next (h, psi, rho_in, flux)
@@ -54,9 +58,8 @@ interface
 	real(8) :: h(xn,yn), psi(xn,yn), rho_in(xn,yn)
 	! matrix stuff
 	real(8) :: uVec((xn-2)*(yn-2)), psiLong((xn)*(yn)), psi_nextRow((xn-2)*(yn-2))
-	real(8) :: psi_next(xn,yn), dsbit, fbit, conv
-	real(8) :: way1((xn-2)*(yn-2)), way2((xn-2)*(yn-2))
-	real(8) :: yep, top_in(xn,1)
+	real(8) :: psi_next(xn,yn)
+	real(8) :: top_in(xn,1)
 	! tridiag
 	real(8) :: aa((xn-2)*(yn-2),(xn-2)*(yn-2)), a((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
 	real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
@@ -145,6 +148,9 @@ real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,16), solute(xn/
 real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),16)
 real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),11)
 
+! MPI SHIT
+integer :: ierr
+
 ! INITIALIZE CHEMISTRY
 primary(:,:,1) = 12.96 ! feldspar
 primary(:,:,2) = 6.96 ! augite
@@ -166,8 +172,14 @@ solute(:,:,9) = 3.0e-4 ! Cl
 solute(:,:,10) = 1.0e-6 ! Al
 solute(:,:,11) = 2.0e-3 ! Alk
 
+
+
 ! INITIALIZE
 call init()
+
+call MPI_INIT ( ierr )
+write(*,*) "something!"
+call MPI_FINALIZE ( ierr )
 
 ! PUT BOUNDARY CONDITIONS IN
 psi(1,1:yn) = bcyPsi(1,1:yn)
@@ -587,9 +599,8 @@ real(8) :: rhs0(xn,yn), rhs1(xn,yn), rhsLong((xn-2)*(yn-2))
 real(8) :: h(xn,yn), psi(xn,yn), rho_in(xn,yn)
 ! matrix stuff
 real(8) :: uVec((xn-2)*(yn-2)), psiLong((xn)*(yn)), psi_nextRow((xn-2)*(yn-2))
-real(8) :: psi_next(xn,yn), dsbit, fbit, conv
-real(8) :: way1((xn-2)*(yn-2)), way2((xn-2)*(yn-2))
-real(8) :: yep, top_in(xn,1)
+real(8) :: psi_next(xn,yn)
+real(8) :: top_in(xn,1)
 real(8) :: mn(xn,yn)
 ! back to band
 real(8) :: aBand0((xn-2)*(yn-2),2*(xn-2) + 1)
@@ -624,26 +635,22 @@ psi_next = 0.0
 aBand0 = 0.0
 m = 2*(xn-2) + 1
 do i = 1,(xn-2)*(yn-2)
-	
+	! DIAGONAL
 	aBand0(i,(m+1)/2) = (2.0)/(permLong(i)*rhoLong(i)*dx*dx) + (2.0)/(permLong(i)*rhoLong(i)*dy*dy)
-	
+	! OFF-DIAGONALS
 	if (i .gt. 1) then
 	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx)
 	end if
-	
 	if (i .lt. (xn-2)*(yn-2)) then
 	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx)
 	end if
-	
-	! extra columns
+	! MORE OFF-DIAGONALS
 	if (i .le. (xn-2)*(yn-2)-(xn-2)) then
 	aBand0(i,m) = (-1.0)/(permLong(i)*rhoLong(i)*dy*dy) - (permyLong(i))/(2.0*dy)
 	end if
-	
 	if (i .ge. (xn-2)) then
 	aBand0(i,1) = (-1.0)/(permLong(i)*rhoLong(i)*dy*dy) + (permyLong(i))/(2.0*dy)
 	end if
-	
 end do
   
 do i=1,((xn-2)-1)
