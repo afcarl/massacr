@@ -14,6 +14,11 @@
 !
 ! I HAVE A MAKEFILE NOW
 !
+!
+! MOST BASIC PARALLELIZING
+! make -f theMakeFile
+! mpirun -np 8 ./massacr
+!
 ! ----------------------------------------------------------------------------------%%
 
 PROGRAM main
@@ -148,8 +153,15 @@ real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,16), solute(xn/
 real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),16)
 real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),11)
 
-! MPI SHIT
-integer :: ierr
+! DECLARE MPI STUFF
+!integer :: ierr
+integer, parameter :: max_rows = 10000000
+integer, parameter :: send_data_tag = 2001, return_data_tag = 2002
+integer :: my_id, root_process, ierr, status(MPI_STATUS_SIZE)
+integer :: num_procs, an_id, num_rows_to_receive
+integer :: avg_rows_per_process, num_rows, num_rows_to_send
+integer :: end_row, sender, start_row, num_rows_received
+real :: vector(max_rows), vector2(max_rows), partial_sum, sum
 
 ! INITIALIZE CHEMISTRY
 primary(:,:,1) = 12.96 ! feldspar
@@ -177,9 +189,111 @@ solute(:,:,11) = 2.0e-3 ! Alk
 ! INITIALIZE
 call init()
 
+
+! PLAYING WITH MESSAGE PASSING
+
+! process #0 is the root process
+root_process = 0
+
+! initialize a process
 call MPI_INIT ( ierr )
-write(*,*) "something!"
+
+! find out the process ID and how many processes were started so far
+call MPI_COMM_RANK (MPI_COMM_WORLD, my_id, ierr)
+call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
+
+! what to do if the process is the root process
+if (my_id .eq. root_process) then
+	
+	! put number of rows in vector here
+	num_rows = 100
+	avg_rows_per_process = num_rows / num_procs
+	
+	! initialize the vector
+	do I = 1,num_rows
+		vector(i) = float(i)
+	end do
+	
+	! distribute a portion of the vector to each child process
+	do an_id = 1, num_procs -1
+        start_row = ( an_id * avg_rows_per_process) + 1
+        end_row = start_row + avg_rows_per_process - 1
+        if (an_id .eq. (num_procs - 1)) end_row = num_rows
+        num_rows_to_send = end_row - start_row + 1
+		
+		! send size to the world
+		! MPI_SEND(initialAddress, numElements, dataType, rankOfDest, msgTag, comHandle, ierr)
+        call MPI_SEND( num_rows_to_send, 1, MPI_INT, &
+		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		
+		! send vector to the world
+		! MPI_SEND(initialAddress, numElements, dataType, rankOfDest, msgTag, comHandle, ierr)
+        call MPI_SEND( vector(start_row), num_rows_to_send, MPI_REAL, &
+		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+     end do
+	 
+	 ! calculate the sum of the values in the segment assigned to the root process
+	 sum = 0.0
+	 do i = 1, avg_rows_per_process
+		 sum = sum + vector(i)
+	 end do
+	 
+	 write(*,*) sum
+	 write(*,*) "calculated by root process"
+	 
+	 ! finally, collect the partial sums from the slave processes, print them, then add them
+	 ! to the grand sum, and print it
+	 do an_id = 1, num_procs -1
+		
+		call MPI_RECV( partial_sum, 1, MPI_REAL, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+		sender = status(MPI_SOURCE)
+		write(*,*) "partial sum:"
+		write(*,*) partial_sum
+		write(*,*) "from process:"
+		write(*,*) sender
+		write(*,*) " "
+
+        sum = sum + partial_sum 
+     end do
+	 
+	 write(*,*) "the GRAND TOTAL SUM:"
+	 write(*,*) sum
+	
+! what to do if the process is a slave process 
+else
+	! here is a slave process, must receive vector segment and store it
+	! in a local vector, vector2
+	 
+	! receive size
+	! MPI_RECV(output, maxNumElements, dataType, rankOfSource, msgTag, comHandle, status, ierr)
+	call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
+	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+	
+	! receive chunk, save in local vector2
+	call MPI_RECV ( vector2, num_rows_to_receive, MPI_REAL, &
+	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+	num_rows_received = num_rows_to_receive
+
+	! Calculate the sum of my portion of the vector,
+
+	partial_sum = 0.0
+	do i = 1, num_rows_received
+	partial_sum = partial_sum + vector2(i)
+	end do
+
+	! and, finally, send my partial sum to the root process.
+
+	call MPI_SEND( partial_sum, 1, MPI_REAL, root_process, &
+	return_data_tag, MPI_COMM_WORLD, ierr)
+
+endif
+	 
 call MPI_FINALIZE ( ierr )
+
+
+
+
+
 
 ! PUT BOUNDARY CONDITIONS IN
 psi(1,1:yn) = bcyPsi(1,1:yn)
