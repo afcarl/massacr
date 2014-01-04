@@ -14,6 +14,7 @@ real(8) :: kMat(xn,yn), lambdaMat(xn,yn), porosity(xn,yn), permeable(xn)
 
 contains
 
+
 ! ----------------------------------------------------------------------------------%%
 !
 ! SUBROUTINE TO INITIALIZE, JUST CALL IT

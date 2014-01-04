@@ -1,7 +1,7 @@
 module globals
 save
 
-integer, parameter :: testInt = 31, xn =91, yn = 91, altnum = 58, mstep = 1000, cell = 4
+integer, parameter :: testInt = 31, xn =91, yn = 91, altnum = 58, mstep = 100, cell = 4
 integer, parameter :: tn = 10000
 real(8) :: x_min = 0.0D+00, x_max = 3000.0D+00, y_min = -1300.0D+00, y_max = 0.0D+00
 real(8) :: t_min = 0.0D+00, t_max = 1500000000.0 

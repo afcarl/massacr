@@ -162,6 +162,14 @@ integer :: num_procs, an_id, num_rows_to_receive
 integer :: avg_rows_per_process, num_rows, num_rows_to_send
 integer :: end_row, sender, start_row, num_rows_received
 real :: vector(max_rows), vector2(max_rows), partial_sum, sum
+real :: local_mean, global_mean
+real :: hLocal(xn*yn)
+
+! MPI STRETCHED OUT ARRAYS
+real :: hLong(xn*yn)
+real :: priLong((xn/cell)*(yn/cell),5), secLong((xn/cell)*(yn/cell),16), solLong((xn/cell)*(yn/cell),11)
+
+
 
 ! INITIALIZE CHEMISTRY
 primary(:,:,1) = 12.96 ! feldspar
@@ -186,9 +194,35 @@ solute(:,:,11) = 2.0e-3 ! Alk
 
 
 
+
+
+
+!---------------MESSAGE PASSING---------------!
+! process #0 is the root process
+root_process = 0
+
+! initialize a process
+call MPI_INIT ( ierr )
+
+! find out the process ID and how many processes were started so far
+call MPI_COMM_RANK (MPI_COMM_WORLD, my_id, ierr)
+call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
+
+write(*,*) "my_id:", my_id
+write(*,*) " "
+
+! what to do if the process is the root process
+if (my_id .eq. root_process) then
+	
+	! put number of rows in vector here
+	num_rows = xn*yn
+	avg_rows_per_process = num_rows / num_procs
+	
+!---------------MESSAGE PASSING---------------!
+
+
 ! INITIALIZE
 call init()
-
 
 ! PUT BOUNDARY CONDITIONS IN
 psi(1,1:yn) = bcyPsi(1,1:yn)
@@ -208,6 +242,9 @@ hmat(1:xn,1:yn) = h
 psimat(1:xn,1:yn) = psi
 umat(1:xn,1:yn) = u
 vmat(1:xn,1:yn) = v
+
+
+
 
 
 ! THIS IS THE MAIN LOOP
@@ -252,30 +289,76 @@ write(*,*) j
 	u = velocities0(1:xn,1:yn)/rho
 	v = velocities0(1:xn,yn+1:2*yn)/rho
 
-	! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
-	if (mod(j,mstep) .eq. 0) then
+! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
+if (mod(j,mstep) .eq. 0) then
+	
+	!-----------------------MESSAGE PASSING-----------------------!
+	! stretch everything out
+	hLong = reshape(h, (/xn*yn/))
+	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
+	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 16/))
+	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 11/))
+	
+	! distribute a portion of the vector to each child process
+	do an_id = 1, num_procs -1
+        start_row = ( an_id * avg_rows_per_process) + 1
+        end_row = start_row + avg_rows_per_process - 1
+        if (an_id .eq. (num_procs - 1)) end_row = num_rows
+        num_rows_to_send = (end_row - start_row + 1)
+		
+		! send h of grid cell
+        call MPI_SEND( num_rows_to_send, 1, MPI_INT, &
+		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		
+		! send vector to the an_id
+		! MPI_SEND(initialAddress, numElements, dataType, rankOfDest, msgTag, comHandle, ierr)
+        call MPI_SEND( hLong(start_row), num_rows_to_send, MPI_REAL, &
+		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+     end do
+	 !-----------------------MESSAGE PASSING-----------------------!
 
-! LOOP THROUGH EVERY cellTH GRID CELL, SOVE FOR EQUILIBRIUM
-do m=1,xn
-	if (mod(m,cell) .eq. 0) then
-		do n=1,yn
-			if (mod(n,cell) .eq. 0) then
-				write(*,*) m,n
-				!alt0 = alt_next(h(m,n),dt,primary(m/cell,n/cell,:),secondary(m/cell,n/cell,:),solute(m/cell,n/cell,:))
+
+
+	! LOOP THROUGH EVERY cellTH GRID CELL, SOVE FOR EQUILIBRIUM
+	do m=1,xn
+		if (mod(m,cell) .eq. 0) then
+			do n=1,yn
+				if (mod(n,cell) .eq. 0) then
+					write(*,*) m,n
+					!alt0 = alt_next(h(m,n),dt,primary(m/cell,n/cell,:),secondary(m/cell,n/cell,:),solute(m/cell,n/cell,:))
 		
-				!PARSING
-				!solute(m/cell,n/cell,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
-				!alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
+					!PARSING
+					!solute(m/cell,n/cell,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+					!alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
 		
-				!secondary(m/cell,n/cell,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
-				!alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
-				!alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
+					!secondary(m/cell,n/cell,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
+					!alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
+					!alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
 		
-				!primary(m/cell,n/cell,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
-			end if
-		end do
-	end if 
-end do
+					!primary(m/cell,n/cell,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
+				end if
+			end do
+		end if 
+	end do
+	
+	! DO ALL THE SLAVEWORK HERE
+	! root should calculate a local mean
+	global_mean = sum(hLong(1:avg_rows_per_process))/(max(1,size(hLong(1:avg_rows_per_process))))
+	write(*,*) "root process's local mean:", global_mean
+	write(*,*) " "
+	
+	!-----------------------MESSAGE PASSING-----------------------!
+	! receive local means and print them?
+	do an_id = 1, num_procs -1
+		call MPI_RECV( local_mean, 1, MPI_REAL, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+		sender = status(MPI_SOURCE)
+		write(*,*) "got a local mean from a slave:"
+		write(*,*) local_mean
+		write(*,*) "from process:"
+		write(*,*) sender
+		write(*,*) " "
+	end do
+	!-----------------------MESSAGE PASSING-----------------------!
 
 
 	! ADD EACH TIMESTEP TO MATRICES
@@ -299,7 +382,29 @@ end if
 
 end do
 
-
+!-----------------------MESSAGE PASSING-----------------------!
+else
+	! here is a slave process, each process must receive a chunk of the h array and 
+	! take the local mean, print it, send it back.
+	
+	! receive size
+	! MPI_RECV(output, maxNumElements, dataType, rankOfSource, msgTag, comHandle, status, ierr)
+	call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
+	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+	
+	! receive chunk, save in local vector2
+	call MPI_RECV ( hLocal, num_rows_to_receive, MPI_REAL, &
+	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+	num_rows_received = num_rows_to_receive
+	
+	! slave should calculate a local mean
+	local_mean = sum(hLocal(1:num_rows_received))/(max(1,size(hLocal(1:num_rows_received))))
+	
+	! and, finally, send my local mean to the root process.
+	call MPI_SEND( local_mean, 1, MPI_REAL, root_process, &
+	return_data_tag, MPI_COMM_WORLD, ierr)
+end if
+!-----------------------MESSAGE PASSING-----------------------!
 
 
 ! WRITE EVERYTHING TO FILE
@@ -357,6 +462,9 @@ yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
 
 write(*,*) " "
 write(*,*) "ALL DONE!"
+
+
+
 
 END PROGRAM main
 

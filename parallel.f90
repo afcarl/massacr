@@ -7,14 +7,16 @@
 ! each slave processor gives a partial sum back to the master processor, and a grand
 ! total sum is printed.
 !
-!
+! mpif90 -I/usr/local/include -c parallel.f90
+! mpif90 -I/usr/local/include -o parallel.o -L/usr/local/lib -lmpich
 ! mpirun -np 4 ./a.out
 ! ----------------------------------------------------------------------------------%%
 
 program parallel
-include 'mpif.h'
-
+	
 IMPLICIT NONE
+
+include 'mpif.h'
 
 ! DECLARE MPI STUFF
 !integer :: ierr
@@ -25,7 +27,7 @@ integer :: num_procs, an_id, num_rows_to_receive
 integer :: avg_rows_per_process, num_rows, num_rows_to_send
 integer :: end_row, sender, start_row, num_rows_received
 real :: vector(max_rows), vector2(max_rows), partial_sum, sum
-
+integer :: i
 
 
 
@@ -61,12 +63,12 @@ if (my_id .eq. root_process) then
         if (an_id .eq. (num_procs - 1)) end_row = num_rows
         num_rows_to_send = end_row - start_row + 1
 		
-		! send size to the world
+		! send size to the an_id
 		! MPI_SEND(initialAddress, numElements, dataType, rankOfDest, msgTag, comHandle, ierr)
         call MPI_SEND( num_rows_to_send, 1, MPI_INT, &
 		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		
-		! send vector to the world
+		! send vector to the an_id
 		! MPI_SEND(initialAddress, numElements, dataType, rankOfDest, msgTag, comHandle, ierr)
         call MPI_SEND( vector(start_row), num_rows_to_send, MPI_REAL, &
 		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
