@@ -30,11 +30,6 @@ real :: vector(max_rows), vector2(max_rows), partial_sum, sum
 
 
 
-
-! INITIALIZE
-call init()
-
-
 ! PLAYING WITH MESSAGE PASSING
 
 ! process #0 is the root process
@@ -120,19 +115,18 @@ else
 	num_rows_received = num_rows_to_receive
 
 	! Calculate the sum of my portion of the vector,
-
 	partial_sum = 0.0
 	do i = 1, num_rows_received
-	partial_sum = partial_sum + vector2(i)
+		partial_sum = partial_sum + vector2(i)
 	end do
 
 	! and, finally, send my partial sum to the root process.
-
 	call MPI_SEND( partial_sum, 1, MPI_REAL, root_process, &
 	return_data_tag, MPI_COMM_WORLD, ierr)
 
 endif
 	 
 call MPI_FINALIZE ( ierr )
+!stop
 
 end program parallel

@@ -190,111 +190,6 @@ solute(:,:,11) = 2.0e-3 ! Alk
 call init()
 
 
-! PLAYING WITH MESSAGE PASSING
-
-! process #0 is the root process
-root_process = 0
-
-! initialize a process
-call MPI_INIT ( ierr )
-
-! find out the process ID and how many processes were started so far
-call MPI_COMM_RANK (MPI_COMM_WORLD, my_id, ierr)
-call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
-
-! what to do if the process is the root process
-if (my_id .eq. root_process) then
-	
-	! put number of rows in vector here
-	num_rows = 100
-	avg_rows_per_process = num_rows / num_procs
-	
-	! initialize the vector
-	do I = 1,num_rows
-		vector(i) = float(i)
-	end do
-	
-	! distribute a portion of the vector to each child process
-	do an_id = 1, num_procs -1
-        start_row = ( an_id * avg_rows_per_process) + 1
-        end_row = start_row + avg_rows_per_process - 1
-        if (an_id .eq. (num_procs - 1)) end_row = num_rows
-        num_rows_to_send = end_row - start_row + 1
-		
-		! send size to the world
-		! MPI_SEND(initialAddress, numElements, dataType, rankOfDest, msgTag, comHandle, ierr)
-        call MPI_SEND( num_rows_to_send, 1, MPI_INT, &
-		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-		
-		! send vector to the world
-		! MPI_SEND(initialAddress, numElements, dataType, rankOfDest, msgTag, comHandle, ierr)
-        call MPI_SEND( vector(start_row), num_rows_to_send, MPI_REAL, &
-		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-     end do
-	 
-	 ! calculate the sum of the values in the segment assigned to the root process
-	 sum = 0.0
-	 do i = 1, avg_rows_per_process
-		 sum = sum + vector(i)
-	 end do
-	 
-	 write(*,*) sum
-	 write(*,*) "calculated by root process"
-	 
-	 ! finally, collect the partial sums from the slave processes, print them, then add them
-	 ! to the grand sum, and print it
-	 do an_id = 1, num_procs -1
-		
-		call MPI_RECV( partial_sum, 1, MPI_REAL, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-		sender = status(MPI_SOURCE)
-		write(*,*) "partial sum:"
-		write(*,*) partial_sum
-		write(*,*) "from process:"
-		write(*,*) sender
-		write(*,*) " "
-
-        sum = sum + partial_sum 
-     end do
-	 
-	 write(*,*) "the GRAND TOTAL SUM:"
-	 write(*,*) sum
-	
-! what to do if the process is a slave process 
-else
-	! here is a slave process, must receive vector segment and store it
-	! in a local vector, vector2
-	 
-	! receive size
-	! MPI_RECV(output, maxNumElements, dataType, rankOfSource, msgTag, comHandle, status, ierr)
-	call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
-	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-	
-	! receive chunk, save in local vector2
-	call MPI_RECV ( vector2, num_rows_to_receive, MPI_REAL, &
-	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-	num_rows_received = num_rows_to_receive
-
-	! Calculate the sum of my portion of the vector,
-
-	partial_sum = 0.0
-	do i = 1, num_rows_received
-	partial_sum = partial_sum + vector2(i)
-	end do
-
-	! and, finally, send my partial sum to the root process.
-
-	call MPI_SEND( partial_sum, 1, MPI_REAL, root_process, &
-	return_data_tag, MPI_COMM_WORLD, ierr)
-
-endif
-	 
-call MPI_FINALIZE ( ierr )
-
-
-
-
-
-
 ! PUT BOUNDARY CONDITIONS IN
 psi(1,1:yn) = bcyPsi(1,1:yn)
 psi(xn,1:yn) = bcyPsi(2,1:yn)
@@ -512,6 +407,7 @@ real(8) :: aBand((xn-2)*(yn-2),5), bBand((xn-2)*(yn-2),5)
 real(8) :: h0(xn,yn), uVec((xn-2)*(yn-2)), h_nextRow((xn-2)*(yn-2))
 real(8) :: kMatLong((xn-2)*(yn-2))
 real(8) :: mn(xn,yn)
+real(8) :: sxMat(xn,yn), syMat(xn,yn), sxLong((xn-2)*(yn-2)), syLong((xn-2)*(yn-2))
   
   
 mn = h
@@ -534,7 +430,7 @@ write(*,*) "velocity check"
 write(*,"(F10.5)") (dt*maxval(abs(u)))/(dx)
 write(*,"(F10.5)") (dt*maxval(abs(v)))/(dy)
 write(*,*) "conduction check"
-write(*,"(F10.5)") (2.0*dt*lambda)/(4186.0*dy*dy)
+write(*,"(F10.5)") (2.0*dt*maxval(lambdaMat))/(4186.0*dy*dy)
 write(*,*) " "
 
 
@@ -545,45 +441,48 @@ qx = dt/(dx)
 qy = dt/(dy)
 sx = (2.0*dt*lambda)/(4186.0*dx*dx)
 sy = (2.0*dt*lambda)/(4186.0*dy*dy)
+sxMat = (2.0*dt*lambdaMat)/(4186.0*dx*dx)
+syMat = (2.0*dt*lambdaMat)/(4186.0*dy*dy)
 
 ! VERTICAL BOUNDARY CONDITIONS
-h(2,:) = h(2,:) + h0(1,:)*sx/2.0  ! left
-h(yn-1,:) = h(yn-1,:) + h0(xn,:)*sx/2.0  ! right
+h(2,:) = h(2,:) + h0(1,:)*sxMat(1,:)/2.0  ! left
+h(xn-1,:) = h(xn-1,:) + h0(xn,:)*sxMat(xn,:)/2.0  ! right
  
 uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
-
+sxLong = reshape(sxMat(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
+syLong = reshape(syMat(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 
 ! MAKE THE BAND
 aBand = 0.0
 do i = 1,(xn-2)*(yn-2)
 	  
-	aBand(i,2) = 1.0+sx
+	aBand(i,2) = 1.0+sxLong(i)
 	if (i-1 .gt. 0) then
-	aBand(i,1) = -sx/2.0 - uLong(i)*qx/2.0
+	aBand(i,1) = -sxLong(i)/2.0 - uLong(i)*qx/2.0
 	end if
 	if (i+1 .le. (xn-2)*(yn-2)) then
-	aBand(i,3) = -sx/2.0 + uLong(i)*qx/2.0
+	aBand(i,3) = -sxLong(i)/2.0 + uLong(i)*qx/2.0
 	end if
 
 	! first edge
 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 + sx - uLong(i)*qx
+	aBand(i,2) = 1.0 + sxLong(i) - uLong(i)*qx
 	if (i .gt. 1) then
 	aBand(i,1) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand(i,3) = -sx/2.0 + uLong(i)*qx
+	aBand(i,3) = -sxLong(i)/2.0 + uLong(i)*qx
 	end if
 	end if
 
 	! last edge
 	if (any(mod((/i/),xn-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 + sx - uLong(i)*qx
+	aBand(i,2) = 1.0 + sxLong(i) - uLong(i)*qx
 	if (i .gt. 1) then
 	aBand(i,3) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand(i,1) = -sx/2.0 + uLong(i)*qx
+	aBand(i,1) = -sxLong(i)/2.0 + uLong(i)*qx
 	end if
 	end if
   
@@ -599,10 +498,14 @@ end do
 !!!!!!!!!!!! THIS !!!!!!!!!!!
 h_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),uVec,(xn-2)*(yn-2))
 h(2:xn-1,2:yn-1) = reshape(h_nextRow, (/xn-2, yn-2/))
+sxMat(2:xn-1,2:yn-1) = reshape(sxLong, (/xn-2, yn-2/))
+syMat(2:xn-1,2:yn-1) = reshape(syLong, (/xn-2, yn-2/))
+sxLong = reshape(transpose(sxMat(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
+syLong = reshape(transpose(syMat(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
 ! HORIZONTAL BOUNDARY CONDITIONS
-h(:,2) = h(:,2) + flux(:,1)*sy/2.0 ! bottom
-h(:,xn-1) = h(:,xn-1) + flux(:,2)*sy/2.0 ! top
+h(:,2) = h(:,2) + flux(:,1)*syMat(:,1)/2.0 ! bottom
+h(:,xn-1) = h(:,xn-1) + flux(:,2)*syMat(:,yn)/2.0 ! top
 
 h_nextRow = reshape(transpose(h(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
@@ -610,33 +513,33 @@ h_nextRow = reshape(transpose(h(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 ! MAKE THE BAND
 bBand = 0.0
 do i = 1,(xn-2)*(yn-2)
-	bBand(i,2) = 1.0+sy
+	bBand(i,2) = 1.0+syLong(i)
 	if (i-1 .gt. 0) then
-	bBand(i,1) = -sy/2.0 - vLong(i)*qy/2.0
+	bBand(i,1) = -syLong(i)/2.0 - vLong(i)*qy/2.0
 	end if
 	if (i+1 .le. (xn-2)*(yn-2)) then
-	bBand(i,3) = -sy/2.0 + vLong(i)*qy/2.0
+	bBand(i,3) = -syLong(i)/2.0 + vLong(i)*qy/2.0
 	end if
 
 	! first edge
 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-	bBand(i,2) = 1.0 + sy - vLong(i)*qy
+	bBand(i,2) = 1.0 + syLong(i) - vLong(i)*qy
 	if (i .gt. 1) then
 	bBand(i,1) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	bBand(i,3) = -sy/2.0 + vLong(i)*qy
+	bBand(i,3) = -syLong(i)/2.0 + vLong(i)*qy
 	end if
 	end if
 
 	! last edge
 	if (any(mod((/i/),xn-2) .eq. 0.0)) then
-	bBand(i,2) = 1.0 + sy + vLong(i)*qy
+	bBand(i,2) = 1.0 + syLong(i) + vLong(i)*qy
 	if (i .gt. 1) then
 	bBand(i,3) =  0.0
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	bBand(i,1) = -sy/2.0 - vLong(i)*qy
+	bBand(i,1) = -syLong(i)/2.0 - vLong(i)*qy
 	end if
 	end if
 end do

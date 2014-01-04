@@ -10,7 +10,7 @@ real(8) :: rhoLong((xn-2)*(yn-2))
 real(8) :: permxLong((xn-2)*(yn-2)), permyLong((xn-2)*(yn-2))
 real(8) :: rho0(xn,yn)
 real(8) :: bcx0(xn,2), bcy0(2,yn), bcxPsi(xn,2), bcyPsi(2,yn), ic0(xn,yn)
-real(8) :: kMat(xn,yn), porosity(xn,yn), permeable(xn)
+real(8) :: kMat(xn,yn), lambdaMat(xn,yn), porosity(xn,yn), permeable(xn)
 
 contains
 
@@ -56,17 +56,23 @@ bcyPsi(2,1:yn) = 0.0 ! right
 bcxPsi(1:xn,1) = 0.0 ! bottom
 bcxPsi(1:xn,2) = 0.0 ! top
 
+
 ! PERMEABILITY
+lambdaMat = 2.6
 do i=1,yn
 
 	if (y(i) .ge. y_min) then
-	permeability(:,i) = (0.5+0.5*tanh((y(i)+((800.0)))/20.0))*1e-13 &
+	permeability(:,i) = (0.5+0.5*tanh((y(i)+((800.0)))/100.0))*1e-13 &
 	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/100.0)))*1e-21
 	end if
 	
 	if (y(i) .gt. -500.0) then
 	permeability(:,i) = (0.5+0.5*tanh((y(i)+((200.0)))/100.0))*4e-17 &
-	&+ (1.0 - (0.5+0.5*tanh((y(i)+((200.0)))/20.0)))*1e-13
+	&+ (1.0 - (0.5+0.5*tanh((y(i)+((200.0)))/100.0)))*1e-13
+	end if
+	
+	if (y(i) .ge. -200.0) then
+		lambdaMat(:,i) = 1.6
 	end if
 	
 end do
@@ -74,6 +80,7 @@ end do
 ! HEAT TRANSFER PARAMETERS
 kMat = 2.6/(1000.0*4186.0)
 ki=2.6/(1000.0*4186.0)
+
 
 return
 
