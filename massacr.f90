@@ -164,11 +164,14 @@ integer :: end_row, sender, start_row, num_rows_received
 real :: vector(max_rows), vector2(max_rows), partial_sum, sum
 real :: local_mean, global_mean
 real :: hLocal(xn*yn)
+integer :: num_rows_to_send_cell, num_rows_received_cell, num_rows_to_receive_cell
+
 
 ! MPI STRETCHED OUT ARRAYS
 real :: hLong(xn*yn)
 real :: priLong((xn/cell)*(yn/cell),5), secLong((xn/cell)*(yn/cell),16), solLong((xn/cell)*(yn/cell),11)
-
+real :: priLocal((xn/cell)*(yn/cell),5)
+real :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 
 
 ! INITIALIZE CHEMISTRY
@@ -197,7 +200,7 @@ solute(:,:,11) = 2.0e-3 ! Alk
 
 
 
-!---------------MESSAGE PASSING---------------!
+!-----------------------MESSAGE PASSING-----------------------!
 ! process #0 is the root process
 root_process = 0
 
@@ -214,11 +217,9 @@ write(*,*) " "
 ! what to do if the process is the root process
 if (my_id .eq. root_process) then
 	
-	! put number of rows in vector here
-	num_rows = xn*yn
-	avg_rows_per_process = num_rows / num_procs
 	
-!---------------MESSAGE PASSING---------------!
+	
+!-----------------------MESSAGE PASSING-----------------------!
 
 
 ! INITIALIZE
@@ -296,23 +297,45 @@ if (mod(j,mstep) .eq. 0) then
 	! stretch everything out
 	hLong = reshape(h, (/xn*yn/))
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
+	write(*,*) "MAXVAL:", maxval(priLong)
 	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 16/))
 	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 11/))
 	
-	! distribute a portion of the vector to each child process
+	! distribute to slave processes
 	do an_id = 1, num_procs -1
+		
+		! put number of rows in vector here for hLong
+		num_rows = xn*yn
+		avg_rows_per_process = num_rows / num_procs
         start_row = ( an_id * avg_rows_per_process) + 1
         end_row = start_row + avg_rows_per_process - 1
         if (an_id .eq. (num_procs - 1)) end_row = num_rows
         num_rows_to_send = (end_row - start_row + 1)
 		
-		! send h of grid cell
+		! send size of h chunk
         call MPI_SEND( num_rows_to_send, 1, MPI_INT, &
 		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		
-		! send vector to the an_id
-		! MPI_SEND(initialAddress, numElements, dataType, rankOfDest, msgTag, comHandle, ierr)
+		! send h chunk to the an_id
         call MPI_SEND( hLong(start_row), num_rows_to_send, MPI_REAL, &
+		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		
+		
+		! put number of rows in vector here for chemLong
+		num_rows = (xn/cell)*(yn/cell)
+		avg_rows_per_process = num_rows / num_procs
+        start_row = ( an_id * avg_rows_per_process) + 1
+        end_row = start_row + avg_rows_per_process - 1
+        if (an_id .eq. (num_procs - 1)) end_row = num_rows
+        num_rows_to_send_cell = (end_row - start_row + 1)
+		
+		! send size of chem chunk
+        call MPI_SEND( num_rows_to_send_cell, 1, MPI_INT, &
+		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		
+		! send primary chunk to the an_id
+		priLongBit = priLong(:,1)
+        call MPI_SEND( priLongBit(start_row), num_rows_to_send_cell, MPI_REAL, &
 		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
      end do
 	 !-----------------------MESSAGE PASSING-----------------------!
@@ -324,7 +347,7 @@ if (mod(j,mstep) .eq. 0) then
 		if (mod(m,cell) .eq. 0) then
 			do n=1,yn
 				if (mod(n,cell) .eq. 0) then
-					write(*,*) m,n
+					!write(*,*) m,n
 					!alt0 = alt_next(h(m,n),dt,primary(m/cell,n/cell,:),secondary(m/cell,n/cell,:),solute(m/cell,n/cell,:))
 		
 					!PARSING
@@ -341,7 +364,6 @@ if (mod(j,mstep) .eq. 0) then
 		end if 
 	end do
 	
-	! DO ALL THE SLAVEWORK HERE
 	! root should calculate a local mean
 	global_mean = sum(hLong(1:avg_rows_per_process))/(max(1,size(hLong(1:avg_rows_per_process))))
 	write(*,*) "root process's local mean:", global_mean
@@ -352,10 +374,8 @@ if (mod(j,mstep) .eq. 0) then
 	do an_id = 1, num_procs -1
 		call MPI_RECV( local_mean, 1, MPI_REAL, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 		sender = status(MPI_SOURCE)
-		write(*,*) "got a local mean from a slave:"
-		write(*,*) local_mean
-		write(*,*) "from process:"
-		write(*,*) sender
+		write(*,*) "got a local mean from a slave:", local_mean
+		write(*,*) "from process:", sender
 		write(*,*) " "
 	end do
 	!-----------------------MESSAGE PASSING-----------------------!
@@ -387,19 +407,36 @@ else
 	! here is a slave process, each process must receive a chunk of the h array and 
 	! take the local mean, print it, send it back.
 	
-	! receive size
-	! MPI_RECV(output, maxNumElements, dataType, rankOfSource, msgTag, comHandle, status, ierr)
+	! receive size of h chunk
 	call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
 	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 	
-	! receive chunk, save in local vector2
+	! receive h chunk, save in local hLocal
 	call MPI_RECV ( hLocal, num_rows_to_receive, MPI_REAL, &
 	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 	num_rows_received = num_rows_to_receive
 	
+	
+	! receive size of chem chunk
+	call MPI_RECV ( num_rows_to_receive_cell, 1 , MPI_INT, &
+	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+	
+	! receive primary chunk, save in local priLocal
+	call MPI_RECV ( priLocalBit, num_rows_to_receive_cell, MPI_REAL, &
+	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+	num_rows_received_cell = num_rows_to_receive_cell
+	
+	write(*,*) "priLocal 1 :", priLocalBit
+	
+!-----------------------MESSAGE PASSING-----------------------!
+	
+	
+	!  DO ALL THE SLAVEWORK HERE
 	! slave should calculate a local mean
 	local_mean = sum(hLocal(1:num_rows_received))/(max(1,size(hLocal(1:num_rows_received))))
 	
+	
+!-----------------------MESSAGE PASSING-----------------------!
 	! and, finally, send my local mean to the root process.
 	call MPI_SEND( local_mean, 1, MPI_REAL, root_process, &
 	return_data_tag, MPI_COMM_WORLD, ierr)
