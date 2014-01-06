@@ -143,7 +143,7 @@ integer :: xInt, yInt, tInt, hInt, uInt, vInt
 integer :: ncid
 integer :: x_dimid, y_dimid, t_dimid, h_dimid, u_dimid, v_dimid
 integer :: x_varid, y_varid, t_varid, h_varid, u_varid, v_varid
-integer :: i, j, ii, m, n
+integer :: i, j, ii, m, n, jj
 
 real(8) :: nusseltLocalv(xn,1), nuBar
 real(8) :: alt0(1,altnum)
@@ -297,7 +297,6 @@ if (mod(j,mstep) .eq. 0) then
 	! stretch everything out
 	hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/))
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
-	write(*,*) "MAXVAL:", maxval(priLong)
 	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 16/))
 	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 11/))
 	
@@ -334,8 +333,8 @@ if (mod(j,mstep) .eq. 0) then
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
-		! send secondary chunk to the an_id
-		do ii = 1,16
+		! send solute chunk to the an_id
+		do ii = 1,11
 			solLongBit = solLong(:,ii)
         	call MPI_SEND( solLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
@@ -347,28 +346,6 @@ if (mod(j,mstep) .eq. 0) then
 	 !-----------------------MESSAGE PASSING-----------------------!
 
 
-
-	! LOOP THROUGH EVERY cellTH GRID CELL, SOVE FOR EQUILIBRIUM
-	do m=1,xn
-		if (mod(m,cell) .eq. 0) then
-			do n=1,yn
-				if (mod(n,cell) .eq. 0) then
-					!write(*,*) m,n
-					!alt0 = alt_next(h(m,n),dt,primary(m/cell,n/cell,:),secondary(m/cell,n/cell,:),solute(m/cell,n/cell,:))
-		
-					!PARSING
-					!solute(m/cell,n/cell,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
-					!alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
-		
-					!secondary(m/cell,n/cell,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
-					!alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
-					!alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
-		
-					!primary(m/cell,n/cell,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
-				end if
-			end do
-		end if 
-	end do
 	
 	
 	!-----------------------MESSAGE PASSING-----------------------!
@@ -493,66 +470,68 @@ write(*,*) "ALL DONE!"
 
 !-----------------------MESSAGE PASSING-----------------------!
 else
-	! here is a slave process, each process must receive a chunk of the h array and 
-	! take the local mean, print it, send it back.
-	
-	! receive size of chunk
-	call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
-	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-	
-	! receive h chunk, save in local hLocal
-	call MPI_RECV ( hLocal, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
-	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-	num_rows_received = num_rows_to_receive
-
-	! receive primary chunk, save in local priLocal
-	do ii = 1,5
-		call MPI_RECV ( priLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+	do jj = 1, tn/mstep
+		! here is a slave process, each process must receive a chunk of the h array and 
+		! take the local mean, print it, send it back.
+		! receive size of chunk
+		call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
 		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-		priLocal(:,ii) = priLocalBit
-	end do
-	
-	! receive secondary chunk, save in local priLocal
-	do ii = 1,16
-		call MPI_RECV ( secLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+		! receive h chunk, save in local hLocal
+		call MPI_RECV ( hLocal, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-		secLocal(:,ii) = secLocalBit
-	end do
-	
-	! receive solute chunk, save in local priLocal
-	do ii = 1,11
-		call MPI_RECV ( solLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
-		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-		solLocal(:,ii) = solLocalBit
-	end do
-!-----------------------MESSAGE PASSING-----------------------!
+		num_rows_received = num_rows_to_receive
 
-	!  DO ALL THE SLAVEWORK HERE
+		! receive primary chunk, save in local priLocal
+		do ii = 1,5
+			call MPI_RECV ( priLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+			priLocal(:,ii) = priLocalBit
+		end do
 	
-	! slave processor goes through phreeqc loop here
-	do m=1,num_rows_to_receive
-		alt0 = alt_next(hLocal(m),dt,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+		! receive secondary chunk, save in local priLocal
+		do ii = 1,16
+			call MPI_RECV ( secLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+			secLocal(:,ii) = secLocalBit
+		end do
+	
+		! receive solute chunk, save in local priLocal
+		do ii = 1,11
+			call MPI_RECV ( solLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+			solLocal(:,ii) = solLocalBit
+		end do
+	
+	!-----------------------MESSAGE PASSING-----------------------!
 
-		!PARSING
-		solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
-		alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
+		!  DO ALL THE SLAVEWORK HERE
+	
+		! slave processor goes through phreeqc loop here
+		do m=1,num_rows_to_receive
+			alt0 = alt_next(hLocal(m),dt,priLocal(m,:),secLocal(m,:),solLocal(m,:))
 
-		secLocal(m,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
-		alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
-		alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
+			!PARSING
+			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
 
-		priLocal(m,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
+			secLocal(m,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
+			alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
+			alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
+
+			priLocal(m,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
+		end do
+	
+	
+	!-----------------------MESSAGE PASSING-----------------------!
+	
+		! send primary chunk back to root process
+		do ii = 1,5
+			call MPI_SEND( priLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
+			return_data_tag, MPI_COMM_WORLD, ierr)
+		end do
+		write(*,*) "WE ARE DONE HERE IN THIS SLAVE PROCESS"
+	
 	end do
-	
-	
-!-----------------------MESSAGE PASSING-----------------------!
-	
-	! send primary chunk back to root process
-	do ii = 1,5
-		call MPI_SEND( priLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
-		return_data_tag, MPI_COMM_WORLD, ierr)
-	end do
-	
 	
 end if ! END MESSAGE PASSING LOOP
 call MPI_FINALIZE ( ierr )
