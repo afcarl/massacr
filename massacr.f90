@@ -161,17 +161,18 @@ integer :: my_id, root_process, ierr, status(MPI_STATUS_SIZE)
 integer :: num_procs, an_id, num_rows_to_receive
 integer :: avg_rows_per_process, num_rows, num_rows_to_send
 integer :: end_row, sender, start_row, num_rows_received
-real :: vector(max_rows), vector2(max_rows), partial_sum, sum
-real :: local_mean, global_mean
-real :: hLocal(xn*yn)
-integer :: num_rows_to_send_cell, num_rows_received_cell, num_rows_to_receive_cell
+real(8) :: vector(max_rows), vector2(max_rows), partial_sum, sum
+real(8) :: local_mean, global_mean
+real(8) :: hLocal((xn/cell)*(yn/cell))
 
 
 ! MPI STRETCHED OUT ARRAYS
-real :: hLong(xn*yn)
-real :: priLong((xn/cell)*(yn/cell),5), secLong((xn/cell)*(yn/cell),16), solLong((xn/cell)*(yn/cell),11)
-real :: priLocal((xn/cell)*(yn/cell),5)
-real :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
+real(8) :: hLong((xn/cell)*(yn/cell))
+real(8) :: priLong((xn/cell)*(yn/cell),5), secLong((xn/cell)*(yn/cell),16), solLong((xn/cell)*(yn/cell),11)
+real(8) :: priLocal((xn/cell)*(yn/cell),5), secLocal((xn/cell)*(yn/cell),16), solLocal((xn/cell)*(yn/cell),11)
+real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
+real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
+real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
 
 
 ! INITIALIZE CHEMISTRY
@@ -216,9 +217,6 @@ write(*,*) " "
 
 ! what to do if the process is the root process
 if (my_id .eq. root_process) then
-	
-	
-	
 !-----------------------MESSAGE PASSING-----------------------!
 
 
@@ -293,9 +291,11 @@ write(*,*) j
 ! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
 if (mod(j,mstep) .eq. 0) then
 	
+	
+	
 	!-----------------------MESSAGE PASSING-----------------------!
 	! stretch everything out
-	hLong = reshape(h, (/xn*yn/))
+	hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/))
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
 	write(*,*) "MAXVAL:", maxval(priLong)
 	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 16/))
@@ -305,7 +305,7 @@ if (mod(j,mstep) .eq. 0) then
 	do an_id = 1, num_procs -1
 		
 		! put number of rows in vector here for hLong
-		num_rows = xn*yn
+		num_rows = (xn/cell)*(yn/cell)
 		avg_rows_per_process = num_rows / num_procs
         start_row = ( an_id * avg_rows_per_process) + 1
         end_row = start_row + avg_rows_per_process - 1
@@ -317,27 +317,33 @@ if (mod(j,mstep) .eq. 0) then
 		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		
 		! send h chunk to the an_id
-        call MPI_SEND( hLong(start_row), num_rows_to_send, MPI_REAL, &
-		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-		
-		
-		! put number of rows in vector here for chemLong
-		num_rows = (xn/cell)*(yn/cell)
-		avg_rows_per_process = num_rows / num_procs
-        start_row = ( an_id * avg_rows_per_process) + 1
-        end_row = start_row + avg_rows_per_process - 1
-        if (an_id .eq. (num_procs - 1)) end_row = num_rows
-        num_rows_to_send_cell = (end_row - start_row + 1)
-		
-		! send size of chem chunk
-        call MPI_SEND( num_rows_to_send_cell, 1, MPI_INT, &
+        call MPI_SEND( hLong(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		
 		! send primary chunk to the an_id
-		priLongBit = priLong(:,1)
-        call MPI_SEND( priLongBit(start_row), num_rows_to_send_cell, MPI_REAL, &
-		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		do ii = 1,5
+			priLongBit = priLong(:,ii)
+        	call MPI_SEND( priLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		end do
+		
+		! send secondary chunk to the an_id
+		do ii = 1,16
+			secLongBit = secLong(:,ii)
+        	call MPI_SEND( secLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		end do
+		
+		! send secondary chunk to the an_id
+		do ii = 1,16
+			solLongBit = solLong(:,ii)
+        	call MPI_SEND( solLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		end do
+		write(*,*) "DONE SENDING TO PROCESSOR", an_id
+		
      end do
+
 	 !-----------------------MESSAGE PASSING-----------------------!
 
 
@@ -364,20 +370,38 @@ if (mod(j,mstep) .eq. 0) then
 		end if 
 	end do
 	
-	! root should calculate a local mean
-	global_mean = sum(hLong(1:avg_rows_per_process))/(max(1,size(hLong(1:avg_rows_per_process))))
-	write(*,*) "root process's local mean:", global_mean
-	write(*,*) " "
 	
 	!-----------------------MESSAGE PASSING-----------------------!
-	! receive local means and print them?
+	write(*,*) "BEFORE"
+	write(*,*) priLong(:,5)
+	
+	! RECEIVE EVERYTHING FROM SLAVE PROCESSORS HERE
 	do an_id = 1, num_procs -1
-		call MPI_RECV( local_mean, 1, MPI_REAL, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-		sender = status(MPI_SOURCE)
-		write(*,*) "got a local mean from a slave:", local_mean
-		write(*,*) "from process:", sender
-		write(*,*) " "
+		
+		! get the size of each chunk again
+		num_rows = (xn/cell)*(yn/cell)
+		avg_rows_per_process = num_rows / num_procs
+        start_row = ( an_id * avg_rows_per_process) + 1
+        end_row = start_row + avg_rows_per_process - 1
+        if (an_id .eq. (num_procs - 1)) end_row = num_rows
+        num_rows_to_send = (end_row - start_row + 1)
+		
+		! primary chunk
+		do ii = 1,5
+			! receive it
+			call MPI_RECV( priLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+			! parse it
+			priLong(start_row:end_row,ii) = priLocal(1:num_rows_to_send,ii)
+		end do
+	write(*,*) "DONE RECEIVING FROM PROCESSOR", an_id
 	end do
+	
+	! LOOK AT PRIMARY SEE IF IT WORKS
+	write(*,*) "AFTER"
+	write(*,*) priLong(:,5)
+	
+	
 	!-----------------------MESSAGE PASSING-----------------------!
 
 
@@ -390,7 +414,7 @@ if (mod(j,mstep) .eq. 0) then
 	 secondaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = secondary
 	 soluteMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = solute
 	 
-end if
+end if ! END mTH TIMESTEP LOOP
 
 ! umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
 ! vmat(1:xn,1+yn*(j-1):1+yn*(j)) = v
@@ -400,48 +424,10 @@ end if
 ! vmat(1:xn,1:yn) = v
 
 
-end do
+end do ! END ALL TIMESTEP LOOP
 
-!-----------------------MESSAGE PASSING-----------------------!
-else
-	! here is a slave process, each process must receive a chunk of the h array and 
-	! take the local mean, print it, send it back.
-	
-	! receive size of h chunk
-	call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
-	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-	
-	! receive h chunk, save in local hLocal
-	call MPI_RECV ( hLocal, num_rows_to_receive, MPI_REAL, &
-	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-	num_rows_received = num_rows_to_receive
-	
-	
-	! receive size of chem chunk
-	call MPI_RECV ( num_rows_to_receive_cell, 1 , MPI_INT, &
-	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-	
-	! receive primary chunk, save in local priLocal
-	call MPI_RECV ( priLocalBit, num_rows_to_receive_cell, MPI_REAL, &
-	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-	num_rows_received_cell = num_rows_to_receive_cell
-	
-	write(*,*) "priLocal 1 :", priLocalBit
-	
-!-----------------------MESSAGE PASSING-----------------------!
-	
-	
-	!  DO ALL THE SLAVEWORK HERE
-	! slave should calculate a local mean
-	local_mean = sum(hLocal(1:num_rows_received))/(max(1,size(hLocal(1:num_rows_received))))
-	
-	
-!-----------------------MESSAGE PASSING-----------------------!
-	! and, finally, send my local mean to the root process.
-	call MPI_SEND( local_mean, 1, MPI_REAL, root_process, &
-	return_data_tag, MPI_COMM_WORLD, ierr)
-end if
-!-----------------------MESSAGE PASSING-----------------------!
+
+
 
 
 ! WRITE EVERYTHING TO FILE
@@ -499,6 +485,79 @@ yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability1.txt' )
 
 write(*,*) " "
 write(*,*) "ALL DONE!"
+
+
+
+
+
+
+!-----------------------MESSAGE PASSING-----------------------!
+else
+	! here is a slave process, each process must receive a chunk of the h array and 
+	! take the local mean, print it, send it back.
+	
+	! receive size of chunk
+	call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
+	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+	
+	! receive h chunk, save in local hLocal
+	call MPI_RECV ( hLocal, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+	root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+	num_rows_received = num_rows_to_receive
+
+	! receive primary chunk, save in local priLocal
+	do ii = 1,5
+		call MPI_RECV ( priLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+		priLocal(:,ii) = priLocalBit
+	end do
+	
+	! receive secondary chunk, save in local priLocal
+	do ii = 1,16
+		call MPI_RECV ( secLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+		secLocal(:,ii) = secLocalBit
+	end do
+	
+	! receive solute chunk, save in local priLocal
+	do ii = 1,11
+		call MPI_RECV ( solLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+		solLocal(:,ii) = solLocalBit
+	end do
+!-----------------------MESSAGE PASSING-----------------------!
+
+	!  DO ALL THE SLAVEWORK HERE
+	
+	! slave processor goes through phreeqc loop here
+	do m=1,num_rows_to_receive
+		alt0 = alt_next(hLocal(m),dt,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+
+		!PARSING
+		solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+		alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
+
+		secLocal(m,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
+		alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
+		alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
+
+		priLocal(m,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
+	end do
+	
+	
+!-----------------------MESSAGE PASSING-----------------------!
+	
+	! send primary chunk back to root process
+	do ii = 1,5
+		call MPI_SEND( priLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
+		return_data_tag, MPI_COMM_WORLD, ierr)
+	end do
+	
+	
+end if ! END MESSAGE PASSING LOOP
+call MPI_FINALIZE ( ierr )
+!-----------------------MESSAGE PASSING-----------------------!
+
 
 
 
