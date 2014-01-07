@@ -129,6 +129,7 @@ write(s_timestep,'(F25.10)') timestep
 
 
 
+
 ! ----------------------------------%%
 ! INITIAL AQUEOUS PHASE CONSITUENTS
 ! ----------------------------------%%
@@ -423,6 +424,9 @@ END IF
 
 ! OUTPUT TO THE MAIN MASSACR METHOD
 alter(1,:) = outmat(2,:)
+
+!write(*,*) outmat(2,54)
+
 
 return
   

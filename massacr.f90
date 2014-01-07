@@ -163,7 +163,7 @@ integer :: avg_rows_per_process, num_rows, num_rows_to_send
 integer :: end_row, sender, start_row, num_rows_received
 real(8) :: vector(max_rows), vector2(max_rows), partial_sum, sum
 real(8) :: local_mean, global_mean
-real(8) :: hLocal((xn/cell)*(yn/cell))
+real(8) :: hLocal((xn/cell)*(yn/cell)), dt_local
 
 
 ! MPI STRETCHED OUT ARRAYS
@@ -292,15 +292,15 @@ write(*,*) j
 if (mod(j,mstep) .eq. 0) then
 	
 	
-	
-	!-----------------------MESSAGE PASSING-----------------------!
 	! stretch everything out
 	hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/))
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
 	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 16/))
 	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 11/))
 	
-	! distribute to slave processes
+	!-----------------------MESSAGE PASSING-----------------------!
+	
+	! DISTRIBUTE TO SLAVE PROCESSORS
 	do an_id = 1, num_procs -1
 		
 		! put number of rows in vector here for hLong
@@ -313,6 +313,10 @@ if (mod(j,mstep) .eq. 0) then
 		
 		! send size of h chunk
         call MPI_SEND( num_rows_to_send, 1, MPI_INT, &
+		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+		
+		! send timestep size
+        call MPI_SEND( dt, 1, MPI_DOUBLE_PRECISION, &
 		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		
 		! send h chunk to the an_id
@@ -343,12 +347,6 @@ if (mod(j,mstep) .eq. 0) then
 		
      end do
 
-	 !-----------------------MESSAGE PASSING-----------------------!
-
-
-	
-	
-	!-----------------------MESSAGE PASSING-----------------------!
 	write(*,*) "BEFORE"
 	write(*,*) priLong(:,5)
 	
@@ -367,20 +365,42 @@ if (mod(j,mstep) .eq. 0) then
 		do ii = 1,5
 			! receive it
 			call MPI_RECV( priLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
-			MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-			! parse it
+			an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+			! fill it
 			priLong(start_row:end_row,ii) = priLocal(1:num_rows_to_send,ii)
 		end do
-	write(*,*) "DONE RECEIVING FROM PROCESSOR", an_id
+		
+		! secondary chunk
+		do ii = 1,16
+			! receive it
+			call MPI_RECV( secLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+			! fill it
+			secLong(start_row:end_row,ii) = secLocal(1:num_rows_to_send,ii)
+		end do
+		
+		! solute chunk
+		do ii = 1,11
+			! receive it
+			call MPI_RECV( solLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+			! fill it
+			solLong(start_row:end_row,ii) = solLocal(1:num_rows_to_send,ii)
+		end do
+
+		write(*,*) "DONE RECEIVING FROM PROCESSOR", an_id
 	end do
+	
+	!-----------------------MESSAGE PASSING-----------------------!
+
+	! put stretched vectors back into 2d arrays
+	primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
+	secondary = reshape(secLong,(/(xn/cell), (yn/cell), 16/))
+	solute = reshape(solLong,(/(xn/cell), (yn/cell), 11/))
 	
 	! LOOK AT PRIMARY SEE IF IT WORKS
 	write(*,*) "AFTER"
 	write(*,*) priLong(:,5)
-	
-	
-	!-----------------------MESSAGE PASSING-----------------------!
-
 
 	! ADD EACH TIMESTEP TO MATRICES
 	 hmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = h
@@ -473,9 +493,15 @@ else
 	do jj = 1, tn/mstep
 		! here is a slave process, each process must receive a chunk of the h array and 
 		! take the local mean, print it, send it back.
+		
 		! receive size of chunk
 		call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
 		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+		
+		! receive timestep
+		call MPI_RECV ( dt_local, 1 , MPI_DOUBLE_PRECISION, &
+		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+		
 		! receive h chunk, save in local hLocal
 		call MPI_RECV ( hLocal, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
@@ -508,7 +534,7 @@ else
 	
 		! slave processor goes through phreeqc loop here
 		do m=1,num_rows_to_receive
-			alt0 = alt_next(hLocal(m),dt,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
 
 			!PARSING
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
@@ -529,7 +555,20 @@ else
 			call MPI_SEND( priLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
-		write(*,*) "WE ARE DONE HERE IN THIS SLAVE PROCESS"
+		
+		! send secondary chunk back to root process
+		do ii = 1,16
+			call MPI_SEND( secLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
+			return_data_tag, MPI_COMM_WORLD, ierr)
+		end do
+		
+		! send solute chunk back to root process
+		do ii = 1,11
+			call MPI_SEND( solLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
+			return_data_tag, MPI_COMM_WORLD, ierr)
+		end do
+		
+		write(*,*) "SLAVE PROCESS IS DONE WITH WORK"
 	
 	end do
 	
