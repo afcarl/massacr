@@ -34,7 +34,7 @@ glass0 = np.loadtxt('glassMat.txt')
 fig=plt.figure()
 
 
-i=9
+i=4
 cell = 4
 print h0.shape
 
@@ -66,8 +66,8 @@ feldspar = feldspar0[i*len(y0)/cell:i*len(y0)/cell+len(y0)/cell,:]
 
 glass = glass0[i*len(y)/cell-i:((i)*len(y)/cell+len(x)/cell)-i-1,:]
 #glassmin = glass0[3*len(y)/cell-3:((3)*len(y)/cell+len(x)/cell)-3-1,:]
-#glass = np.append(glass, glass[-1:,:], axis=0)
-#glass = np.append(glass, glass[:,-1:], axis=1)
+glass = np.append(glass, glass[-1:,:], axis=0)
+glass = np.append(glass, glass[:,-1:], axis=1)
 
 # SELECT RELEVANT PART OF MODEL DOMAIN
 
@@ -77,31 +77,31 @@ glass = glass0[i*len(y)/cell-i:((i)*len(y)/cell+len(x)/cell)-i-1,:]
 #yg = yg[yg.shape[0]*1700.0/3000.0:,:]
 #u = u[u.shape[0]*1700.0/3000.0:,:]
 #v = v[v.shape[0]*1700.0/3000.0:,:]
-feldspar = feldspar[feldspar.shape[0]*1700.0/3000.0:,:]
+#feldspar = feldspar[feldspar.shape[0]*1700.0/3000.0:,:]
 #glass = glass[glass.shape[0]*1700.0/3000.0:,:]
 
 
 ####################
 # STREAM FUNCTIONS #
 ####################
-
-ax1=fig.add_subplot(2,1,1, aspect='equal')
-levels00 = np.linspace(.00015, np.max(psi), 15)
-levels0 = np.linspace(np.min(psi), -.00015, 15)
-levels = np.append(levels0,levels00,axis=1)
-CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([2.0]))
-#plt.quiver(xg,yg,u,v)
-
-plt.title("STREAMFUNCTIONS",fontsize=8)
-
-plt.xlim(np.min(x), np.max(x))
+##
+##ax1=fig.add_subplot(2,2,1, aspect='equal')
+##levels00 = np.linspace(.00015, np.max(psi), 15)
+##levels0 = np.linspace(np.min(psi), -.00015, 15)
+##levels = np.append(levels0,levels00,axis=1)
+##CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([2.0]))
+###plt.quiver(xg,yg,u,v)
+##
+##plt.title("STREAMFUNCTIONS",fontsize=8)
+##
+##plt.xlim(np.min(x), np.max(x))
 
 
 #############
 # ISOTHERMS #
 #############
 
-ax1=fig.add_subplot(2,1,2, aspect='equal')
+ax1=fig.add_subplot(2,1,1, aspect='equal')
 p = plt.contour(xg,yg,h-273.0,np.arange(0,150,10),
                 colors='k',linewidths=np.array([2.0]))
 plt.clabel(p,inline=True,fontsize=8,fontweight='bold')
@@ -128,18 +128,18 @@ plt.xlim(np.min(x), np.max(x))
 # BASALTIC GLASS DISSOLUTION #
 ##############################
 
-##print glass0.shape
-##print glass.shape
-##ax1=fig.add_subplot(2,2,4, aspect='equal')
-##p = plt.pcolor(glass,cmap=cm.spectral)
-##
-##plt.title("AMOUNT OF BASALTIC GLASS [mol]",fontsize=8)
-##plt.colorbar(p,orientation='horizontal')
-##
-##plt.xlim(0, len(x)/cell-1)
-##plt.ylim(0, len(y)/cell-1)
-##
-##plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
+print glass.shape
+print glass0.shape
+ax1=fig.add_subplot(2,1,2)
+p = plt.contourf(glass[5:,:],cmap=cm.Greys)
+plt.grid(b=True, which='both', color='0.65',linestyle='-')
+plt.title("AMOUNT OF BASALTIC GLASS [mol]",fontsize=8)
+plt.colorbar(p,orientation='horizontal')
+
+#plt.xlim(0, len(x)/cell-1)
+#plt.ylim(0, len(y)/cell-1)
+
+plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 
 
 
@@ -151,7 +151,7 @@ plt.xlim(np.min(x), np.max(x))
 #cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 #cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
 
-plt.savefig('d1220.png')
+plt.savefig('d106.png')
 print "flow field plots"
 
 ###################

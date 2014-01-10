@@ -287,13 +287,13 @@ write(*,*) j
 	velocities0 = velocities(psi)
 	u = velocities0(1:xn,1:yn)/rho
 	v = velocities0(1:xn,yn+1:2*yn)/rho
-
+	
 ! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
 if (mod(j,mstep) .eq. 0) then
 	
 	
 	! stretch everything out
-	hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/))
+	hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/))
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
 	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 16/))
 	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 11/))
@@ -301,12 +301,12 @@ if (mod(j,mstep) .eq. 0) then
 	!-----------------------MESSAGE PASSING-----------------------!
 	
 	! DISTRIBUTE TO SLAVE PROCESSORS
-	do an_id = 1, num_procs -1
+	do an_id = 1, num_procs - 1
 		
 		! put number of rows in vector here for hLong
 		num_rows = (xn/cell)*(yn/cell)
-		avg_rows_per_process = num_rows / num_procs
-        start_row = ( an_id * avg_rows_per_process) + 1
+		avg_rows_per_process = num_rows / (num_procs-1)
+        start_row = ( (an_id-1) * avg_rows_per_process) + 1
         end_row = start_row + avg_rows_per_process - 1
         if (an_id .eq. (num_procs - 1)) end_row = num_rows
         num_rows_to_send = (end_row - start_row + 1)
@@ -351,12 +351,12 @@ if (mod(j,mstep) .eq. 0) then
 	write(*,*) priLong(:,5)
 	
 	! RECEIVE EVERYTHING FROM SLAVE PROCESSORS HERE
-	do an_id = 1, num_procs -1
+	do an_id = 1, num_procs - 1
 		
 		! get the size of each chunk again
 		num_rows = (xn/cell)*(yn/cell)
-		avg_rows_per_process = num_rows / num_procs
-        start_row = ( an_id * avg_rows_per_process) + 1
+		avg_rows_per_process = num_rows / (num_procs-1)
+        start_row = ( (an_id-1) * avg_rows_per_process) + 1
         end_row = start_row + avg_rows_per_process - 1
         if (an_id .eq. (num_procs - 1)) end_row = num_rows
         num_rows_to_send = (end_row - start_row + 1)
@@ -392,6 +392,9 @@ if (mod(j,mstep) .eq. 0) then
 	end do
 	
 	!-----------------------MESSAGE PASSING-----------------------!
+	
+
+
 
 	! put stretched vectors back into 2d arrays
 	primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
