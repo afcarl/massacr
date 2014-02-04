@@ -1,17 +1,17 @@
 
 ! ----------------------------------------------------------------------------------%%
 !
-! PHREEQOUT  - SINGLE BOX GEOCHEMICAL MODEL
+! BATCH  - LIKE PHREEQOUT BUT LESS EXTREME
 ! 
 ! SUMMARY: 
-! COMPILE : gfortran -c -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqout.f90
-!			gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc phreeqout.o
+! COMPILE : gfortran -c -I/usr/local/include -L/usr/local/lib -liphreeqc batch.f90
+!			gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc batch.o
 !			./a.out
 ! 
 !
 ! ----------------------------------------------------------------------------------%%
 
-program phreeqout
+program batch
     INCLUDE "IPhreeqc.f90.inc"
   INTEGER(KIND=4) :: id
   INTEGER(KIND=4) :: i
@@ -19,164 +19,63 @@ program phreeqout
   character(len=10200) :: inputz
   character(len=10200) :: inputz0, inputSS
   real(8), allocatable :: outmat(:,:)
-
-  !!!!!!!!!!!!!!!!!!!!!!
-  !  OLD INPUT SCRIPT  !
-  !!!!!!!!!!!!!!!!!!!!!!
   
-  inputz = "SOLUTION 1 Pure water" //NEW_LINE('')// &
-  &"    pH 7.0" //NEW_LINE('')// &
-  &"    temp 25.0" //NEW_LINE('')// &
-  &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-  &"    Gypsum 0.0 1.0" //NEW_LINE('')// &
-  &"    dolomite 0.0 1.0" //NEW_LINE('')// &
-  &"REACTION_TEMPERATURE 1" //NEW_LINE('')// &
-  &"    0.0 200.0 in 51 steps" //NEW_LINE('')// &
-  &"SAVE solution 1" //NEW_LINE('')// &
-  &"SAVE equilibrium_phases 1" //NEW_LINE('')// &
-  &"SELECTED_OUTPUT" //NEW_LINE('')// &
-  &"    -reset false" //NEW_LINE('')// &
-  &"    -equilibrium_phases Gypsum dolomite" //NEW_LINE('')// &
-  &"    -temp" //NEW_LINE('')// &
-
-  &"END"
-  
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !  SOLID SOLUTIONS ONLY   !
-  !!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-  inputSS = "SOLUTION 1 # 1 mmol/l NaCl" //NEW_LINE('')// &
-  &"    units   mmol/kgw" //NEW_LINE('')// &
-  &"    pH 9.5" //NEW_LINE('')// &
-  &"    pe 8.451" //NEW_LINE('')// &
-  &"    density 1.023" //NEW_LINE('')// &
-  &"    temp 10.0" //NEW_LINE('')// &
-  &"    Ca 6.0e-1" //NEW_LINE('')// &
-  &"    Mg 2.0e-0" //NEW_LINE('')// &
-  &"    Na 1.0e-0" //NEW_LINE('')// &
-  &"    K 1.0e-1" //NEW_LINE('')// &
-  &"    Fe 1.2e-3" //NEW_LINE('')// &
-  &"    S(6) 1.0e-1" //NEW_LINE('')// &
-  &"    Si 2.0e-1" //NEW_LINE('')// &
-  &"    Cl 3.0e-1" //NEW_LINE('')// &
-  &"    Al 1.0e-3" //NEW_LINE('')// &
-  &"    F 1.0e-3" //NEW_LINE('')// &
-!  &"    Alkalinity 2.0e-3 as HCO3-" //NEW_LINE('')// &
-!  &"    units   kg/kgw" //NEW_LINE('')// &
-!  &"    CO2 600" //NEW_LINE('')// &
-  &"END" //NEW_LINE('')// &
-  
-  &"CALCULATE_VALUES" //NEW_LINE('')// &
-  
-!  &"R(Plag)" //NEW_LINE('')// &
-!  &"-start" //NEW_LINE('')// &
-!  &"10 something = log10(((ACT('Ca+2')^.5)*(ACT('H2O')^3.0)*(ACT('SiO2')^2.5)*" // &
-!  & "(ACT('Al+3')^1.5)*(ACT('Na+')^.5))/(ACT('H+')^6.0))" //NEW_LINE('')// &
-!  &"100 SAVE something" //NEW_LINE('')// &
-!  &"-end" //NEW_LINE('')// &
-!  
-!  &"R(Aug)" //NEW_LINE('')// &
-!  &"-start" //NEW_LINE('')// &
-!  &"10 something = log10(((ACT('Ca+2')^.7)*(ACT('H2O')^2.0)*(ACT('SiO2')^2.0)*" //&
-!  &"(ACT('Fe+2')^.6)*(ACT('Mg+2')^.7))/(ACT('H+')^4.0))" //NEW_LINE('')// &
-!  &"100 SAVE something" //NEW_LINE('')// &
-!  &"-end" //NEW_LINE('')// &
-!  
-!  &"R(Pig)" //NEW_LINE('')// &
-!  &"-start" //NEW_LINE('')// &
-!  &"10 something = log10(((ACT('Ca+2')^1.14)*(ACT('H2O')^2.0)*(ACT('SiO2')^2.0)*" //&
-!  &"(ACT('Fe+2')^.64)*(ACT('Mg+2')^.22))/(ACT('H+')^4.0))" //NEW_LINE('')// &
-!  &"100 SAVE something" //NEW_LINE('')// &
-!  &"-end" //NEW_LINE('')// &
-  
-  &"R(Glass)" //NEW_LINE('')// &
-  &"-start" //NEW_LINE('')// &
-  &"10 something = log10(((ACT('Ca+2')^.015)*(ACT('H2O')^.35)*(ACT('SiO2')^0.5)*" //&
-  &"(ACT('Fe+2')^.095)*(ACT('Mg+2')^.065)*(ACT('Na+')^.025)*(ACT('K+')^.001)*" // &
-  &"(ACT('Al+3')^.105))/(ACT('H+')^7.0))" //NEW_LINE('')// &
-  &"100 SAVE something" //NEW_LINE('')// &
-  &"-end" //NEW_LINE('')// &
-  
-  &"END" //NEW_LINE('')// &
-  
-  &"SOLID_SOLUTIONS 1" //NEW_LINE('')// &
-!  &"Plagioclase" //NEW_LINE('')// &
-!  &"    -comp albite 0.5" //NEW_LINE('')// &
-!  &"    -comp anorthite 0.5" //NEW_LINE('')// &
-!  &"Augite" //NEW_LINE('')// &
-!  &"    -comp enstatite 0.3" //NEW_LINE('')// &
-!  &"    -comp ferrosilite 0.3" //NEW_LINE('')// &
-!  &"    -comp wollastonite 0.35" //NEW_LINE('')// &
-  &"Pigeonite" //NEW_LINE('')// &
-  &"    -comp enstatite 0.57" //NEW_LINE('')// &
-  &"    -comp ferrosilite 0.32" //NEW_LINE('')// &
-  &"    -comp wollastonite 0.11" //NEW_LINE('')// &
-!  &"BasaltGlass" //NEW_LINE('')// &
-!  &"    -comp Ca 0.015" //NEW_LINE('')// &
-!  &"    -comp Fe 0.095" //NEW_LINE('')// &
-!  &"    -comp Mg 0.065" //NEW_LINE('')// &
-!  &"    -comp Na 0.025" //NEW_LINE('')// &
-!  &"    -comp K 0.01" //NEW_LINE('')// &
-!  &"    -comp Al 0.105" //NEW_LINE('')// &
-!!  &"    -comp S(6) 0.003" //NEW_LINE('')// &
-!  &"    -comp SiO2(am) 0.5" //NEW_LINE('')// &
-!!  &"    -comp SiO2(am) 0.5" //NEW_LINE('')// &
-!!  &"    -comp O(s) .35" //NEW_LINE('')// &
-  &"END" //NEW_LINE('')// &
-  
-  
-  &"REACTION_TEMPERATURE 1" //NEW_LINE('')// &
-  &"    1.0 100.0 in 51 steps" //NEW_LINE('')// &
-  
-  &"Use solution 1" //NEW_LINE('')// &
-  &"Use solid_solutions 1" //NEW_LINE('')// &
-  
-  
-  
-  
-  
-  &"SELECTED_OUTPUT" //NEW_LINE('')// &
-  &"-reset false" //NEW_LINE('')// &
-  &"-ca R(Pig)" //NEW_LINE('')// &
-  &"-temp" //NEW_LINE('')// &
-  &"END"
   
   
   
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-  !  BASALT DISSOLUTION EXPERIMENTS   !
+  !        BATCH INPUT SCRIPT         !
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   
 
+!   !water composition is grande ronde river
+!   inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
+!   &"    pH 7.5" //NEW_LINE('')// &
+!   &"    units   mol/kgw" //NEW_LINE('')// &
+!   &"    temp 20.0" //NEW_LINE('')// &
+!   &"    Ca 6.0e-4" //NEW_LINE('')// &
+!   &"    Mg 2.0e-5" //NEW_LINE('')// &
+!   &"    Na 1.0e-3" //NEW_LINE('')// &
+!   &"    K 1.0e-4" //NEW_LINE('')// &
+!   &"    Fe 1.2e-6" //NEW_LINE('')// &
+!   &"    S(6) 1.0e-4 as SO4" //NEW_LINE('')// &
+!   &"    Si 2.0e-4" //NEW_LINE('')// &
+!   &"    Cl 3.0e-4" //NEW_LINE('')// &
+!   &"    Al 1.0e-6" //NEW_LINE('')// &
+!   &"    Alkalinity 2.0e-3 as HCO3" //NEW_LINE('')// &
+!   &"    -water		.38	# kg" //NEW_LINE('')// &
+!   &"END" //NEW_LINE('')// &
+
+ ! water composition is nordstrom et al. 1979 seawater
   inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
-  &"    pH 7.5" //NEW_LINE('')// &
-  &"    units   mol/kgw" //NEW_LINE('')// &
-  &"    temp 40.0" //NEW_LINE('')// &
-  &"    Ca 6.0e-4" //NEW_LINE('')// &
-  &"    Mg 2.0e-5" //NEW_LINE('')// &
-  &"    Na 1.0e-3" //NEW_LINE('')// &
-  &"    K 1.0e-4" //NEW_LINE('')// &
-  &"    Fe 1.2e-6" //NEW_LINE('')// &
-  &"    S(6) 1.0e-4 as SO4" //NEW_LINE('')// &
-  &"    Si 2.0e-4" //NEW_LINE('')// &
-  &"    Cl 3.0e-4" //NEW_LINE('')// &
-  &"    Al 1.0e-6" //NEW_LINE('')// &
-!  &"    F 1.0e-6" //NEW_LINE('')// &
-  &"    Alkalinity 2.0e-3 as HCO3" //NEW_LINE('')// &
-  &"    -water		.38	# kg" //NEW_LINE('')// &
+  &"    pH 8.22" //NEW_LINE('')// &
+  &"    units   ppm" //NEW_LINE('')// &
+  &"    temp 15.0" //NEW_LINE('')// &
+  &"    Ca 412.3" //NEW_LINE('')// &
+  &"    Mg 1291.8" //NEW_LINE('')// &
+  &"    Na 10768.0" //NEW_LINE('')// &
+  &"    K 399.1" //NEW_LINE('')// &
+  &"    Fe .002" //NEW_LINE('')// &
+  &"    Mn .0002" //NEW_LINE('')// &
+  &"    S(6) 2712.0 as SO4" //NEW_LINE('')// &
+  &"    Si 4.28" //NEW_LINE('')// &
+  &"    Cl 19353.0" //NEW_LINE('')// &
+  &"    NO3 0.29" //NEW_LINE('')// &
+  &"    NH4 0.03" //NEW_LINE('')// &
+  &"    Alkalinity 141.682 as HCO3" //NEW_LINE('')// &
+  &"    -water		.1	# kg" //NEW_LINE('')// &
   &"END" //NEW_LINE('')// &
   
   &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-  &"    CO2(g) 2 1000000" //NEW_LINE('')// &
-
-  &"    Siderite 0.0 0.0" //NEW_LINE('')// &
+  &"    CO2(g) .1 10" //NEW_LINE('')// &
+!  &"    Siderite 0.0 0.0" //NEW_LINE('')// &
   &"    Kaolinite 0.0 0.0" //NEW_LINE('')// &
   &"    Goethite 0.0 0.0" //NEW_LINE('')// &
 !  &"    Dolomite 0.0 0.0" //NEW_LINE('')// &
   &"    Celadonite 0.0 0.0" //NEW_LINE('')// &
   &"    SiO2(am) 0.0 0.0" //NEW_LINE('')// &
   &"    Albite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Calcite 0.0 0.0" //NEW_LINE('')// &
+  &"    Calcite 0.0 0.0" //NEW_LINE('')// &
   &"    Hematite 0.0 0.0" //NEW_LINE('')// &
 !  &"    Smectite-high-Fe-Mg 0.0 0.0" //NEW_LINE('')// &
   &"    Saponite-Mg 0.0 0.0" //NEW_LINE('')// &
@@ -185,7 +84,7 @@ program phreeqout
 !  &"    Magnesite 0.0 0.0" //NEW_LINE('')// &
   &"    Clinoptilolite-Ca 0.0 0.0" //NEW_LINE('')// &
   &"    Pyrite 0.0 0.0" //NEW_LINE('')// &
-!  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
+  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
 
   &"CALCULATE_VALUES" //NEW_LINE('')// &
   
@@ -199,6 +98,7 @@ program phreeqout
   &"+ EQUI('Dolomite')*184.3/2.84 + EQUI('Smectite-high-Fe-Mg')*425.7/2.7" // &
   &"+ EQUI('Dawsonite')*144.0/2.42 + EQUI('Magnesite')*84.3/3.0" // &
   &"+ EQUI('Siderite')*115.8/3.96 + EQUI('Calcite')*100.0/2.71" // &
+  &"+ EQUI('Quartz')*60.0/2.62" // &
   &"+ KIN('Plagioclase')*270.0/2.68 + KIN('Augite')*230.0/3.4" // &
   &"+ KIN('Pigeonite')*239.6/3.38 + KIN('Magnetite')*231.0/5.15" // &
   &"+ KIN('BGlass')*46.5/2.92" // &
@@ -209,10 +109,10 @@ program phreeqout
   ! .7-.3*SIM_TIME/3.14e11
   &"R(phi)" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"10 phi = 1.0-(CALC_VALUE('R(sum)')*.001/(CALC_VALUE('R(sum)')*.001+(.7-.3*SIM_TIME/3.14e11)))" //&
-  &"" //NEW_LINE('')// &
-  !&"20 phi = 0.1" //&
+  !&"10 phi = 1.0-(CALC_VALUE('R(sum)')*.001/(CALC_VALUE('R(sum)')*.001+.38*.001))" //&
   !&"" //NEW_LINE('')// &
+  &"20 phi = 0.1" //&
+  &"" //NEW_LINE('')// &
   &"100 SAVE phi" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
@@ -235,6 +135,7 @@ program phreeqout
   &"+ EQUI('Dolomite')*2.84 + EQUI('Smectite-high-Fe-Mg')*2.7" // &
   &"+ EQUI('Dawsonite')*2.42 + EQUI('Magnesite')*3.0" // &
   &"+ EQUI('Siderite')*3.96 + EQUI('Calcite')*2.71" // &
+  &"+ EQUI('Quartz')*2.62" // &
   &"+ KIN('Plagioclase')*2.68 + KIN('Augite')*3.4" // &
   &"+ KIN('Pigeonite')*3.38 + KIN('Magnetite')*5.15" // &
   &"+ KIN('BGlass')*2.92" //NEW_LINE('')// &
@@ -246,6 +147,7 @@ program phreeqout
   &"+ EQUI('Dolomite') + EQUI('Smectite-high-Fe-Mg')" // &
   &"+ EQUI('Dawsonite') + EQUI('Magnesite')" // &
   &"+ EQUI('Siderite') + EQUI('Calcite')" // &
+  &"+ EQUI('Quartz')" // &
   &"+ KIN('Plagioclase') + KIN('Augite')" // &
   &"+ KIN('Pigeonite') + KIN('Magnetite')" // &
   &"+ KIN('BGlass'))" //NEW_LINE('')// &
@@ -289,7 +191,7 @@ program phreeqout
   & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
   &"-m0 96.77" //NEW_LINE('')// &
 
-  &"    -step 3.14e11 in 100" //NEW_LINE('')// &
+  &"    -step 3.14e12 in 100" //NEW_LINE('')// &
 
   &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
   
@@ -347,7 +249,7 @@ program phreeqout
   &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite hematite goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
-  &"    -p magnesite siderite calcite" //NEW_LINE('')// &
+  &"    -p magnesite siderite calcite quartz" //NEW_LINE('')// &
   &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
   &"END"
@@ -418,7 +320,7 @@ program phreeqout
      	read(line,*) outmat(i,:)
      	!write(12,"(4F12.5)") outmat(i,:)
      	write(12,*) outmat(i,:)
-     	write(*,*) trim(line)
+     	!write(*,*) trim(line)
      end if
   END DO
   
@@ -429,8 +331,8 @@ program phreeqout
 
   ! ALL DONE!
   write(*,*) "phreequm dress"
-  write(*,*) outmat(2,46)
+  !write(*,*) outmat(2,46)
   
-end program phreeqout
+end program batch
 
 
