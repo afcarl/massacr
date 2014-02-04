@@ -11,7 +11,8 @@ FCFLAGS += -I/usr/local/include
 
 
 # libraries needed for linking, unused in the examples
-LDFLAGS = -L/usr/local/lib -lnetcdff -liphreeqc -lmpich
+LDFLAGS = -L/usr/local/lib -liphreeqc -lmpich
+# for previous line: -lnetcdff
 
 # List of executables to be built within the package
 PROGRAMS = massacr

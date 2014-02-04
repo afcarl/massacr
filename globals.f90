@@ -17,6 +17,8 @@ real(8) :: pec = 200.0
 real(8) :: dTdx(xn,yn), dTdy(xn,yn), dPdx(xn,yn), dPdy(xn,yn)
 
 
+
+
 contains
   
   

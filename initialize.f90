@@ -12,6 +12,7 @@ real(8) :: rho0(xn,yn)
 real(8) :: bcx0(xn,2), bcy0(2,yn), bcxPsi(xn,2), bcyPsi(2,yn), ic0(xn,yn)
 real(8) :: kMat(xn,yn), lambdaMat(xn,yn), porosity(xn,yn), permeable(xn)
 
+
 contains
 
 ! ----------------------------------------------------------------------------------%%

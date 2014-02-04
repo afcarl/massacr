@@ -312,7 +312,7 @@ if (mod(j,mstep) .eq. 0) then
         num_rows_to_send = (end_row - start_row + 1)
 		
 		! send size of h chunk
-        call MPI_SEND( num_rows_to_send, 1, MPI_INT, &
+        call MPI_SEND( num_rows_to_send, 1, MPI_INTEGER, &
 		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		
 		! send timestep size
@@ -498,7 +498,7 @@ else
 		! take the local mean, print it, send it back.
 		
 		! receive size of chunk
-		call MPI_RECV ( num_rows_to_receive, 1 , MPI_INT, &
+		call MPI_RECV ( num_rows_to_receive, 1 , MPI_INTEGER, &
 		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 		
 		! receive timestep

@@ -1,7 +1,8 @@
 module alteration
-use globals
+!use globals
 INCLUDE "IPhreeqc.f90.inc"
 save
+
 
 ! declare things here
 
@@ -35,12 +36,12 @@ contains
 function alter ( temp, timestep, primary, secondary, solute )
 
 implicit none
-INTEGER(KIND=4) :: id
+INTEGER(KIND=4) :: id, all=58
 INTEGER(KIND=4) :: i
 CHARACTER(LEN=1100) :: line
 character(len=10200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,altnum)
+real(8) :: alter(1,58)
 real(8), allocatable :: outmat(:,:)
 
 
@@ -397,7 +398,7 @@ END DO
 !OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
   
 ! WRITE AWAY
-allocate(outmat(GetSelectedOutputStringLineCount(id)+1,altnum))
+allocate(outmat(GetSelectedOutputStringLineCount(id)+1,all))
 DO i=1,GetSelectedOutputStringLineCount(id)
 	call GetSelectedOutputStringLine(id, i, line)
 	! HEADER BITS YOU MAY WANT
