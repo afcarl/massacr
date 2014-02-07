@@ -61,23 +61,28 @@ mass = out[:,37]*270.0 + out[:,39]*230.0 + out[:,41]*238.6 +  \
 #mass = 1.0
 out[:,0] = out[:,0]/(3.14e7)
 
+print out.shape
+
 print "phi"
-print out[:,45]
-
-print "s_sp"
-print out[:,46]
-
-print "water_volume"
 print out[:,47]
 
-print "rho_s"
+print "s_sp"
 print out[:,48]
+
+print "water_volume"
+print out[:,49]
+
+print "rho_s"
+print out[:,50]
+
+
+
 
 ################
 # precipitates #
 ################
 
-ax = plt.subplot(2,1,1)
+ax = plt.subplot(2,2,1)
 this = out[:,1]
 p3, = ax.plot(out[:,0],out[:,3]*mStil/mass, 'b:', label='Stilbite',linewidth=2)
 p3, = ax.plot(out[:,0],out[:,5]*mSi/mass, 'b', label='SiO2',linewidth=2)
@@ -105,6 +110,17 @@ plt.ylabel('MASS FRACTION',fontsize=8)
 plt.xlabel('TIME [yr]',fontsize=8)
 plt.legend(handles, labels,loc=2,prop={'size':6}, ncol=2)
 plt.title('SECONDARY MINERAL PRECIPITATION',fontsize=10)
+
+############
+# porosity #
+############
+
+ax = plt.subplot(2,2,2)
+p3, = ax.plot(out[:,0],out[:,47], 'b:', label='Porosity',linewidth=2)
+
+plt.ylabel('VOLUME FRACTION',fontsize=8)
+plt.xlabel('TIME [yr]',fontsize=8)
+plt.title('POROSITY',fontsize=10)
 
 
 ###############

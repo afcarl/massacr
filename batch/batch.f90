@@ -63,11 +63,11 @@ program batch
   &"    NO3 0.29" //NEW_LINE('')// &
   &"    NH4 0.03" //NEW_LINE('')// &
   &"    Alkalinity 141.682 as HCO3" //NEW_LINE('')// &
-  &"    -water		.1	# kg" //NEW_LINE('')// &
+  &"    -water		.5	# kg" //NEW_LINE('')// &
   &"END" //NEW_LINE('')// &
   
   &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-  &"    CO2(g) .1 10" //NEW_LINE('')// &
+  &"    CO2(g) -2.0 100" //NEW_LINE('')// &
 !  &"    Siderite 0.0 0.0" //NEW_LINE('')// &
   &"    Kaolinite 0.0 0.0" //NEW_LINE('')// &
   &"    Goethite 0.0 0.0" //NEW_LINE('')// &
@@ -79,7 +79,7 @@ program batch
   &"    Hematite 0.0 0.0" //NEW_LINE('')// &
 !  &"    Smectite-high-Fe-Mg 0.0 0.0" //NEW_LINE('')// &
   &"    Saponite-Mg 0.0 0.0" //NEW_LINE('')// &
-  &"    Stilbite 0.0 0.0" //NEW_LINE('')// &
+!  &"    Stilbite 0.0 0.0" //NEW_LINE('')// &
 !  &"    Dawsonite 0.0 0.0" //NEW_LINE('')// &
 !  &"    Magnesite 0.0 0.0" //NEW_LINE('')// &
   &"    Clinoptilolite-Ca 0.0 0.0" //NEW_LINE('')// &
@@ -109,16 +109,17 @@ program batch
   ! .7-.3*SIM_TIME/3.14e11
   &"R(phi)" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  !&"10 phi = 1.0-(CALC_VALUE('R(sum)')*.001/(CALC_VALUE('R(sum)')*.001+.38*.001))" //&
+  &"10 phi = 1.0-(CALC_VALUE('R(sum)')/(CALC_VALUE('R(sum)')+(TOT('water')*1000.0)))" //&
+  !&"10 phi = GET_POR(1)" //&
   !&"" //NEW_LINE('')// &
-  &"20 phi = 0.1" //&
+  !&"10 phi = 0.1" //&
   &"" //NEW_LINE('')// &
   &"100 SAVE phi" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
   &"R(water_volume)" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"10 water_volume = SOLN_VOL" //&
+  &"10 water_volume = TOT('water')" //&
   &"" //NEW_LINE('')// &
   &"100 SAVE water_volume" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
@@ -191,12 +192,11 @@ program batch
   & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
   &"-m0 96.77" //NEW_LINE('')// &
 
-  &"    -step 3.14e12 in 100" //NEW_LINE('')// &
+  &"    -step 3.14e14 in 100" //NEW_LINE('')// &
 
   &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
   
     &"Use solution 1" //NEW_LINE('')// &
-    !(CALC_VALUE('R(s_sp)'))
     
   &"RATES" //NEW_LINE('')// &
   
@@ -271,19 +271,12 @@ program batch
      CALL OutputErrorString(id)
      STOP
   END IF
-
-!  IF (LoadDatabase(id, "minteq.dat").NE.0) THEN
-!     CALL OutputErrorString(id)
-!     STOP
-!  END IF
   
   IF (LoadDatabase(id, "llnl.dat").NE.0) THEN
      CALL OutputErrorString(id)
      STOP
   END IF
 
-
-  
   ! RUN INPUT
   IF (RunString(id, inputz0).NE.0) THEN
      CALL OutputErrorString(id)
@@ -307,7 +300,7 @@ program batch
   OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
   
   ! WRITE AWAY
-  allocate(outmat(GetSelectedOutputStringLineCount(id)+1,49))
+  allocate(outmat(GetSelectedOutputStringLineCount(id)+1,51))
   DO i=1,GetSelectedOutputStringLineCount(id)
      call GetSelectedOutputStringLine(id, i, line)
      ! HEADER BITS YOU MAY WANT
