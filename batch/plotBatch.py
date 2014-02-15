@@ -1,4 +1,4 @@
-#plotGlass.py
+#plotBatch.py
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,7 +8,7 @@ from scipy.optimize import curve_fit
 
 
 out = np.loadtxt('testMat.txt')
-
+print out
 
 fig=plt.figure()
 
@@ -98,7 +98,6 @@ p3, = ax.plot(out[:,0],out[:,17]*mPyr/mass, 'r--', label='Pyrite',linewidth=2)
 #p3, = ax.plot(out[:,0],out[:,19]*mHem/mass, 'gold', label='Hematite',linewidth=2)
 
 ##p3, = ax.plot(out[:,0],out[:,21]*230.0/mass, 'k:', label='',linewidth=1)
-##p3, = ax.plot(out[:,0],out[:,23]*230.0/mass, 'k:', label='',linewidth=1)
 ##p3, = ax.plot(out[:,0],out[:,25]*230.0/mass, 'k:', label='',linewidth=1)
 ##p3, = ax.plot(out[:,0],out[:,27]*230.0/mass, 'k:', label='',linewidth=1)
 ##p3, = ax.plot(out[:,0],out[:,29]*230.0/mass, 'k:', label='',linewidth=1)
@@ -124,6 +123,7 @@ ax = plt.subplot(2,3,2)
 p3, = ax.plot(out[:,0],out[:,39]/max(out[:,39]), 'b', label='Plagioclase',linewidth=2)
 p3, = ax.plot(out[:,0],out[:,41]/max(out[:,41]), 'r', label='Augite',linewidth=2)
 p3, = ax.plot(out[:,0],out[:,43]/max(out[:,43]), 'g', label='Pigeonite',linewidth=2)
+#p3, = ax.plot(out[:,0],out[:,45]/max(out[:,45]), 'm', label='Magnetite',linewidth=2)
 
 plt.ylabel('NORMALIZED AMOUNT [mol]',fontsize=6)
 plt.xlabel('TIME [yr]',fontsize=6)
@@ -171,6 +171,7 @@ ax = plt.subplot(2,3,4)
 this = out[:,1]
 p3, = ax.plot(out[:,0],out[:,31]*mSid/mass, 'm', label='Siderite',linewidth=2)
 p3, = ax.plot(out[:,0],out[:,33]*mCal/mass, 'g', label='Calcite',linewidth=2)
+p3, = ax.plot(out[:,0],out[:,23]*mDol/mass, 'b', label='Dolomite',linewidth=2)
 
 handles, labels = ax.get_legend_handles_labels()
 #plt.legend(handles[::-1], labels[::-1])
@@ -191,7 +192,7 @@ this = out[:,1]
 p3, = ax.plot(out[:,0],out[:,1], 'r', label='pH',linewidth=2)
 plt.grid(True)
 
-#plt.ylim(3,8)
+plt.ylim(4,10)
 #plt.yticks(np.arange(3,8,.5))
 plt.ylabel('pH',fontsize=6)
 plt.xlabel('TIME [yr]',fontsize=6)

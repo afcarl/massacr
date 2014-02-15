@@ -63,7 +63,7 @@ program batch
   &"    NO3 0.29" //NEW_LINE('')// &
   &"    NH4 0.03" //NEW_LINE('')// &
   &"    Alkalinity 141.682 as HCO3" //NEW_LINE('')// &
-  &"    -water		.5	# kg" //NEW_LINE('')// &
+  &"    -water		5.0	# kg" //NEW_LINE('')// &
   &"END" //NEW_LINE('')// &
  
 !     &"SOLUTION 2 " //NEW_LINE('')// &
@@ -87,7 +87,7 @@ program batch
 
   
   &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-!  &"    CO2(g) -3.45 10000" //NEW_LINE('')// &
+  &"    CO2(g) -3.45 24" //NEW_LINE('')// &
 !  &"    O2(g) -.69897 10000" //NEW_LINE('')// &
 !  &"    Siderite 0.0 0.0" //NEW_LINE('')// &
   &"    Kaolinite 0.0 0.0" //NEW_LINE('')// &
@@ -199,37 +199,38 @@ program batch
   &"100 SAVE s_sp" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
-!   &"TRANSPORT 3" //NEW_LINE('')// &
+!   &"TRANSPORT" //NEW_LINE('')// &
 !   &"-cells 2" //NEW_LINE('')// &
+!   &"-lengths .1" //NEW_LINE('')// &
 !   &"-shifts 1" //NEW_LINE('')// &
-!   &"-time_step 1.0e14 second" //NEW_LINE('')// &
+!   &"-time_step 3.14e7" //NEW_LINE('')// &
 !   &"-flow_direction diffusion_only" //NEW_LINE('')// &
-!   &"-diffusion_coefficient 7.0e-9" //NEW_LINE('')// &
-!   &"-stagnant 1" //NEW_LINE('')// &
-!   &"" //NEW_LINE('')// &
-!   &"" //NEW_LINE('')// &
+!   &"-diffusion_coefficient 7.0e-2" //NEW_LINE('')// &
+!   !&"-stagnant 1" //NEW_LINE('')// &
+!   &"END" //NEW_LINE('')// &
 !   &"" //NEW_LINE('')// &
 !   &"" //NEW_LINE('')// &
   
   &"KINETICS" //NEW_LINE('')// &
   &"Plagioclase" //NEW_LINE('')// &
-  &"-m0 12.96" //NEW_LINE('')// &
+  &"-m0 129.6" //NEW_LINE('')// &
   &"Augite" //NEW_LINE('')// &
-  &"-m0 6.96" //NEW_LINE('')// &
+  &"-m0 69.6" //NEW_LINE('')// &
   &"Pigeonite" //NEW_LINE('')// &
-  &"-m0 1.26" //NEW_LINE('')// &
+  &"-m0 12.6" //NEW_LINE('')// &
   &"Magnetite" //NEW_LINE('')// &
-  &"-m0 .4" //NEW_LINE('')// &
+  &"-m0 4.0" //NEW_LINE('')// &
   &"BGlass" //NEW_LINE('')// &
   &"-f Ca 0.015 Fe 0.095 Mg 0.065 " //&
   & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
-  &"-m0 96.77" //NEW_LINE('')// &
-  &"pCO2" //NEW_LINE('')// &
-  &"-f CO2" //&
-  &"-m0 10.0" //NEW_LINE('')// &
+  &"-m0 967.7" //NEW_LINE('')// &
+  !&"-m0 0.0" //NEW_LINE('')// &
+!  &"pCO2" //NEW_LINE('')// &
+!  &"-f CO2" //&
+!  &"-m0 10.0" //NEW_LINE('')// &
 
   &"    -step 3.14e13 in 100" //NEW_LINE('')// &
-
+  
   &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
   
     &"Use solution 1" //NEW_LINE('')// &
@@ -238,14 +239,14 @@ program batch
   
   &"BGlass" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.1*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
+  &"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*1.0*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
   &"*(((ACT('H+')^3)/(ACT('Al+3')))^.333)" //NEW_LINE('')// &
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
   &"Plagioclase" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate = (1-SR('Plagioclase'))*M*270.0*CALC_VALUE('R(s_sp)')*0.1*((1.58e-9)"//&
+  &"    10 rate = (1-SR('Plagioclase'))*M*270.0*CALC_VALUE('R(s_sp)')*1.0*((1.58e-9)"//&
   &"*exp(-53.5/(.008314*TK))*(ACT('H+')^0.541) +(3.39e-12)*exp(-57.4/(.008314*TK)) +"//&
   &"(4.78e-15)*exp(-59.0/(.008314*TK))*(ACT('H+')^-0.57))"//NEW_LINE('')//&
   &"    20 save rate * time"//NEW_LINE('')//&
@@ -253,30 +254,32 @@ program batch
   
   &"Augite" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate0 = (1-SR('Augite'))*M*230.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
+  &"    10 rate0 = (1-SR('Augite'))*M*230.0*CALC_VALUE('R(s_sp)')*1.0*(((1.58e-7)" // &
   &"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))" //NEW_LINE('')// & 
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
   &"Pigeonite" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate0 = (1-SR('Pigeonite'))*M*236.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
+  &"    10 rate0 = (1-SR('Pigeonite'))*M*236.0*CALC_VALUE('R(s_sp)')*1.0*(((1.58e-7)" // &
   &"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))"//NEW_LINE('')// &
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
   
   &"Magnetite" //NEW_LINE('')// &
   &"-start" //NEW_LINE('')// &
-  &"    10 rate0 = (1-SR('Magnetite'))*M*231.0*CALC_VALUE('R(s_sp)')*0.1*(((2.57e-9)" // &
+  &"    10 rate0 = (1-SR('Magnetite'))*M*231.0*CALC_VALUE('R(s_sp)')*1.0*(((2.57e-9)" // &
   &"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-11)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
   &"    20 save rate0 * time" //NEW_LINE('')// &
   &"-end" //NEW_LINE('')// &
 
-  &"pCO2" //NEW_LINE('')// &
-  &"-start" //NEW_LINE('')// &
-  &"    10 rate0 = 1.0e-12" //NEW_LINE('')// &
-  &"    20 save rate0 * time" //NEW_LINE('')// &
-  &"-end" //NEW_LINE('')// &
+!   &"pCO2" //NEW_LINE('')// &
+!   &"-start" //NEW_LINE('')// &
+!   &"    10 rate = 1.0e-13" //NEW_LINE('')// &
+!   &"    20 save rate * time" //NEW_LINE('')// &
+!   &"-end" //NEW_LINE('')// &
+
+
    
   &"DUMP" //NEW_LINE('')// &
   &"    -solution 1" //NEW_LINE('')// &
