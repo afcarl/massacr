@@ -10,7 +10,7 @@ program batchControl
 INCLUDE "IPhreeqc.f90.inc"
 
 !implicit none
-INTEGER(KIND=4) :: id, all=61, its=10
+INTEGER(KIND=4) :: id, all=62, its=20
 INTEGER(KIND=4) :: i, j
 CHARACTER(LEN=1100) :: line
 character(len=30200) :: inputz0
@@ -43,11 +43,11 @@ siderite = 0.0
 
 ! function alter ( temp, timestep, primary, secondary, solute )
 ! INITIALIZE CHEMISTRY, STUFF DONE THAT IS PASSED TO WHAT WAS ORIGINALLY A SUBROUTINE OR WHATEVER
-primary(1) = 12.96 ! feldspar
-primary(2) = 6.96 ! augite
-primary(3) = 1.26 ! pigeonite
-primary(4) = .4 ! magnetite
-primary(5) = 96.77 ! basaltic glass
+primary(1) = 129.6 ! feldspar
+primary(2) = 69.6 ! augite
+primary(3) = 12.6 ! pigeonite
+primary(4) = 4.0 ! magnetite
+primary(5) = 967.7 ! basaltic glass
 
 
 secondary(:) = 0.0
@@ -64,7 +64,7 @@ solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
 solute(11) = 2.0e-3 ! Alk
 
-timestep = 3.14e13
+timestep = 3.14e11
 temp = 10.0
 
 
@@ -291,8 +291,8 @@ write(s_timestep,'(F25.10)') timestep
 & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
-!&"    -step " // trim(s_timestep) // " in 10" //NEW_LINE('')// &
-&"    -step 3.14e12 in 10" //NEW_LINE('')// &
+&"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
+!&"    -step 3.14e11 in 1" //NEW_LINE('')// &
 
 &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
 
@@ -400,10 +400,8 @@ END DO
   
 ! NOW KINDA USELESS PRINT STATEMENTS FOR WRITING TO FILES
 !WRITE(*,*) "WRITING TO 2D ARRAY AND OUTPUT FILES"
-WRITE(*,*) "NUMBER OF LINES:"
-WRITE(*,*) GetSelectedOutputStringLineCount(id)
-  
-  
+!WRITE(*,*) "NUMBER OF LINES:"
+!WRITE(*,*) GetSelectedOutputStringLineCount(id)
 ! OPEN FILE (don't need no file) (USEFUL)
 !OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
   
@@ -412,7 +410,7 @@ WRITE(*,*) GetSelectedOutputStringLineCount(id)
 DO i=1,GetSelectedOutputStringLineCount(id)
 	call GetSelectedOutputStringLine(id, i, line)
 	! HEADER BITS YOU MAY WANT
-	if (i .eq. 1) then
+	if ((i .eq. 1) .and. (j .eq. 1)) then
  	   !write(12,*) trim(line)
 	   write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
 	end if
@@ -420,7 +418,9 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	if (i .gt. 1) then
 		!write(*,*) trim(line)
 		write(*,*) "line:", i
-		read(line,*) outmat(j,:)
+		write(*,*) "timestep:", j
+		outmat(j,1) = j
+		read(line,*) outmat(j,2:)
 	end if
 END DO
   
@@ -429,21 +429,78 @@ IF (DestroyIPhreeqc(id).NE.IPQ_OK) THEN
 	STOP
 END IF
 
-! ALL DONE!
-write(*,*) "this is phreeqing me out"
+! PUT IN VALUES FOR THE NEXT TIMESTEP
+primary(1) = outmat(j,49) ! feldspar
+primary(2) = outmat(j,51) ! augite
+primary(3) = outmat(j,53) ! pigeonite
+primary(4) = outmat(j,55) ! magnetite
+primary(5) = outmat(j,57) ! basaltic glass
+secondary(1) = outmat(j,41)
+secondary(2) = outmat(j,17)
+secondary(3) = outmat(j,31)
+secondary(4) = outmat(j,33)
+secondary(5) = outmat(j,23)
+secondary(6) = outmat(j,15)
+secondary(7) = outmat(j,19)
+secondary(8) = outmat(j,43)
+secondary(9) = outmat(j,29)
+secondary(10) = outmat(j,35)
+secondary(11) = outmat(j,21)
+secondary(12) = outmat(j,13)
+secondary(13) = outmat(j,37)
+secondary(14) = outmat(j,39)
+secondary(15) = outmat(j,25)
+secondary(16) = outmat(j,27)
+secondary(17) = outmat(j,45)
+secondary(18) = outmat(j,47)
+
+! PRIMARIES TO STRINGS
+write(s_feldspar,'(F25.10)') primary(1)
+write(s_augite,'(F25.10)') primary(2)
+write(s_pigeonite,'(F25.10)') primary(3)
+write(s_magnetite,'(F25.10)') primary(4)
+write(s_glass,'(F25.10)') primary(5)
+
+! SECONDARIES TO STRINGS
+write(s_siderite,'(F25.10)') secondary(1)
+write(s_kaolinite,'(F25.10)') secondary(2)
+write(s_goethite,'(F25.10)') secondary(3)
+write(s_dolomite,'(F25.10)') secondary(4)
+write(s_celadonite,'(F25.10)') secondary(5)
+write(s_sio2,'(F25.10)') secondary(6)
+write(s_albite,'(F25.10)') secondary(7)
+write(s_calcite,'(F25.10)') secondary(8)
+write(s_hematite,'(F25.10)') secondary(9)
+write(s_smectite,'(F25.10)') secondary(10)
+write(s_saponite,'(F25.10)') secondary(11)
+write(s_stilbite,'(F25.10)') secondary(12)
+write(s_dawsonite,'(F25.10)') secondary(13)
+write(s_magnesite,'(F25.10)') secondary(14)
+write(s_clinoptilolite,'(F25.10)') secondary(15)
+write(s_pyrite,'(F25.10)') secondary(16)
+write(s_quartz,'(F25.10)') secondary(17)
+write(s_kspar,'(F25.10)') secondary(18)
 
 ! END BIG LOOP
 end do
 
-write(*,*) outmat(1,:)
 
 
-! PUT IN VALUES FOR THE NEXT TIMESTEP
-! primary(1) = 12.96 ! feldspar
-! primary(2) = 6.96 ! augite
-! primary(3) = 1.26 ! pigeonite
-! primary(4) = .4 ! magnetite
-! primary(5) = 96.77 ! basaltic glass
+
+
+
+write(*,*) outmat(:,1)
+
+! WRITE TO FILE
+OPEN(UNIT=12, FILE="flush.txt", ACTION="write", STATUS="replace") 
+do i=1,its
+	write(12,*) outmat(i,:)
+end do
+
+! ALL DONE!
+write(*,*) "this is phreeqing me out"
+
+
 ! secondary(:) = 0.0
 ! solute(1) = 7.5 ! ph
 ! solute(2) = 6.0e-4 ! Ca
