@@ -7,7 +7,7 @@ import math
 from scipy.optimize import curve_fit
 
 
-out = np.loadtxt('testMat.txt')
+out = np.loadtxt('k200.txt')
 print out
 
 fig=plt.figure()

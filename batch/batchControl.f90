@@ -10,9 +10,9 @@ program batchControl
 INCLUDE "IPhreeqc.f90.inc"
 
 !implicit none
-INTEGER(KIND=4) :: id, all=62, its=20
-INTEGER(KIND=4) :: i, j
-CHARACTER(LEN=1100) :: line
+INTEGER(KIND=4) :: id, all=62, its=10, its0=4
+INTEGER(KIND=4) :: i, j, jj
+CHARACTER(LEN=11000) :: line
 character(len=30200) :: inputz0
 character(len=4) :: fake_in
 real(8) :: alter(1,58)
@@ -64,13 +64,8 @@ solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
 solute(11) = 2.0e-3 ! Alk
 
-timestep = 3.14e11
+timestep = 6.28e10
 temp = 10.0
-
-
-! NOW YOU HAVE TO LOOP THIS ENTIRE THING AND ADD EACH OUTPUT TO A MATRIX EACH TIME
-allocate(outmat(its+1,all))
-do j = 1,its
 
 
 ! SOLUTES TO STRINGS
@@ -116,6 +111,15 @@ write(s_kspar,'(F25.10)') secondary(18)
 ! OTHER INFORMATION TO STRINGS
 write(s_temp,'(F25.10)') temp
 write(s_timestep,'(F25.10)') timestep
+
+
+
+
+
+
+! NOW YOU HAVE TO LOOP THIS ENTIRE THING AND ADD EACH OUTPUT TO A MATRIX EACH TIME
+allocate(outmat(its*its0+1,all))
+do j = 1,its
 
 ! ----------------------------------%%
 ! INITIAL AQUEOUS PHASE CONSITUENTS
@@ -163,7 +167,7 @@ write(s_timestep,'(F25.10)') timestep
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-&"    CO2(g) -1.45 100" //NEW_LINE('')// &
+!&"    CO2(g) -3.45 100" //NEW_LINE('')// &
 !&"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
@@ -171,11 +175,11 @@ write(s_timestep,'(F25.10)') timestep
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
 &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
 &"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
-!  &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
+ &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
 &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
 !  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
 &"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
-&"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
+!&"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
 !  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
 !  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
 &"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
@@ -291,7 +295,7 @@ write(s_timestep,'(F25.10)') timestep
 & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
-&"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
+&"    -step " // trim(s_timestep) // " in 4" //NEW_LINE('')// &
 !&"    -step 3.14e11 in 1" //NEW_LINE('')// &
 
 &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
@@ -352,9 +356,10 @@ write(s_timestep,'(F25.10)') timestep
 
   &"SELECTED_OUTPUT" //NEW_LINE('')// &
   &"    -reset false" //NEW_LINE('')// &
+  &"    -high_precision true" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
-  &"    -totals Ca Mg Na K Fe S(6) Si Cl Al" //NEW_LINE('')// &
+  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO42- Si+4 Cl- Al+3" //NEW_LINE('')// &
 !  &"    -alkalinity" //NEW_LINE('')// &
 !  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
@@ -417,11 +422,12 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	! MEAT
 	if (i .gt. 1) then
 		!write(*,*) trim(line)
-		write(*,*) "line:", i
-		write(*,*) "timestep:", j
-		outmat(j,1) = j
-		read(line,*) outmat(j,2:)
+		!write(*,*) "line:", i
+		write(*,*) "timestep:", its0*j+i-its0-1
+		outmat(its0*j+i-its0-1,1) = its0*j+i-its0-1
+		read(line,*) outmat(its0*j+i-its0-1,2:)
 	end if
+	write(*,*) " "
 END DO
   
 ! DESTROY INSTANCE
@@ -429,30 +435,35 @@ IF (DestroyIPhreeqc(id).NE.IPQ_OK) THEN
 	STOP
 END IF
 
+jj = its0*j
+write(*,*) "jj"
+write(*,*) jj
+
+
 ! PUT IN VALUES FOR THE NEXT TIMESTEP
-primary(1) = outmat(j,49) ! feldspar
-primary(2) = outmat(j,51) ! augite
-primary(3) = outmat(j,53) ! pigeonite
-primary(4) = outmat(j,55) ! magnetite
-primary(5) = outmat(j,57) ! basaltic glass
-secondary(1) = outmat(j,41)
-secondary(2) = outmat(j,17)
-secondary(3) = outmat(j,31)
-secondary(4) = outmat(j,33)
-secondary(5) = outmat(j,23)
-secondary(6) = outmat(j,15)
-secondary(7) = outmat(j,19)
-secondary(8) = outmat(j,43)
-secondary(9) = outmat(j,29)
-secondary(10) = outmat(j,35)
-secondary(11) = outmat(j,21)
-secondary(12) = outmat(j,13)
-secondary(13) = outmat(j,37)
-secondary(14) = outmat(j,39)
-secondary(15) = outmat(j,25)
-secondary(16) = outmat(j,27)
-secondary(17) = outmat(j,45)
-secondary(18) = outmat(j,47)
+primary(1) = outmat(jj,49) ! feldspar
+primary(2) = outmat(jj,51) ! augite
+primary(3) = outmat(jj,53) ! pigeonite
+primary(4) = outmat(jj,55) ! magnetite
+primary(5) = outmat(jj,57) ! basaltic glass
+secondary(1) = outmat(jj,41)
+secondary(2) = outmat(jj,17)
+secondary(3) = outmat(jj,31)
+secondary(4) = outmat(jj,33)
+secondary(5) = outmat(jj,23)
+secondary(6) = outmat(jj,15)
+secondary(7) = outmat(jj,19)
+secondary(8) = outmat(jj,43)
+secondary(9) = outmat(jj,29)
+secondary(10) = outmat(jj,35)
+secondary(11) = outmat(jj,21)
+secondary(12) = outmat(jj,13)
+secondary(13) = outmat(jj,37)
+secondary(14) = outmat(jj,39)
+secondary(15) = outmat(jj,25)
+secondary(16) = outmat(jj,27)
+secondary(17) = outmat(jj,45)
+secondary(18) = outmat(jj,47)
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)
@@ -489,11 +500,11 @@ end do
 
 
 
-write(*,*) outmat(:,1)
+write(*,*) outmat(:,43)
 
 ! WRITE TO FILE
 OPEN(UNIT=12, FILE="flush.txt", ACTION="write", STATUS="replace") 
-do i=1,its
+do i=1,its*its0
 	write(12,*) outmat(i,:)
 end do
 

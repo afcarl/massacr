@@ -73,9 +73,17 @@ flush = np.loadtxt('flush.txt')
 
 
 
-print flush[:,60]
 
 
+print flush[:,0]
+print flush[:,42]
+##print "clintop"
+##print flush[:,24]
+##print "molal"
+##print flush[:,5]
+#print flush[:,14]
+#print flush[:,16]
+#print flush[:,18]
 
 
 fig=plt.figure()
@@ -84,19 +92,87 @@ plt.rc('xtick', labelsize=6)
 plt.rc('ytick', labelsize=6)
 
 
-##############
-# PLOT  #
-##############
+#####################
+# PLOT  DISSOLUTION #
+#####################
 
 ax = plt.subplot(2,2,1)
-p = plt.plot(flush[:,0],flush[:,56],'o--')
+p = plt.plot(flush[:,0],flush[:,48],'r', label="plagioclase")
+p = plt.plot(flush[:,0],flush[:,50],'g', label="augite")
+p = plt.plot(flush[:,0],flush[:,52],'m--', label="pigeonite")
+p = plt.plot(flush[:,0],flush[:,54],'gold', label="magnetite")
+p = plt.plot(flush[:,0],flush[:,56],'k', label="basaltic glass")
 
-plt.ylabel(' [mol]',fontsize=6)
+handles, labels = ax.get_legend_handles_labels()
+plt.legend(handles[::-1], labels[::-1])
+plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
+
+plt.ylabel('amount [mol]',fontsize=6)
+plt.xlabel('time',fontsize=6)
+
+
+######################
+# PLOT  PRECIPITATES #
+######################
+
+ax = plt.subplot(2,2,2)
+p = plt.plot(flush[:,0],flush[:,12],'r', label="stilbite")
+p = plt.plot(flush[:,0],flush[:,14],'g', label="sio2")
+p = plt.plot(flush[:,0],flush[:,16],'b', label="kaolinite")
+p = plt.plot(flush[:,0],flush[:,18],'m', label="albite")
+p = plt.plot(flush[:,0],flush[:,20],'gold', label="saponite")
+p = plt.plot(flush[:,0],flush[:,22],'grey', label="celadonite")
+p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
+p = plt.plot(flush[:,0],flush[:,34],'k--', label="smectite")
+p = plt.plot(flush[:,0],flush[:,24],'r--', label="Clinoptilolite-Ca")
+p = plt.plot(flush[:,0],flush[:,46],'b--', label="k-spar")
+p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
+p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
+p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
+
+handles, labels = ax.get_legend_handles_labels()
+plt.legend(handles[::-1], labels[::-1])
+plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
+
+plt.ylabel('amount [mol]',fontsize=6)
+plt.xlabel('time',fontsize=6)
+
+
+
+####################
+# PLOT  CARBONATES #
+####################
+
+ax = plt.subplot(2,2,3)
+#p = plt.plot(flush[:,0],flush[:,44],'r', label="quartz")
+p = plt.plot(flush[:,0],flush[:,42],'g', label="calcite")
+
+handles, labels = ax.get_legend_handles_labels()
+plt.legend(handles[::-1], labels[::-1])
+plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
+
+plt.ylabel('amount [mol]',fontsize=6)
 plt.xlabel('time',fontsize=6)
 
 
 
 
+##############
+# PLOT  IONS #
+##############
 
-plt.subplots_adjust(hspace=.4, wspace=.4)
+ax = plt.subplot(2,2,4)
+p = plt.plot(flush[:,0],flush[:,3],'g', label="ca2+")
+
+handles, labels = ax.get_legend_handles_labels()
+plt.legend(handles[::-1], labels[::-1])
+plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
+
+plt.ylabel('amount [mol]',fontsize=6)
+plt.xlabel('time',fontsize=6)
+
+
+
+
+plt.subplots_adjust(hspace=.25, wspace=.25)
 plt.savefig('flush.png')

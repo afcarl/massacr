@@ -345,7 +345,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    -reset false" //NEW_LINE('')// &
 &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
 &"    -ph" //NEW_LINE('')// &
-&"    -totals Ca Mg Na K Fe S(6) Si Cl Al" //NEW_LINE('')// &
+!changed below from totals. uh oh!
+&"    -molalities Ca Mg Na K Fe S(6) Si Cl Al" //NEW_LINE('')// &
 &"    -molalities HCO3-" //NEW_LINE('')// &
 &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
 &"    -p pyrite hematite goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
