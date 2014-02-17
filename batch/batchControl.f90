@@ -10,7 +10,7 @@ program batchControl
 INCLUDE "IPhreeqc.f90.inc"
 
 !implicit none
-INTEGER(KIND=4) :: id, all=62, its=10, its0=4
+INTEGER(KIND=4) :: id, all=62, its=10, its0=10
 INTEGER(KIND=4) :: i, j, jj
 CHARACTER(LEN=11000) :: line
 character(len=30200) :: inputz0
@@ -64,7 +64,8 @@ solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
 solute(11) = 2.0e-3 ! Alk
 
-timestep = 6.28e10
+! flushing timestep
+timestep = 9.42e10
 temp = 10.0
 
 
@@ -146,7 +147,7 @@ do j = 1,its
  inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"    pH 8.22" //NEW_LINE('')// &
  &"    units   ppm" //NEW_LINE('')// &
- &"    temp 10.0" //NEW_LINE('')// &
+ &"    temp 2.0" //NEW_LINE('')// &
  &"    Ca 412.3" //NEW_LINE('')// &
  &"    Mg 1291.8" //NEW_LINE('')// &
  &"    Na 10768.0" //NEW_LINE('')// &
@@ -168,25 +169,26 @@ do j = 1,its
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
 !&"    CO2(g) -3.45 100" //NEW_LINE('')// &
-!&"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
-!  &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
 &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
 &"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
  &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
 &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
-!  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
 &"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
-!&"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
-!  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
-!  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
+&"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
 &"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
 &"    Pyrite 0.0 " // trim(s_pyrite) //NEW_LINE('')// &
 &"    Quartz 0.0 " // trim(s_quartz) //NEW_LINE('')// &
 &"    K-Feldspar 0.0 " // trim(s_kspar) //NEW_LINE('')// &
+
+!  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
+!  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
 !  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
+!  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
+!  &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+!&"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
 
 ! ----------------------------------%%
 ! CALCULATE POROSITY AND STUFF
@@ -215,6 +217,7 @@ do j = 1,its
 &"R(phi)" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
 &"10 phi = 1.0-(CALC_VALUE('R(sum)')/(CALC_VALUE('R(sum)')+(TOT('water')*1000.0)))" //&
+!&"10 phi = 0.1" //&
 &"" //NEW_LINE('')// &
 &"100 SAVE phi" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
@@ -295,7 +298,7 @@ do j = 1,its
 & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
-&"    -step " // trim(s_timestep) // " in 4" //NEW_LINE('')// &
+&"    -step " // trim(s_timestep) // " in 10" //NEW_LINE('')// &
 !&"    -step 3.14e11 in 1" //NEW_LINE('')// &
 
 &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
@@ -359,8 +362,8 @@ do j = 1,its
   &"    -high_precision true" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
-  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO42- Si+4 Cl- Al+3" //NEW_LINE('')// &
-!  &"    -alkalinity" //NEW_LINE('')// &
+  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO42- Si+4 Cl-" //NEW_LINE('')// &
+  &"    -alkalinity" //NEW_LINE('')// &
 !  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite hematite goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
@@ -423,11 +426,10 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	if (i .gt. 1) then
 		!write(*,*) trim(line)
 		!write(*,*) "line:", i
-		write(*,*) "timestep:", its0*j+i-its0-1
+		!write(*,*) "timestep:", its0*j+i-its0-1
 		outmat(its0*j+i-its0-1,1) = its0*j+i-its0-1
 		read(line,*) outmat(its0*j+i-its0-1,2:)
 	end if
-	write(*,*) " "
 END DO
   
 ! DESTROY INSTANCE
@@ -436,8 +438,8 @@ IF (DestroyIPhreeqc(id).NE.IPQ_OK) THEN
 END IF
 
 jj = its0*j
-write(*,*) "jj"
-write(*,*) jj
+
+write(*,*) "TIMESTEP:", jj
 
 
 ! PUT IN VALUES FOR THE NEXT TIMESTEP
@@ -500,10 +502,10 @@ end do
 
 
 
-write(*,*) outmat(:,43)
+!write(*,*) outmat(:,43)
 
 ! WRITE TO FILE
-OPEN(UNIT=12, FILE="flush.txt", ACTION="write", STATUS="replace") 
+OPEN(UNIT=12, FILE="t02s3kyr.txt", ACTION="write", STATUS="replace") 
 do i=1,its*its0
 	write(12,*) outmat(i,:)
 end do

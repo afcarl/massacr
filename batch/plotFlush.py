@@ -6,20 +6,21 @@ import matplotlib.cm as cm
 import math
 from scipy.optimize import curve_fit
 
-flush = np.loadtxt('flush.txt')
+flush = np.loadtxt('c180t10s1kyr.txt')
 
 # 0 step #
 # 1 time (2)
 # 2 ph (3)
-# 3 ca (4)
-# 4 mg
-# 5 na
-# 6 k
-# 7 fe
-# 8 s6
-# 9 si
-# 10 cl
-# 11 al
+# 3 alkalinity (4)
+# 4 ca 
+# 5 mg
+# 6 na
+# 7 k
+# 8 fe
+# 9 s6
+# 10 si
+# 11 cl
+######### nothing al (NOW ALKALINITY)
 # 12 stilbite
 # 13
 # 14 sio2am
@@ -72,8 +73,11 @@ flush = np.loadtxt('flush.txt')
 # 61 rho_s
 
 
+# to only look at timestep right before a flush
+print flush.shape
+#flush = flush[range(9,100,10),:]
 
-
+flush[:,0] = flush[:,0]*flush[0,1]/(3.14e7)
 
 print flush[:,0]
 print flush[:,42]
@@ -108,7 +112,7 @@ plt.legend(handles[::-1], labels[::-1])
 plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
 
 plt.ylabel('amount [mol]',fontsize=6)
-plt.xlabel('time',fontsize=6)
+plt.xlabel('time [yrs]',fontsize=6)
 
 
 ######################
@@ -122,20 +126,18 @@ p = plt.plot(flush[:,0],flush[:,16],'b', label="kaolinite")
 p = plt.plot(flush[:,0],flush[:,18],'m', label="albite")
 p = plt.plot(flush[:,0],flush[:,20],'gold', label="saponite")
 p = plt.plot(flush[:,0],flush[:,22],'grey', label="celadonite")
-p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
+#p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
 p = plt.plot(flush[:,0],flush[:,34],'k--', label="smectite")
 p = plt.plot(flush[:,0],flush[:,24],'r--', label="Clinoptilolite-Ca")
 p = plt.plot(flush[:,0],flush[:,46],'b--', label="k-spar")
-p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
-p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
-p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
+#p = plt.plot(flush[:,0],flush[:,44],'purple', label="quartz")
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
 
 plt.ylabel('amount [mol]',fontsize=6)
-plt.xlabel('time',fontsize=6)
+plt.xlabel('time [yrs]',fontsize=6)
 
 
 
@@ -145,14 +147,14 @@ plt.xlabel('time',fontsize=6)
 
 ax = plt.subplot(2,2,3)
 #p = plt.plot(flush[:,0],flush[:,44],'r', label="quartz")
-p = plt.plot(flush[:,0],flush[:,42],'g', label="calcite")
+p = plt.plot(flush[:,0],flush[:,56],'g', label="glass")
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
 
 plt.ylabel('amount [mol]',fontsize=6)
-plt.xlabel('time',fontsize=6)
+plt.xlabel('time [yrs]',fontsize=6)
 
 
 
@@ -162,14 +164,14 @@ plt.xlabel('time',fontsize=6)
 ##############
 
 ax = plt.subplot(2,2,4)
-p = plt.plot(flush[:,0],flush[:,3],'g', label="ca2+")
+p = plt.plot(flush[:,0],flush[:,3],'g', label="alk")
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
 
 plt.ylabel('amount [mol]',fontsize=6)
-plt.xlabel('time',fontsize=6)
+plt.xlabel('time [yrs]',fontsize=6)
 
 
 
