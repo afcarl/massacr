@@ -10,19 +10,19 @@ program batchControl
 INCLUDE "IPhreeqc.f90.inc"
 
 !implicit none
-INTEGER(KIND=4) :: id, all=62, its=10, its0=10
+INTEGER(KIND=4) :: id, all=62, its=10, its0=1
 INTEGER(KIND=4) :: i, j, jj
 CHARACTER(LEN=11000) :: line
 character(len=30200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,58)
+real(8) :: alter(1,58), mix1=0.9, mix2=0.1
 real(8), allocatable :: outmat(:,:)
 
 
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(18), solute(11) ! important information
+real(8) :: temp, timestep, primary(5), secondary(18), solute(11), solute0(11) ! important information
 
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
@@ -64,8 +64,22 @@ solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
 solute(11) = 2.0e-3 ! Alk
 
+solute0 = solute
+
+! solute(1) = 8.22 ! ph
+! solute(2) = 1.094e-02 ! Ca
+! solute(3) = 5.639e-02 ! Mg
+! solute(4) = 4.859e-01 ! Na
+! solute(5) = 1.078e-02 ! K
+! solute(6) = 6.319e-06 ! Fe
+! solute(7) = 2.933e-02 ! S(6)
+! solute(8) = 1.003e-02 ! Si
+! solute(9) =  5.658e-01 ! Cl
+! solute(10) = 2.048e-03 ! Al
+! solute(11) = 1.230e-02 ! Alk
+
 ! flushing timestep
-timestep = 9.42e10
+timestep = 3.14e10
 temp = 10.0
 
 
@@ -144,24 +158,41 @@ do j = 1,its
 ! &"END" //NEW_LINE('')// &
 
 ! water composition is nordstrom et al. 1979 seawater
- inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
- &"    pH 8.22" //NEW_LINE('')// &
- &"    units   ppm" //NEW_LINE('')// &
- &"    temp 2.0" //NEW_LINE('')// &
- &"    Ca 412.3" //NEW_LINE('')// &
- &"    Mg 1291.8" //NEW_LINE('')// &
- &"    Na 10768.0" //NEW_LINE('')// &
- &"    K 399.1" //NEW_LINE('')// &
- &"    Fe .002" //NEW_LINE('')// &
- &"    Mn .0002" //NEW_LINE('')// &
- &"    S(6) 2712.0 as SO4" //NEW_LINE('')// &
- &"    Si 4.28" //NEW_LINE('')// &
- &"    Cl 19353.0" //NEW_LINE('')// &
- &"    NO3 0.29" //NEW_LINE('')// &
- &"    NH4 0.03" //NEW_LINE('')// &
- &"    Alkalinity 141.682 as HCO3" //NEW_LINE('')// &
- &"    -water		5.0	# kg" //NEW_LINE('')// &
- &"END" //NEW_LINE('')// &
+!  inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
+!  &"    pH 8.22" //NEW_LINE('')// &
+!  &"    units   ppm" //NEW_LINE('')// &
+!  &"    temp 20.0" //NEW_LINE('')// &
+!  &"    Ca 412.3" //NEW_LINE('')// &
+!  &"    Mg 1291.8" //NEW_LINE('')// &
+!  &"    Na 10768.0" //NEW_LINE('')// &
+!  &"    K 399.1" //NEW_LINE('')// &
+!  &"    Fe .002" //NEW_LINE('')// &
+!  &"    Mn .0002" //NEW_LINE('')// &
+!  &"    S(6) 2712.0 as SO4" //NEW_LINE('')// &
+!  &"    Si 4.28" //NEW_LINE('')// &
+!  &"    Cl 19353.0" //NEW_LINE('')// &
+!  &"    NO3 0.29" //NEW_LINE('')// &
+!  &"    NH4 0.03" //NEW_LINE('')// &
+!  &"    Alkalinity 141.682 as HCO3" //NEW_LINE('')// &
+!  &"    -water		5.0	# kg" //NEW_LINE('')// &
+!  &"END" //NEW_LINE('')// &
+ 
+inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
+&"    pH " // trim(s_pH) //NEW_LINE('')// &
+&"    units   mol/kgw" //NEW_LINE('')// &
+&"    temp 10.0"  //NEW_LINE('')// &
+&"    Ca " // trim(s_ca) //NEW_LINE('')// &
+&"    Mg " // trim(s_mg) //NEW_LINE('')// &
+&"    Na " // trim(s_na) //NEW_LINE('')// &
+&"    K " // trim(s_k) //NEW_LINE('')// &
+&"    Fe " // trim(s_fe) //NEW_LINE('')// &
+&"    S(6) "// trim(s_s) // " as SO4" //NEW_LINE('')// &
+&"    Si " // trim(s_si) //NEW_LINE('')// &
+&"    Cl " // trim(s_cl) //NEW_LINE('')// &
+&"    Al " // trim(s_al) //NEW_LINE('')// &
+&"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
+&"    -water		5.0	# kg" //NEW_LINE('')// &
+&"END" //NEW_LINE('')// &
 
 ! ----------------------------------%%
 ! HYDROTHERMAL MINERAL CHOICES
@@ -169,19 +200,19 @@ do j = 1,its
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
 !&"    CO2(g) -3.45 100" //NEW_LINE('')// &
-&"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
-&"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
-&"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
-&"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
-&"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
- &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
-&"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
-&"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
-&"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
-&"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
-&"    Pyrite 0.0 " // trim(s_pyrite) //NEW_LINE('')// &
-&"    Quartz 0.0 " // trim(s_quartz) //NEW_LINE('')// &
-&"    K-Feldspar 0.0 " // trim(s_kspar) //NEW_LINE('')// &
+! &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
+! &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
+! &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
+! &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
+! &"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
+!  &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
+! &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
+! &"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
+! &"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
+! &"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
+! &"    Pyrite 0.0 " // trim(s_pyrite) //NEW_LINE('')// &
+! &"    Quartz 0.0 " // trim(s_quartz) //NEW_LINE('')// &
+! &"    K-Feldspar 0.0 " // trim(s_kspar) //NEW_LINE('')// &
 
 !  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
 !  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
@@ -298,7 +329,7 @@ do j = 1,its
 & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
-&"    -step " // trim(s_timestep) // " in 10" //NEW_LINE('')// &
+&"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
 !&"    -step 3.14e11 in 1" //NEW_LINE('')// &
 
 &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
@@ -466,6 +497,31 @@ secondary(15) = outmat(jj,25)
 secondary(16) = outmat(jj,27)
 secondary(17) = outmat(jj,45)
 secondary(18) = outmat(jj,47)
+solute(1) = outmat(jj,3)
+solute(2) = outmat(jj,5)*mix1 + solute0(2)*mix2
+solute(3) = outmat(jj,6)*mix1 + solute0(3)*mix2
+solute(4) = outmat(jj,7)*mix1 + solute0(4)*mix2
+solute(5) = outmat(jj,8)*mix1 + solute0(5)*mix2
+solute(6) = outmat(jj,9)*mix1 + solute0(6)*mix2
+solute(7) = outmat(jj,10)*mix1 + solute0(7)*mix2
+solute(8) = outmat(jj,11)*mix1 + solute0(8)*mix2
+solute(9) = outmat(jj,12)*mix1 + solute0(9)*mix2
+solute(10) = solute0(10)*mix1 + solute0(10)*mix2
+solute(11) = outmat(jj,4)*mix1 + solute0(11)*mix2
+
+! SOLUTES TO STRINGS
+write(s_ph,'(F25.10)') solute(1)
+write(s_ca,'(F25.10)') solute(2)
+write(s_mg,'(F25.10)') solute(3)
+write(s_na,'(F25.10)') solute(4)
+write(s_k,'(F25.10)') solute(5)
+write(s_fe,'(F25.10)') solute(6)
+write(s_s,'(F25.10)') solute(7)
+write(s_si,'(F25.10)') solute(8)
+write(s_cl,'(F25.10)') solute(9)
+write(s_al,'(F25.10)') solute(10)
+write(s_alk,'(F25.10)') solute(11)
+
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)
@@ -505,7 +561,7 @@ end do
 !write(*,*) outmat(:,43)
 
 ! WRITE TO FILE
-OPEN(UNIT=12, FILE="t02s3kyr.txt", ACTION="write", STATUS="replace") 
+OPEN(UNIT=12, FILE="continuous.txt", ACTION="write", STATUS="replace") 
 do i=1,its*its0
 	write(12,*) outmat(i,:)
 end do

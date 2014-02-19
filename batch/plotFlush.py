@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 import math
 from scipy.optimize import curve_fit
 
-flush = np.loadtxt('c180t10s1kyr.txt')
+flush = np.loadtxt('continuous.txt')
 
 # 0 step #
 # 1 time (2)
@@ -147,11 +147,12 @@ plt.xlabel('time [yrs]',fontsize=6)
 
 ax = plt.subplot(2,2,3)
 #p = plt.plot(flush[:,0],flush[:,44],'r', label="quartz")
-p = plt.plot(flush[:,0],flush[:,56],'g', label="glass")
+p = plt.plot(flush[:,0],flush[:,2],'g', label="ph")
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
+
 
 plt.ylabel('amount [mol]',fontsize=6)
 plt.xlabel('time [yrs]',fontsize=6)
@@ -169,6 +170,7 @@ p = plt.plot(flush[:,0],flush[:,3],'g', label="alk")
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
+
 
 plt.ylabel('amount [mol]',fontsize=6)
 plt.xlabel('time [yrs]',fontsize=6)
