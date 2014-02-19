@@ -15,7 +15,7 @@ INTEGER(KIND=4) :: i, j, jj
 CHARACTER(LEN=11000) :: line
 character(len=30200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,58), mix1=0.9, mix2=0.1
+real(8) :: alter(1,59), mix1= 0.6, mix2=0.4
 real(8), allocatable :: outmat(:,:)
 
 
@@ -52,7 +52,7 @@ primary(5) = 967.7 ! basaltic glass
 
 secondary(:) = 0.0
 
-solute(1) = 7.5 ! ph
+!solute(1) = 7.5 ! ph
 solute(2) = 6.0e-4 ! Ca
 solute(3) = 2.0e-5 ! Mg
 solute(4) = 1.0e-3 ! Na
@@ -64,9 +64,7 @@ solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
 solute(11) = 2.0e-3 ! Alk
 
-solute0 = solute
-
-! solute(1) = 8.22 ! ph
+ solute(1) = 8.22 ! ph
 ! solute(2) = 1.094e-02 ! Ca
 ! solute(3) = 5.639e-02 ! Mg
 ! solute(4) = 4.859e-01 ! Na
@@ -75,8 +73,12 @@ solute0 = solute
 ! solute(7) = 2.933e-02 ! S(6)
 ! solute(8) = 1.003e-02 ! Si
 ! solute(9) =  5.658e-01 ! Cl
-! solute(10) = 2.048e-03 ! Al
+! solute(10) = 1.0e-6 ! Al
 ! solute(11) = 1.230e-02 ! Alk
+
+solute0 = solute
+
+
 
 ! flushing timestep
 timestep = 3.14e10
@@ -180,7 +182,7 @@ do j = 1,its
 inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    pH " // trim(s_pH) //NEW_LINE('')// &
 &"    units   mol/kgw" //NEW_LINE('')// &
-&"    temp 10.0"  //NEW_LINE('')// &
+&"    temp 2.0"  //NEW_LINE('')// &
 &"    Ca " // trim(s_ca) //NEW_LINE('')// &
 &"    Mg " // trim(s_mg) //NEW_LINE('')// &
 &"    Na " // trim(s_na) //NEW_LINE('')// &
@@ -200,19 +202,19 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
 !&"    CO2(g) -3.45 100" //NEW_LINE('')// &
-! &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
-! &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
-! &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
-! &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
-! &"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
-!  &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
-! &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
-! &"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
-! &"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
-! &"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
-! &"    Pyrite 0.0 " // trim(s_pyrite) //NEW_LINE('')// &
-! &"    Quartz 0.0 " // trim(s_quartz) //NEW_LINE('')// &
-! &"    K-Feldspar 0.0 " // trim(s_kspar) //NEW_LINE('')// &
+&"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
+&"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
+&"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
+&"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
+&"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
+ &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
+&"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
+&"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
+&"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
+&"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
+&"    Pyrite 0.0 " // trim(s_pyrite) //NEW_LINE('')// &
+&"    Quartz 0.0 " // trim(s_quartz) //NEW_LINE('')// &
+&"    K-Feldspar 0.0 " // trim(s_kspar) //NEW_LINE('')// &
 
 !  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
 !  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
@@ -393,7 +395,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -high_precision true" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
-  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO42- Si+4 Cl-" //NEW_LINE('')// &
+  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3" //NEW_LINE('')// &
   &"    -alkalinity" //NEW_LINE('')// &
 !  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
@@ -474,30 +476,30 @@ write(*,*) "TIMESTEP:", jj
 
 
 ! PUT IN VALUES FOR THE NEXT TIMESTEP
-primary(1) = outmat(jj,49) ! feldspar
-primary(2) = outmat(jj,51) ! augite
-primary(3) = outmat(jj,53) ! pigeonite
-primary(4) = outmat(jj,55) ! magnetite
-primary(5) = outmat(jj,57) ! basaltic glass
-secondary(1) = outmat(jj,41)
-secondary(2) = outmat(jj,17)
-secondary(3) = outmat(jj,31)
-secondary(4) = outmat(jj,33)
-secondary(5) = outmat(jj,23)
-secondary(6) = outmat(jj,15)
-secondary(7) = outmat(jj,19)
-secondary(8) = outmat(jj,43)
-secondary(9) = outmat(jj,29)
-secondary(10) = outmat(jj,35)
-secondary(11) = outmat(jj,21)
-secondary(12) = outmat(jj,13)
-secondary(13) = outmat(jj,37)
-secondary(14) = outmat(jj,39)
-secondary(15) = outmat(jj,25)
-secondary(16) = outmat(jj,27)
-secondary(17) = outmat(jj,45)
-secondary(18) = outmat(jj,47)
-solute(1) = outmat(jj,3)
+primary(1) = outmat(jj,50) ! feldspar
+primary(2) = outmat(jj,52) ! augite
+primary(3) = outmat(jj,54) ! pigeonite
+primary(4) = outmat(jj,56) ! magnetite
+primary(5) = outmat(jj,58) ! basaltic glass
+secondary(1) = outmat(jj,42)
+secondary(2) = outmat(jj,18)
+secondary(3) = outmat(jj,32)
+secondary(4) = outmat(jj,34)
+secondary(5) = outmat(jj,24)
+secondary(6) = outmat(jj,16)
+secondary(7) = outmat(jj,20)
+secondary(8) = outmat(jj,44)
+secondary(9) = outmat(jj,30)
+secondary(10) = outmat(jj,36)
+secondary(11) = outmat(jj,22)
+secondary(12) = outmat(jj,14)
+secondary(13) = outmat(jj,38)
+secondary(14) = outmat(jj,40)
+secondary(15) = outmat(jj,26)
+secondary(16) = outmat(jj,28)
+secondary(17) = outmat(jj,46)
+secondary(18) = outmat(jj,48)
+solute(1) = -log10(mix1*10.0**(-outmat(jj,3)) + mix2*10.0**(-solute0(1)))
 solute(2) = outmat(jj,5)*mix1 + solute0(2)*mix2
 solute(3) = outmat(jj,6)*mix1 + solute0(3)*mix2
 solute(4) = outmat(jj,7)*mix1 + solute0(4)*mix2
@@ -506,8 +508,10 @@ solute(6) = outmat(jj,9)*mix1 + solute0(6)*mix2
 solute(7) = outmat(jj,10)*mix1 + solute0(7)*mix2
 solute(8) = outmat(jj,11)*mix1 + solute0(8)*mix2
 solute(9) = outmat(jj,12)*mix1 + solute0(9)*mix2
-solute(10) = solute0(10)*mix1 + solute0(10)*mix2
+solute(10) = outmat(jj,13)*mix1 + solute0(10)*mix2
 solute(11) = outmat(jj,4)*mix1 + solute0(11)*mix2
+
+!write(*,*) solute
 
 ! SOLUTES TO STRINGS
 write(s_ph,'(F25.10)') solute(1)
@@ -561,7 +565,7 @@ end do
 !write(*,*) outmat(:,43)
 
 ! WRITE TO FILE
-OPEN(UNIT=12, FILE="continuous.txt", ACTION="write", STATUS="replace") 
+OPEN(UNIT=12, FILE="r60t02.txt", ACTION="write", STATUS="replace") 
 do i=1,its*its0
 	write(12,*) outmat(i,:)
 end do
