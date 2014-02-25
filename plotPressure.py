@@ -151,7 +151,7 @@ plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 #cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 #cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
 
-plt.savefig('d106.png')
+plt.savefig('d225.png')
 print "flow field plots"
 
 ###################

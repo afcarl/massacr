@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 import math
 from scipy.optimize import curve_fit
 
-flush = np.loadtxt('continuous.txt')
+flush = np.loadtxt('cmdTest.txt')
 
 # 0 step #
 # 1 time (2)
@@ -103,6 +103,12 @@ p = plt.plot(flush[:,0],flush[:,53],'m--', label="pigeonite")
 p = plt.plot(flush[:,0],flush[:,55],'gold', label="magnetite")
 p = plt.plot(flush[:,0],flush[:,57],'k', label="basaltic glass")
 
+print np.max(flush[:,49])-np.min(flush[:,49]), 'plag'
+print np.max(flush[:,51])-np.min(flush[:,51]), 'aug'
+print np.max(flush[:,53])-np.min(flush[:,53]), 'pig'
+print np.max(flush[:,55])-np.min(flush[:,55]), 'mag'
+print flush[:,43], 'calcite'
+
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
@@ -127,6 +133,7 @@ p = plt.plot(flush[:,0],flush[:,35],'k--', label="smectite")
 p = plt.plot(flush[:,0],flush[:,25],'r--', label="Clinoptilolite-Ca")
 p = plt.plot(flush[:,0],flush[:,47],'b--', label="k-spar")
 #p = plt.plot(flush[:,0],flush[:,45],'purple', label="quartz")
+p = plt.plot(flush[:,0],flush[:,43],'c-', label="calcite")
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])

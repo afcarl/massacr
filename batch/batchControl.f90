@@ -15,9 +15,8 @@ INTEGER(KIND=4) :: i, j, jj
 CHARACTER(LEN=11000) :: line
 character(len=30200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,59), mix1= 0.6, mix2=0.4
+real(8) :: alter(1,59), mix1= 0.09, mix2=0.01
 real(8), allocatable :: outmat(:,:)
-
 
 ! REAL GRABS
 real(8) :: glass ! primary
@@ -29,12 +28,19 @@ character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadoni
 character(len=50) :: s_sio2, s_albite, s_calcite, s_hematite, s_smectite, s_saponite ! secondary
 character(len=50) :: s_stilbite, s_dawsonite, s_magnesite, s_clinoptilolite, s_pyrite ! secondary
 character(len=50) :: s_quartz, s_kspar
-
 character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! primary
-
 character(len=50) :: s_temp, s_timestep ! important information
-
 character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk ! solutes
+
+! command line arguments
+character(len=100) :: intemp
+character(len=100) :: infile
+integer :: in
+
+in = iargc()
+call getarg(1,intemp)
+call getarg(2,infile)
+
 
 glass = 2.0
 siderite = 0.0
@@ -62,7 +68,7 @@ solute(7) = 1.0e-4 ! S(6)
 solute(8) = 2.0e-4 ! Si
 solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
-solute(11) = 2.0e-3 ! Alk
+solute(11) = 2.0e-3 ! Alk 1.6e-3 
 
  solute(1) = 8.22 ! ph
 ! solute(2) = 1.094e-02 ! Ca
@@ -182,7 +188,8 @@ do j = 1,its
 inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    pH " // trim(s_pH) //NEW_LINE('')// &
 &"    units   mol/kgw" //NEW_LINE('')// &
-&"    temp 2.0"  //NEW_LINE('')// &
+!&"    temp 10.0"  //NEW_LINE('')// &
+&"    temp " // intemp //NEW_LINE('')// &
 &"    Ca " // trim(s_ca) //NEW_LINE('')// &
 &"    Mg " // trim(s_mg) //NEW_LINE('')// &
 &"    Na " // trim(s_na) //NEW_LINE('')// &
@@ -330,6 +337,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"-f Ca 0.015 Fe 0.095 Mg 0.065 " //&
 & "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
+!&"-m0 0.0"  //NEW_LINE('')// &
 
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
 !&"    -step 3.14e11 in 1" //NEW_LINE('')// &
@@ -565,7 +573,8 @@ end do
 !write(*,*) outmat(:,43)
 
 ! WRITE TO FILE
-OPEN(UNIT=12, FILE="r60t02.txt", ACTION="write", STATUS="replace") 
+!OPEN(UNIT=12, FILE="r99t10_test.txt", ACTION="write", STATUS="replace") 
+OPEN(UNIT=12, FILE=infile, ACTION="write", STATUS="replace") 
 do i=1,its*its0
 	write(12,*) outmat(i,:)
 end do
