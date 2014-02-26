@@ -10,12 +10,12 @@ program batchControl
 INCLUDE "IPhreeqc.f90.inc"
 
 !implicit none
-INTEGER(KIND=4) :: id, all=62, its=10, its0=1
+INTEGER(KIND=4) :: id, all=64, its=100, its0=1
 INTEGER(KIND=4) :: i, j, jj
 CHARACTER(LEN=11000) :: line
 character(len=30200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,59), mix1= 0.09, mix2=0.01
+real(8) :: alter(1,59), mix1= 0.90, mix2=0.1
 real(8), allocatable :: outmat(:,:)
 
 ! REAL GRABS
@@ -403,7 +403,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -high_precision true" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
-  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3" //NEW_LINE('')// &
+  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3 HCO3- CO3-2" //NEW_LINE('')// &
   &"    -alkalinity" //NEW_LINE('')// &
 !  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
@@ -484,29 +484,29 @@ write(*,*) "TIMESTEP:", jj
 
 
 ! PUT IN VALUES FOR THE NEXT TIMESTEP
-primary(1) = outmat(jj,50) ! feldspar
-primary(2) = outmat(jj,52) ! augite
-primary(3) = outmat(jj,54) ! pigeonite
-primary(4) = outmat(jj,56) ! magnetite
-primary(5) = outmat(jj,58) ! basaltic glass
-secondary(1) = outmat(jj,42)
-secondary(2) = outmat(jj,18)
-secondary(3) = outmat(jj,32)
-secondary(4) = outmat(jj,34)
-secondary(5) = outmat(jj,24)
-secondary(6) = outmat(jj,16)
-secondary(7) = outmat(jj,20)
-secondary(8) = outmat(jj,44)
-secondary(9) = outmat(jj,30)
-secondary(10) = outmat(jj,36)
-secondary(11) = outmat(jj,22)
-secondary(12) = outmat(jj,14)
-secondary(13) = outmat(jj,38)
-secondary(14) = outmat(jj,40)
-secondary(15) = outmat(jj,26)
-secondary(16) = outmat(jj,28)
-secondary(17) = outmat(jj,46)
-secondary(18) = outmat(jj,48)
+primary(1) = outmat(jj,52) ! feldspar
+primary(2) = outmat(jj,54) ! augite
+primary(3) = outmat(jj,56) ! pigeonite
+primary(4) = outmat(jj,58) ! magnetite
+primary(5) = outmat(jj,60) ! basaltic glass
+secondary(1) = outmat(jj,44)
+secondary(2) = outmat(jj,20)
+secondary(3) = outmat(jj,34)
+secondary(4) = outmat(jj,36)
+secondary(5) = outmat(jj,26)
+secondary(6) = outmat(jj,18)
+secondary(7) = outmat(jj,22)
+secondary(8) = outmat(jj,46)
+secondary(9) = outmat(jj,32)
+secondary(10) = outmat(jj,38)
+secondary(11) = outmat(jj,24)
+secondary(12) = outmat(jj,16)
+secondary(13) = outmat(jj,40)
+secondary(14) = outmat(jj,42)
+secondary(15) = outmat(jj,28)
+secondary(16) = outmat(jj,30)
+secondary(17) = outmat(jj,48)
+secondary(18) = outmat(jj,50)
 solute(1) = -log10(mix1*10.0**(-outmat(jj,3)) + mix2*10.0**(-solute0(1)))
 solute(2) = outmat(jj,5)*mix1 + solute0(2)*mix2
 solute(3) = outmat(jj,6)*mix1 + solute0(3)*mix2
