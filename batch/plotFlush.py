@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 import math
 from scipy.optimize import curve_fit
 
-infile = 'r90t08.txt'
+infile = 'test06.txt'
 flush = np.loadtxt(infile)
 
 # 0 step #
@@ -78,15 +78,17 @@ flush = np.loadtxt(infile)
 
 
 print flush.shape
-flush[:,0] = flush[:,0]*flush[0,1]/(3.14e7)
 
-##print "clintop"
-##print flush[:,24]
-##print "molal"
-##print flush[:,5]
-#print flush[:,14]
-#print flush[:,16]
-#print flush[:,18]
+##print np.max(flush[:,51])-np.min(flush[:,51]), 'plag'
+##print np.max(flush[:,53])-np.min(flush[:,53]), 'aug'
+##print np.max(flush[:,55])-np.min(flush[:,55]), 'pig'
+##print np.max(flush[:,57])-np.min(flush[:,57]), 'mag'
+print flush[:,45], 'calcite'
+print flush[:,13]
+print flush[:,14]
+
+
+flush[:,0] = flush[:,0]*flush[0,1]/(3.14e7)
 
 
 fig=plt.figure()
@@ -108,11 +110,7 @@ p = plt.plot(flush[:,0],flush[:,55],'m--', label="pigeonite")
 p = plt.plot(flush[:,0],flush[:,57],'gold', label="magnetite")
 p = plt.plot(flush[:,0],flush[:,59],'k', label="basaltic glass")
 
-print np.max(flush[:,51])-np.min(flush[:,51]), 'plag'
-print np.max(flush[:,53])-np.min(flush[:,53]), 'aug'
-print np.max(flush[:,55])-np.min(flush[:,55]), 'pig'
-print np.max(flush[:,57])-np.min(flush[:,57]), 'mag'
-print flush[:,45], 'calcite'
+
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])

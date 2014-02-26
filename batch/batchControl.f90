@@ -12,8 +12,8 @@ INCLUDE "IPhreeqc.f90.inc"
 !implicit none
 INTEGER(KIND=4) :: id, all=64, its=100, its0=1
 INTEGER(KIND=4) :: i, j, jj
-CHARACTER(LEN=11000) :: line
-character(len=30200) :: inputz0
+CHARACTER(LEN=12000) :: line
+character(len=31200) :: inputz0
 character(len=4) :: fake_in
 real(8) :: alter(1,59), mix1= 0.90, mix2=0.1
 real(8), allocatable :: outmat(:,:)
@@ -187,6 +187,7 @@ do j = 1,its
  
 inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    pH " // trim(s_pH) //NEW_LINE('')// &
+!&"    pe 8.451 " //NEW_LINE('')// &
 &"    units   mol/kgw" //NEW_LINE('')// &
 !&"    temp 10.0"  //NEW_LINE('')// &
 &"    temp " // intemp //NEW_LINE('')// &
@@ -208,7 +209,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-!&"    CO2(g) -3.45 100" //NEW_LINE('')// &
+&"    CO2(g) -3.45 100" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -518,6 +519,8 @@ solute(8) = outmat(jj,11)*mix1 + solute0(8)*mix2
 solute(9) = outmat(jj,12)*mix1 + solute0(9)*mix2
 solute(10) = outmat(jj,13)*mix1 + solute0(10)*mix2
 solute(11) = outmat(jj,4)*mix1 + solute0(11)*mix2
+
+
 
 !write(*,*) solute
 

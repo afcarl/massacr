@@ -112,6 +112,9 @@ t90_alk = np.zeros((len(temps)))
 t90_alkflux = np.zeros((len(temps)))
 t90_glass = np.zeros((len(temps)))
 t90_water = np.zeros((len(temps)))
+t90_HCO3 = np.zeros((len(temps)))
+t90_CO3 = np.zeros((len(temps)))
+
 
 t90_kaolinite = np.zeros((len(temps)))
 t90_stilbite = np.zeros((len(temps)))
@@ -121,12 +124,13 @@ t90_celadonite = np.zeros((len(temps)))
 t90_quartz = np.zeros((len(temps)))
 for i in range(len(temps)):
     bit = np.asarray(t[i])
-    
     t90_alk[i] = np.max(bit[0,:,3])
     gx, gy = np.gradient(bit[0,:,:])
     t90_alkflux[i] = np.max(abs(gx[:,3])) # [mol / kgw / kyr]
     t90_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
     t90_water[i] = bit[0,np.max(abs(gx[:,59])),63]
+    t90_HCO3[i] = bit[0,np.max(abs(gx[:,59])),13]
+    t90_CO3[i] = bit[0,np.max(abs(gx[:,59])),14]
 
     t90_kaolinite[i] = np.max(abs(gx[:,19]))
     t90_stilbite[i] = np.max(abs(gx[:,15]))
@@ -136,22 +140,33 @@ for i in range(len(temps)):
     t90_quartz[i] = np.max(abs(gx[:,47]))
 
 # units: mol ca2+ kyr^-1 kgw^-1
-t90_ALKdiss = (t90_glass * .0069) / t90_water
+##t90_ALKdiss = (t90_glass * .0069) / t90_water
+##t90_dalkflux = np.gradient(t90_alkflux)
+##t90_dALKdiss = 2.0 * np.gradient(t90_ALKdiss)
+##t90_dALKclay = (t90_dalkflux) - t90_dALKdiss
 
-t90_dalkflux = np.gradient(t90_alkflux)
-t90_dALKdiss = 2.0 * np.gradient(t90_ALKdiss)
 
-t90_dALKclay = (t90_dalkflux) - t90_dALKdiss
-print "dALK_flux/dT"
-print t90_dalkflux
+# TRYING FROM THE OTHER ANGLE
+
+# change in concentration [mol/kgw] of H+ per timestep
+t90_dH = (t90_kaolinite*6.0 + t90_stilbite*8.72 + t90_saponite*7.32 + \
+          t90_albite*4.0 + t90_celadonite*6.0) / t90_water
+print "t90_dH"
+print t90_dH
 print " "
-print "dALK_diss/dT"
+# change in concentration [mol/kgw] of HCO3- per timestep
+t90_dHCO3clay = (t90_CO3 / 4.69e-11) * t90_dH
+t90_dALKclay = t90_dHCO3clay
+t90_dALKdiss = t90_alkflux - t90_dALKclay
+print "t90_alkflux (total?)"
+print t90_alkflux
+print " "
+print "t90_dALKclay"
+print t90_dALKclay
+print " "
+print "t90_dALKdiss"
 print t90_dALKdiss
 print " "
-print "dALK_clay/dT"
-print t90_dALKclay
-
-    
 
 
 
