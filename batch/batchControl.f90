@@ -21,7 +21,7 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(18), solute(11), solute0(11) ! important information
+real(8) :: temp, timestep, primary(5), secondary(18), solute(12), solute0(12) ! important information
 
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
@@ -30,7 +30,7 @@ character(len=50) :: s_stilbite, s_dawsonite, s_magnesite, s_clinoptilolite, s_p
 character(len=50) :: s_quartz, s_kspar
 character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! primary
 character(len=50) :: s_temp, s_timestep ! important information
-character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk ! solutes
+character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk, s_co2 ! solutes
 
 ! command line arguments
 character(len=100) :: intemp
@@ -69,6 +69,7 @@ solute(8) = 2.0e-4 ! Si
 solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
 solute(11) = 2.0e-3 ! Alk 1.6e-3 
+solute(12) = 0.0 !1.2e-2 ! H2CO3
 
  solute(1) = 8.22 ! ph
 ! solute(2) = 1.094e-02 ! Ca
@@ -103,6 +104,7 @@ write(s_si,'(F25.10)') solute(8)
 write(s_cl,'(F25.10)') solute(9)
 write(s_al,'(F25.10)') solute(10)
 write(s_alk,'(F25.10)') solute(11)
+write(s_co2,'(F25.10)') solute(12)
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)
@@ -200,6 +202,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Si " // trim(s_si) //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
+&"    CO2 " // trim(s_co2) //NEW_LINE('')// &
 &"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
 &"    -water		5.0	# kg" //NEW_LINE('')// &
 &"END" //NEW_LINE('')// &
@@ -209,7 +212,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-&"    CO2(g) -3.45 100" //NEW_LINE('')// &
+&"    CO2(g) -4.45 100" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -519,7 +522,7 @@ solute(8) = outmat(jj,11)*mix1 + solute0(8)*mix2
 solute(9) = outmat(jj,12)*mix1 + solute0(9)*mix2
 solute(10) = outmat(jj,13)*mix1 + solute0(10)*mix2
 solute(11) = outmat(jj,4)*mix1 + solute0(11)*mix2
-
+solute(12) = solute0(12)*mix2
 
 
 !write(*,*) solute
@@ -536,7 +539,7 @@ write(s_si,'(F25.10)') solute(8)
 write(s_cl,'(F25.10)') solute(9)
 write(s_al,'(F25.10)') solute(10)
 write(s_alk,'(F25.10)') solute(11)
-
+write(s_co2,'(F25.10)') solute(12)
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)

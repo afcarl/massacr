@@ -6,7 +6,7 @@ import matplotlib.cm as cm
 import math
 from scipy.optimize import curve_fit
 
-infile = 'test06.txt'
+infile = 'test20.txt'
 flush = np.loadtxt(infile)
 
 # 0 step #

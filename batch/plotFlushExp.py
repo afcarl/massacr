@@ -10,67 +10,6 @@ from scipy.optimize import curve_fit
 temps = np.arange(2,42,2)
 
 
-#############################
-# SIMULATIONS WITH MINERALS #
-# MIXING RATIO 99/01        #
-# A.K.A.                    #
-# t_RES = 3.14e12 (100kyr)  #
-#############################
-
-# load temps
-t02 = np.loadtxt('r99t02.txt')
-t04 = np.loadtxt('r99t04.txt')
-t06 = np.loadtxt('r99t06.txt')
-t08 = np.loadtxt('r99t08.txt')
-t10 = np.loadtxt('r99t10.txt')
-t12 = np.loadtxt('r99t12.txt')
-t14 = np.loadtxt('r99t14.txt')
-t16 = np.loadtxt('r99t16.txt')
-t18 = np.loadtxt('r99t18.txt')
-t20 = np.loadtxt('r99t20.txt')
-t22 = np.loadtxt('r99t22.txt')
-t24 = np.loadtxt('r99t24.txt')
-t26 = np.loadtxt('r99t26.txt')
-t28 = np.loadtxt('r99t28.txt')
-t30 = np.loadtxt('r99t30.txt')
-t32 = np.loadtxt('r99t32.txt')
-t34 = np.loadtxt('r99t34.txt')
-t36 = np.loadtxt('r99t36.txt')
-t38 = np.loadtxt('r99t38.txt')
-t40 = np.loadtxt('r99t40.txt')
-
-
-t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
-     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
-
-# grab for each experiment
-t99_alk = np.zeros((len(temps)))
-t99_alkflux = np.zeros((len(temps)))
-t99_glass = np.zeros((len(temps)))
-t99_kaolinite = np.zeros((len(temps)))
-t99_stilbite = np.zeros((len(temps)))
-t99_saponite = np.zeros((len(temps)))
-t99_albite = np.zeros((len(temps)))
-t99_celadonite = np.zeros((len(temps)))
-t99_quartz = np.zeros((len(temps)))
-for i in range(len(temps)):
-    bit = np.asarray(t[i])
-    t99_alk[i] = np.max(bit[0,:,3])
-    gx, gy = np.gradient(bit[0,:,:])
-##    t90_glass[i] = bit[0,-2,57]
-    t99_alkflux[i] = np.max(abs(gx[:,3]))
-    t99_glass[i] = np.max(abs(gx[:,59]))
-    t99_kaolinite[i] = np.max(abs(gx[:,19]))
-    t99_stilbite[i] = np.max(abs(gx[:,15]))
-    t99_saponite[i] = np.max(abs(gx[:,23]))
-    t99_albite[i] = np.max(abs(gx[:,21]))
-    t99_celadonite[i] = np.max(abs(gx[:,25]))
-    t99_quartz[i] = np.max(abs(gx[:,47]))
-
-
-
 
 #############################
 # SIMULATIONS WITH MINERALS #
@@ -126,11 +65,11 @@ for i in range(len(temps)):
     bit = np.asarray(t[i])
     t90_alk[i] = np.max(bit[0,:,3])
     gx, gy = np.gradient(bit[0,:,:])
-    t90_alkflux[i] = np.max(abs(gx[:,3])) # [mol / kgw / kyr]
+    t90_alkflux[i] = gx[-1,3] # [mol / kgw / kyr]
     t90_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
-    t90_water[i] = bit[0,np.max(abs(gx[:,59])),63]
-    t90_HCO3[i] = bit[0,np.max(abs(gx[:,59])),13]
-    t90_CO3[i] = bit[0,np.max(abs(gx[:,59])),14]
+    t90_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
+    t90_HCO3[i] = gx[np.argmax(abs(gx[:,25])),13]
+    t90_CO3[i] = gx[np.argmax(abs(gx[:,25])),14]
 
     t90_kaolinite[i] = np.max(abs(gx[:,19]))
     t90_stilbite[i] = np.max(abs(gx[:,15]))
@@ -139,34 +78,101 @@ for i in range(len(temps)):
     t90_celadonite[i] = np.max(abs(gx[:,25]))
     t90_quartz[i] = np.max(abs(gx[:,47]))
 
-# units: mol ca2+ kyr^-1 kgw^-1
-##t90_ALKdiss = (t90_glass * .0069) / t90_water
-##t90_dalkflux = np.gradient(t90_alkflux)
-##t90_dALKdiss = 2.0 * np.gradient(t90_ALKdiss)
-##t90_dALKclay = (t90_dalkflux) - t90_dALKdiss
+t90_alkflux0 = 2*t90_CO3 + t90_HCO3
+
+# H+ concentration change from minerals
+t90_dH_clay = ((t90_kaolinite*6.0 + t90_stilbite*8.72 + t90_saponite*7.32 + \
+          t90_albite*4.0 + t90_celadonite*6.0) / t90_water) 
+print t90_dH_clay
+# H+ consumption by basalt dissolution
+t90_dH_diss = -t90_glass * .5 / t90_water
+print t90_dH_diss
 
 
-# TRYING FROM THE OTHER ANGLE
 
-# change in concentration [mol/kgw] of H+ per timestep
-t90_dH = (t90_kaolinite*6.0 + t90_stilbite*8.72 + t90_saponite*7.32 + \
-          t90_albite*4.0 + t90_celadonite*6.0) / t90_water
-print "t90_dH"
-print t90_dH
-print " "
-# change in concentration [mol/kgw] of HCO3- per timestep
-t90_dHCO3clay = (t90_CO3 / 4.69e-11) * t90_dH
-t90_dALKclay = t90_dHCO3clay
-t90_dALKdiss = t90_alkflux - t90_dALKclay
-print "t90_alkflux (total?)"
-print t90_alkflux
-print " "
-print "t90_dALKclay"
-print t90_dALKclay
-print " "
-print "t90_dALKdiss"
-print t90_dALKdiss
-print " "
+
+#############################
+# SIMULATIONS WITH MINERALS #
+# MIXING RATIO 90/10        #
+# A.K.A.                    #
+# t_RES = 3.14e11 (10kyr)   #
+# pCO2 = 1e-4.45            #
+#############################
+
+# load temps
+t02 = np.loadtxt('r90t02p445.txt')
+t04 = np.loadtxt('r90t04p445.txt')
+t06 = np.loadtxt('r90t06p445.txt')
+t08 = np.loadtxt('r90t08p445.txt')
+t10 = np.loadtxt('r90t10p445.txt')
+t12 = np.loadtxt('r90t12p445.txt')
+t14 = np.loadtxt('r90t14p445.txt')
+t16 = np.loadtxt('r90t16p445.txt')
+t18 = np.loadtxt('r90t18p445.txt')
+t20 = np.loadtxt('r90t20p445.txt')
+t22 = np.loadtxt('r90t22p445.txt')
+t24 = np.loadtxt('r90t24p445.txt')
+t26 = np.loadtxt('r90t26p445.txt')
+t28 = np.loadtxt('r90t28p445.txt')
+t30 = np.loadtxt('r90t30p445.txt')
+t32 = np.loadtxt('r90t32p445.txt')
+t34 = np.loadtxt('r90t34p445.txt')
+t36 = np.loadtxt('r90t36p445.txt')
+t38 = np.loadtxt('r90t38p445.txt')
+t40 = np.loadtxt('r90t40p445.txt')
+
+
+t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
+     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
+     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
+     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
+
+# grab for each experiment
+t90p4_alk = np.zeros((len(temps)))
+t90p4_alkflux = np.zeros((len(temps)))
+t90p4_glass = np.zeros((len(temps)))
+t90p4_water = np.zeros((len(temps)))
+t90p4_HCO3 = np.zeros((len(temps)))
+t90p4_CO3 = np.zeros((len(temps)))
+
+
+t90p4_kaolinite = np.zeros((len(temps)))
+t90p4_stilbite = np.zeros((len(temps)))
+t90p4_saponite = np.zeros((len(temps)))
+t90p4_albite = np.zeros((len(temps)))
+t90p4_celadonite = np.zeros((len(temps)))
+t90p4_quartz = np.zeros((len(temps)))
+for i in range(len(temps)):
+    bit = np.asarray(t[i])
+    t90p4_alk[i] = np.max(bit[0,:,3])
+    gx, gy = np.gradient(bit[0,:,:])
+    t90p4_alkflux[i] = gx[-1,3] # [mol / kgw / kyr]
+    t90p4_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
+    t90p4_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
+    t90p4_HCO3[i] = gx[np.argmax(abs(gx[:,25])),13]
+    t90p4_CO3[i] = gx[np.argmax(abs(gx[:,25])),14]
+
+    t90p4_kaolinite[i] = np.max(abs(gx[:,19]))
+    t90p4_stilbite[i] = np.max(abs(gx[:,15]))
+    t90p4_saponite[i] = np.max(abs(gx[:,23]))
+    t90p4_albite[i] = np.max(abs(gx[:,21]))
+    t90p4_celadonite[i] = np.max(abs(gx[:,25]))
+    t90p4_quartz[i] = np.max(abs(gx[:,47]))
+
+t90p4_alkflux0 = 2*t90p4_CO3 + t90p4_HCO3
+
+# H+ concentration change from minerals
+t90p4_dH_clay = ((t90p4_kaolinite*6.0 + t90p4_stilbite*8.72 + t90p4_saponite*7.32 + \
+          t90p4_albite*4.0 + t90p4_celadonite*6.0) / t90p4_water) 
+print t90_dH_clay
+# H+ consumption by basalt dissolution
+t90p4_dH_diss = -t90p4_glass * .5 / t90p4_water
+print t90p4_dH_diss
+
+
+
+
+
 
 
 
@@ -187,7 +193,11 @@ plt.rc('ytick', labelsize=8)
 ax = plt.subplot(2,2,1)
 
 
-p = plt.plot(temps,t90_alk,'k^-',linewidth=2,label='mixing 90/10')
+#p = plt.plot(temps,t90_dH_diss,'r-',linewidth=1,label='ALKdiss')
+#p = plt.plot(temps,-t90_dH_clay,'b-',linewidth=1,label='ALKclay')
+
+p = plt.plot(temps,t90_dH_clay+t90_dH_diss,'k-',linewidth=1,label='ALKclay')
+p = plt.plot(temps,t90p4_dH_clay+t90p4_dH_diss,'r-',linewidth=1,label='ALKclay')
 
 plt.title('ALKALINITY',fontsize=8)
 plt.ylabel('ALK TO OCEAN [mol kgw$^{-1}$ yr$^{-1}$]',
@@ -207,7 +217,8 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 ax = plt.subplot(2,2,2)
 
 
-p = plt.plot(temps,t90_alkflux,'k^-',linewidth=2,label='mixing 90/10')
+p = plt.plot(temps,t90_alkflux,'k^-',linewidth=2,label='p3')
+p = plt.plot(temps,t90p4_alkflux,'r^-',linewidth=2,label='p4')
 
 plt.title('ALKALINITY FLUX',fontsize=8)
 plt.ylabel('',fontsize=6)
@@ -225,7 +236,8 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 
 ax = plt.subplot(2,2,4)
 
-p = plt.plot(temps,t90_glass,'k^-',linewidth=2,label='mixing 90/10')
+p = plt.plot(temps,t90_glass,'k^-',linewidth=2,label='p3')
+p = plt.plot(temps,t90p4_glass,'r^-',linewidth=2,label='p4')
 
 
 plt.title('BASALT DISSOLUTION RATE',fontsize=8)
