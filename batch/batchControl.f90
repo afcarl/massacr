@@ -212,7 +212,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-&"    CO2(g) -4.45 100" //NEW_LINE('')// &
+&"    CO2(g) -3.32 100" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -319,7 +319,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   
 &"R(s_sp)" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
+!&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
+&"10 s_sp = 1.53e-5" //&
 &"" //NEW_LINE('')// &
 &"100 SAVE s_sp" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
