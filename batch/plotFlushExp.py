@@ -23,26 +23,26 @@ n=-8 # precip step
 #############################
 
 # load temps
-t02 = np.loadtxt('r90t02c475p.txt')
-t04 = np.loadtxt('r90t04c475p.txt')
-t06 = np.loadtxt('r90t06c475p.txt')
-t08 = np.loadtxt('r90t08c475p.txt')
-t10 = np.loadtxt('r90t10c475p.txt')
-t12 = np.loadtxt('r90t12c475p.txt')
-t14 = np.loadtxt('r90t14c475p.txt')
-t16 = np.loadtxt('r90t16c475p.txt')
-t18 = np.loadtxt('r90t18c475p.txt')
-t20 = np.loadtxt('r90t20c475p.txt')
-t22 = np.loadtxt('r90t22c475p.txt')
-t24 = np.loadtxt('r90t24c475p.txt')
-t26 = np.loadtxt('r90t26c475p.txt')
-t28 = np.loadtxt('r90t28c475p.txt')
-t30 = np.loadtxt('r90t30c475p.txt')
-t32 = np.loadtxt('r90t32c475p.txt')
-t34 = np.loadtxt('r90t34c475p.txt')
-t36 = np.loadtxt('r90t36c475p.txt')
-t38 = np.loadtxt('r90t38c475p.txt')
-t40 = np.loadtxt('r90t40c475p.txt')
+t02 = np.loadtxt('r90t02c475pw.txt')
+t04 = np.loadtxt('r90t04c475pw.txt')
+t06 = np.loadtxt('r90t06c475pw.txt')
+t08 = np.loadtxt('r90t08c475pw.txt')
+t10 = np.loadtxt('r90t10c475pw.txt')
+t12 = np.loadtxt('r90t12c475pw.txt')
+t14 = np.loadtxt('r90t14c475pw.txt')
+t16 = np.loadtxt('r90t16c475pw.txt')
+t18 = np.loadtxt('r90t18c475pw.txt')
+t20 = np.loadtxt('r90t20c475pw.txt')
+t22 = np.loadtxt('r90t22c475pw.txt')
+t24 = np.loadtxt('r90t24c475pw.txt')
+t26 = np.loadtxt('r90t26c475pw.txt')
+t28 = np.loadtxt('r90t28c475pw.txt')
+t30 = np.loadtxt('r90t30c475pw.txt')
+t32 = np.loadtxt('r90t32c475pw.txt')
+t34 = np.loadtxt('r90t34c475pw.txt')
+t36 = np.loadtxt('r90t36c475pw.txt')
+t38 = np.loadtxt('r90t38c475pw.txt')
+t40 = np.loadtxt('r90t40c475pw.txt')
 
 
 t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
@@ -76,6 +76,7 @@ for i in range(len(temps)):
     t90c475_glass[i] = gx[n,59]
 
     t90c475_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
+    t90c475_water[i] = bit[0,n,63]
     t90c475_HCO3[i] = bit[0,m,13]
     t90c475_CO3[i] = bit[0,m,14]
 
@@ -115,26 +116,26 @@ t90c475_dH_diss = -t90c475_glass * .5 / t90c475_water
 #############################
 
 # load temps
-t02 = np.loadtxt('r90t02c350p.txt')
-t04 = np.loadtxt('r90t04c350p.txt')
-t06 = np.loadtxt('r90t06c350p.txt')
-t08 = np.loadtxt('r90t08c350p.txt')
-t10 = np.loadtxt('r90t10c350p.txt')
-t12 = np.loadtxt('r90t12c350p.txt')
-t14 = np.loadtxt('r90t14c350p.txt')
-t16 = np.loadtxt('r90t16c350p.txt')
-t18 = np.loadtxt('r90t18c350p.txt')
-t20 = np.loadtxt('r90t20c350p.txt')
-t22 = np.loadtxt('r90t22c350p.txt')
-t24 = np.loadtxt('r90t24c350p.txt')
-t26 = np.loadtxt('r90t26c350p.txt')
-t28 = np.loadtxt('r90t28c350p.txt')
-t30 = np.loadtxt('r90t30c350p.txt')
-t32 = np.loadtxt('r90t32c350p.txt')
-t34 = np.loadtxt('r90t34c350p.txt')
-t36 = np.loadtxt('r90t36c350p.txt')
-t38 = np.loadtxt('r90t38c350p.txt')
-t40 = np.loadtxt('r90t40c350p.txt')
+t02 = np.loadtxt('r90t02c350pw.txt')
+t04 = np.loadtxt('r90t04c350pw.txt')
+t06 = np.loadtxt('r90t06c350pw.txt')
+t08 = np.loadtxt('r90t08c350pw.txt')
+t10 = np.loadtxt('r90t10c350pw.txt')
+t12 = np.loadtxt('r90t12c350pw.txt')
+t14 = np.loadtxt('r90t14c350pw.txt')
+t16 = np.loadtxt('r90t16c350pw.txt')
+t18 = np.loadtxt('r90t18c350pw.txt')
+t20 = np.loadtxt('r90t20c350pw.txt')
+t22 = np.loadtxt('r90t22c350pw.txt')
+t24 = np.loadtxt('r90t24c350pw.txt')
+t26 = np.loadtxt('r90t26c350pw.txt')
+t28 = np.loadtxt('r90t28c350pw.txt')
+t30 = np.loadtxt('r90t30c350pw.txt')
+t32 = np.loadtxt('r90t32c350pw.txt')
+t34 = np.loadtxt('r90t34c350pw.txt')
+t36 = np.loadtxt('r90t36c350pw.txt')
+t38 = np.loadtxt('r90t38c350pw.txt')
+t40 = np.loadtxt('r90t40c350pw.txt')
 
 
 t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
@@ -168,6 +169,7 @@ for i in range(len(temps)):
     t90_glass[i] = gx[n,59]
     
     t90_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
+    t90_water[i] = bit[0,n,63]
     t90_HCO3[i] = bit[0,m,13]
     t90_CO3[i] = bit[0,m,14]
 
@@ -205,26 +207,26 @@ t90_dH_diss = -t90_glass * .5 / t90_water
 #############################
 
 # load temps
-t02 = np.loadtxt('r90t02c225p.txt')
-t04 = np.loadtxt('r90t04c225p.txt')
-t06 = np.loadtxt('r90t06c225p.txt')
-t08 = np.loadtxt('r90t08c225p.txt')
-t10 = np.loadtxt('r90t10c225p.txt')
-t12 = np.loadtxt('r90t12c225p.txt')
-t14 = np.loadtxt('r90t14c225p.txt')
-t16 = np.loadtxt('r90t16c225p.txt')
-t18 = np.loadtxt('r90t18c225p.txt')
-t20 = np.loadtxt('r90t20c225p.txt')
-t22 = np.loadtxt('r90t22c225p.txt')
-t24 = np.loadtxt('r90t24c225p.txt')
-t26 = np.loadtxt('r90t26c225p.txt')
-t28 = np.loadtxt('r90t28c225p.txt')
-t30 = np.loadtxt('r90t30c225p.txt')
-t32 = np.loadtxt('r90t32c225p.txt')
-t34 = np.loadtxt('r90t34c225p.txt')
-t36 = np.loadtxt('r90t36c225p.txt')
-t38 = np.loadtxt('r90t38c225p.txt')
-t40 = np.loadtxt('r90t40c225p.txt')
+t02 = np.loadtxt('r90t02c225pw.txt')
+t04 = np.loadtxt('r90t04c225pw.txt')
+t06 = np.loadtxt('r90t06c225pw.txt')
+t08 = np.loadtxt('r90t08c225pw.txt')
+t10 = np.loadtxt('r90t10c225pw.txt')
+t12 = np.loadtxt('r90t12c225pw.txt')
+t14 = np.loadtxt('r90t14c225pw.txt')
+t16 = np.loadtxt('r90t16c225pw.txt')
+t18 = np.loadtxt('r90t18c225pw.txt')
+t20 = np.loadtxt('r90t20c225pw.txt')
+t22 = np.loadtxt('r90t22c225pw.txt')
+t24 = np.loadtxt('r90t24c225pw.txt')
+t26 = np.loadtxt('r90t26c225pw.txt')
+t28 = np.loadtxt('r90t28c225pw.txt')
+t30 = np.loadtxt('r90t30c225pw.txt')
+t32 = np.loadtxt('r90t32c225pw.txt')
+t34 = np.loadtxt('r90t34c225pw.txt')
+t36 = np.loadtxt('r90t36c225pw.txt')
+t38 = np.loadtxt('r90t38c225pw.txt')
+t40 = np.loadtxt('r90t40c225pw.txt')
 
 
 t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
@@ -258,6 +260,7 @@ for i in range(len(temps)):
     t90c225_glass[i] = gx[n,59]
     
     t90c225_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
+    t90c225_water[i] = bit[0,n,63]
     t90c225_HCO3[i] = bit[0,m,13]
     t90c225_CO3[i] = bit[0,m,14]
 
@@ -297,26 +300,26 @@ t90c225_dH_diss = -t90c225_glass * .5 / t90c225_water
 #############################
 
 # load temps
-t02 = np.loadtxt('r90t02c100p.txt')
-t04 = np.loadtxt('r90t04c100p.txt')
-t06 = np.loadtxt('r90t06c100p.txt')
-t08 = np.loadtxt('r90t08c100p.txt')
-t10 = np.loadtxt('r90t10c100p.txt')
-t12 = np.loadtxt('r90t12c100p.txt')
-t14 = np.loadtxt('r90t14c100p.txt')
-t16 = np.loadtxt('r90t16c100p.txt')
-t18 = np.loadtxt('r90t18c100p.txt')
-t20 = np.loadtxt('r90t20c100p.txt')
-t22 = np.loadtxt('r90t22c100p.txt')
-t24 = np.loadtxt('r90t24c100p.txt')
-t26 = np.loadtxt('r90t26c100p.txt')
-t28 = np.loadtxt('r90t28c100p.txt')
-t30 = np.loadtxt('r90t30c100p.txt')
-t32 = np.loadtxt('r90t32c100p.txt')
-t34 = np.loadtxt('r90t34c100p.txt')
-t36 = np.loadtxt('r90t36c100p.txt')
-t38 = np.loadtxt('r90t38c100p.txt')
-t40 = np.loadtxt('r90t40c100p.txt')
+t02 = np.loadtxt('r90t02c100pw.txt')
+t04 = np.loadtxt('r90t04c100pw.txt')
+t06 = np.loadtxt('r90t06c100pw.txt')
+t08 = np.loadtxt('r90t08c100pw.txt')
+t10 = np.loadtxt('r90t10c100pw.txt')
+t12 = np.loadtxt('r90t12c100pw.txt')
+t14 = np.loadtxt('r90t14c100pw.txt')
+t16 = np.loadtxt('r90t16c100pw.txt')
+t18 = np.loadtxt('r90t18c100pw.txt')
+t20 = np.loadtxt('r90t20c100pw.txt')
+t22 = np.loadtxt('r90t22c100pw.txt')
+t24 = np.loadtxt('r90t24c100pw.txt')
+t26 = np.loadtxt('r90t26c100pw.txt')
+t28 = np.loadtxt('r90t28c100pw.txt')
+t30 = np.loadtxt('r90t30c100pw.txt')
+t32 = np.loadtxt('r90t32c100pw.txt')
+t34 = np.loadtxt('r90t34c100pw.txt')
+t36 = np.loadtxt('r90t36c100pw.txt')
+t38 = np.loadtxt('r90t38c100pw.txt')
+t40 = np.loadtxt('r90t40c100pw.txt')
 
 
 t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
@@ -350,6 +353,7 @@ for i in range(len(temps)):
     t90c100_glass[i] = gx[n,59]
     
     t90c100_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
+    t90c100_water[i] = bit[0,n,63]
     t90c100_HCO3[i] = bit[0,m,13]
     t90c100_CO3[i] = bit[0,m,14]
 
@@ -373,7 +377,6 @@ t90c100_dH_clay = ((t90c100_kaolinite*6.0 + t90c100_stilbite*8.72 + t90c100_sapo
           t90c100_albite*4.0 + t90c100_celadonite*6.0) / t90c100_water) 
 # H+ consumption by basalt dissolution
 t90c100_dH_diss = -t90c100_glass * .5 / t90c100_water
-
 
 
 
@@ -460,11 +463,6 @@ p = plt.plot(temps[0:20],t90c225_dH_clay[0:20]-t90c225_dH_diss[0:20],
 p = plt.plot(temps[0:20],t90c100_dH_clay[0:20]-t90c100_dH_diss[0:20],
              'r-',linewidth=1,label='p100')
 
-##p = plt.plot(temps,-t90c475_dH_diss,'c-',linewidth=1,label='p475 diss')
-##p = plt.plot(temps,-t90_dH_diss,'k-',linewidth=1,label='p350 diss')
-##p = plt.plot(temps,-t90c225_dH_diss,'b-',linewidth=1,label='p225')
-##p = plt.plot(temps,-t90c100_dH_diss,'r-',linewidth=1,label='p100')
-
 
 plt.title('PRODUCTION - H+ CONSUMPTION',fontsize=8)
 plt.ylabel('ALK TO OCEAN [mol kgw$^{-1}$ yr$^{-1}$]',
@@ -485,10 +483,15 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 
 ax = plt.subplot(2,2,2)
 
-p = plt.plot(temps,t90c475_dH_clay,'c--',linewidth=1,label='p475 clay')
-p = plt.plot(temps,t90_dH_clay,'k--',linewidth=1,label='p350 clay')
-p = plt.plot(temps,t90c225_dH_clay,'b--',linewidth=1,label='p225')
-p = plt.plot(temps,t90c100_dH_clay,'r--',linewidth=1,label='p100')
+##p = plt.plot(temps,t90c475_dH_clay,'c--',linewidth=1,label='p475 clay')
+##p = plt.plot(temps,t90_dH_clay,'k--',linewidth=1,label='p350 clay')
+##p = plt.plot(temps,t90c225_dH_clay,'b--',linewidth=1,label='p225')
+##p = plt.plot(temps,t90c100_dH_clay,'r--',linewidth=1,label='p100')
+
+p = plt.plot(temps,-t90c475_dH_diss,'c-',linewidth=1,label='p475 diss')
+p = plt.plot(temps,-t90_dH_diss,'k-',linewidth=1,label='p350 diss')
+p = plt.plot(temps,-t90c225_dH_diss,'b-',linewidth=1,label='p225')
+p = plt.plot(temps,-t90c100_dH_diss,'r-',linewidth=1,label='p100')
 
 ##print t90c475_HCO3
 ##p = plt.plot(temps,t90c475_HCO3+2.0*t90c475_CO3,'c^-',linewidth=1,label='p475 clay')
@@ -496,7 +499,7 @@ p = plt.plot(temps,t90c100_dH_clay,'r--',linewidth=1,label='p100')
 ##p = plt.plot(temps,t90c225_HCO3+2.0*t90c225_CO3,'b^-',linewidth=1,label='p225')
 ##p = plt.plot(temps,t90c100_HCO3+2.0*t90c100_CO3,'r^-',linewidth=1,label='p100')
 
-plt.title('H+ PRODUCTION',fontsize=8)
+plt.title('H+ CONSUMPTION',fontsize=8)
 plt.ylabel('ALK TO OCEAN [mol kgw$^{-1}$ yr$^{-1}$]',
            fontsize=6)
 plt.xlabel('T [$^{\circ}$C]',fontsize=10)
@@ -512,6 +515,8 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 ###########################
 
 ax = plt.subplot(2,2,4)
+
+# [5:11]
 
 p = plt.plot(temps,-t90c475_glass,'c^-',linewidth=2,label='p350')
 p = plt.plot(temps,-t90_glass,'k^-',linewidth=2,label='p350')
@@ -537,23 +542,33 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 
 ax = plt.subplot(2,2,3)
 
-p = plt.plot(temps,t90_celadonite,'k-',linewidth=1,label='celadonite')
-p = plt.plot(temps,t90_stilbite,'k--',linewidth=1,label='stilbite')
-p = plt.plot(temps,t90_kaolinite,'k:',linewidth=2,label='kaolinite')
-p = plt.plot(temps,t90_albite,'k-.',linewidth=1,label='albite')
-p = plt.plot(temps,t90_saponite,'k-',linewidth=2,label='saponite')
+##p = plt.plot(temps,t90_celadonite,'k-',linewidth=1,label='celadonite')
+##p = plt.plot(temps,t90_stilbite,'k--',linewidth=1,label='stilbite')
+##p = plt.plot(temps,t90_kaolinite,'k:',linewidth=2,label='kaolinite')
+##p = plt.plot(temps,t90_albite,'k-.',linewidth=1,label='albite')
+##p = plt.plot(temps,t90_saponite,'k-',linewidth=2,label='saponite')
 
-p = plt.plot(temps,t90c475_albite,'c-.',linewidth=1,label='albite')
-p = plt.plot(temps,t90c225_albite,'b-.',linewidth=1,label='albite')
-p = plt.plot(temps,t90c100_albite,'r-.',linewidth=1,label='albite')
 
-p = plt.plot(temps,t90c475_saponite,'c-',linewidth=2)
-p = plt.plot(temps,t90c225_saponite,'b-',linewidth=2)
-p = plt.plot(temps,t90c100_saponite,'r-',linewidth=2)
 
-p = plt.plot(temps,t90c475_kaolinite,'c:',linewidth=2)
-p = plt.plot(temps,t90c225_kaolinite,'b:',linewidth=2)
-p = plt.plot(temps,t90c100_kaolinite,'r:',linewidth=2)
+##p = plt.plot(temps,t90c475_saponite,'c-',linewidth=2)
+##p = plt.plot(temps,t90c225_saponite,'b-',linewidth=2)
+##p = plt.plot(temps,t90c100_saponite,'r-',linewidth=2)
+##
+##p = plt.plot(temps,t90c475_kaolinite,'c:',linewidth=2)
+##p = plt.plot(temps,t90c225_kaolinite,'b:',linewidth=2)
+##p = plt.plot(temps,t90c100_kaolinite,'r:',linewidth=2)
+
+
+##p = plt.plot(temps,np.gradient(t90c475_albite),'c-',linewidth=1,label='albite')
+##p = plt.plot(temps,np.gradient(t90_albite),'k-',linewidth=1,label='albite')
+##p = plt.plot(temps,np.gradient(t90c225_albite),'b-',linewidth=1,label='albite')
+##p = plt.plot(temps,np.gradient(t90c100_albite),'r-',linewidth=1,label='albite')
+
+p = plt.plot(temps,t90c475_albite,'c-',linewidth=1,label='albite')
+p = plt.plot(temps,t90_albite,'k-',linewidth=1,label='albite')
+p = plt.plot(temps,t90c225_albite,'b-',linewidth=1,label='albite')
+p = plt.plot(temps,t90c100_albite,'r-',linewidth=1,label='albite')
+
 
 ##p = plt.plot(temps,t90c100_celadonite,'r-',linewidth=1,label='100ppm')
 ##p = plt.plot(temps,t90c100_stilbite,'r--',linewidth=1)

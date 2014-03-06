@@ -31,6 +31,8 @@ character(len=50) :: s_quartz, s_kspar
 character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! primary
 character(len=50) :: s_temp, s_timestep ! important information
 character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk, s_co2 ! solutes
+real(8) :: water
+character(len=50) :: s_water
 
 ! command line arguments
 character(len=100) :: intemp
@@ -90,7 +92,7 @@ solute0 = solute
 ! flushing timestep
 timestep = 3.14e10
 temp = 10.0
-
+water = 5.0
 
 ! SOLUTES TO STRINGS
 write(s_ph,'(F25.10)') solute(1)
@@ -105,6 +107,7 @@ write(s_cl,'(F25.10)') solute(9)
 write(s_al,'(F25.10)') solute(10)
 write(s_alk,'(F25.10)') solute(11)
 write(s_co2,'(F25.10)') solute(12)
+write(s_water,'(F25.10)') water
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)
@@ -204,7 +207,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
 &"    CO2 " // trim(s_co2) //NEW_LINE('')// &
 &"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
-&"    -water		5.0	# kg" //NEW_LINE('')// &
+!&"    -water		5.0	# kg" //NEW_LINE('')// &
+&"    -water "// trim(s_water) //NEW_LINE('')// &
 &"END" //NEW_LINE('')// &
 
 ! ----------------------------------%%
@@ -212,7 +216,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-&"    CO2(g) -3.32 100" //NEW_LINE('')// &
+&"    CO2(g) -3.31 100" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -449,7 +453,7 @@ END IF
 ! PRINT DUMP/OUTPUT
 DO i=1,GetOutputStringLineCount(id)
 	call GetOutputStringLine(id, i, line)
-	!write(*,*) trim(line)
+	write(*,*) trim(line)
 END DO
   
 ! NOW KINDA USELESS PRINT STATEMENTS FOR WRITING TO FILES
@@ -524,8 +528,8 @@ solute(9) = outmat(jj,12)*mix1 + solute0(9)*mix2
 solute(10) = outmat(jj,13)*mix1 + solute0(10)*mix2
 solute(11) = outmat(jj,4)*mix1 + solute0(11)*mix2
 solute(12) = solute0(12)*mix2
-
-
+water = outmat(jj,64) 
+write(*,*) water
 !write(*,*) solute
 
 ! SOLUTES TO STRINGS
@@ -541,6 +545,8 @@ write(s_cl,'(F25.10)') solute(9)
 write(s_al,'(F25.10)') solute(10)
 write(s_alk,'(F25.10)') solute(11)
 write(s_co2,'(F25.10)') solute(12)
+write(s_water,'(F25.10)') water
+
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)
