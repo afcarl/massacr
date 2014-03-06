@@ -11,7 +11,64 @@ temps = np.arange(2,42,2)
 m=-8 # alk/other step
 n=-8 # precip step
 
+def grab(t):
+    # grab for each experiment
+    t_alk = np.zeros((len(temps)))
+    t_alkflux = np.zeros((len(temps)))
+    t_alkflux0 = np.zeros((len(temps)))
+    t_glass = np.zeros((len(temps)))
+    t_water = np.zeros((len(temps)))
+    t_HCO3 = np.zeros((len(temps)))
+    t_CO3 = np.zeros((len(temps)))
+    t_kaolinite = np.zeros((len(temps)))
+    t_stilbite = np.zeros((len(temps)))
+    t_saponite = np.zeros((len(temps)))
+    t_albite = np.zeros((len(temps)))
+    t_celadonite = np.zeros((len(temps)))
+    t_quartz = np.zeros((len(temps)))
+    for i in range(len(temps)):
+        bit = np.asarray(t[i])
+        t_alk[i] = np.max(bit[0,:,3])
+        gx, gy = np.gradient(bit[0,:,:])
+        t_alkflux[i] = gx[m,3]*1000.0
+        t_alkflux0[i] = bit[0,m,3]*1000.0 
+        t_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
+        t_glass[i] = gx[n,59]
 
+        t_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
+        t_water[i] = bit[0,n,63]
+        t_HCO3[i] = bit[0,m,13]
+        t_CO3[i] = bit[0,m,14]
+
+        t_kaolinite[i] = gx[n,19]
+        t_stilbite[i] = gx[n,15]
+        t_saponite[i] = gx[n,23]
+        t_albite[i] = gx[n,21]
+        t_celadonite[i] = gx[n,25]
+        t_quartz[i] = gx[n,47]
+
+
+    ##    t_kaolinite[i] = np.max(abs(gx[:,19]))
+    ##    t_stilbite[i] = np.max(abs(gx[:,15]))
+    ##    t90c475_saponite[i] = np.max(abs(gx[:,23]))
+    ##    t_albite[i] = np.max(abs(gx[:,21]))
+    ##    t_celadonite[i] = np.max(abs(gx[:,25]))
+    ##    t_quartz[i] = np.max(abs(gx[:,47]))
+
+
+    # H+ concentration change from minerals
+    t_dH_clay = ((t_kaolinite*6.0 + t_stilbite*8.72 + t_saponite*7.32 + \
+              t_albite*4.0 + t_celadonite*6.0) / t_water) 
+    # H+ consumption by basalt dissolution
+    t_dH_diss = -t_glass * .5 / t_water
+
+    out = [t_alk, t_alkflux, t_alkflux0, t_glass, t_water, t_HCO3, t_CO3,
+           t_kaolinite, t_stilbite, t_saponite, t_albite, t_celadonite, t_quartz,
+           t_dH_clay, t_dH_diss]
+    
+    return out
+
+    
 
 
 #############################
@@ -50,56 +107,24 @@ t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
      [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
      [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
 
-# grab for each experiment
-t90c475_alk = np.zeros((len(temps)))
-t90c475_alkflux = np.zeros((len(temps)))
-t90c475_alkflux0 = np.zeros((len(temps)))
-t90c475_glass = np.zeros((len(temps)))
-t90c475_water = np.zeros((len(temps)))
-t90c475_HCO3 = np.zeros((len(temps)))
-t90c475_CO3 = np.zeros((len(temps)))
+out = grab(t)
 
+t90c475_alk = out[0]
+t90c475_alkflux = out[1]
+t90c475_alkflux0 = out[2]
+t90c475_glass = out[3]
+t90c475_water = out[4]
+t90c475_HCO3 = out[5]
+t90c475_CO3 = out[6]
+t90c475_kaolinite = out[7]
+t90c475_stilbite = out[8]
+t90c475_saponite = out[9]
+t90c475_albite = out[10]
+t90c475_celadonite = out[11]
+t90c475_quartz = out[12]
+t90c475_dH_clay = out[13]
+t90c475_dH_diss = out[14]
 
-t90c475_kaolinite = np.zeros((len(temps)))
-t90c475_stilbite = np.zeros((len(temps)))
-t90c475_saponite = np.zeros((len(temps)))
-t90c475_albite = np.zeros((len(temps)))
-t90c475_celadonite = np.zeros((len(temps)))
-t90c475_quartz = np.zeros((len(temps)))
-for i in range(len(temps)):
-    bit = np.asarray(t[i])
-    t90c475_alk[i] = np.max(bit[0,:,3])
-    gx, gy = np.gradient(bit[0,:,:])
-    t90c475_alkflux[i] = gx[m,3]*1000.0
-    t90c475_alkflux0[i] = bit[0,m,3]*1000.0 
-    t90c475_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
-    t90c475_glass[i] = gx[n,59]
-
-    t90c475_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
-    t90c475_water[i] = bit[0,n,63]
-    t90c475_HCO3[i] = bit[0,m,13]
-    t90c475_CO3[i] = bit[0,m,14]
-
-    t90c475_kaolinite[i] = gx[n,19]
-    t90c475_stilbite[i] = gx[n,15]
-    t90c475_saponite[i] = gx[n,23]
-    t90c475_albite[i] = gx[n,21]
-    t90c475_celadonite[i] = gx[n,25]
-    t90c475_quartz[i] = gx[n,47]
-
-##    t90c475_kaolinite[i] = np.max(abs(gx[:,19]))
-##    t90c475_stilbite[i] = np.max(abs(gx[:,15]))
-##    t90c475_saponite[i] = np.max(abs(gx[:,23]))
-##    t90c475_albite[i] = np.max(abs(gx[:,21]))
-##    t90c475_celadonite[i] = np.max(abs(gx[:,25]))
-##    t90c475_quartz[i] = np.max(abs(gx[:,47]))
-
-
-# H+ concentration change from minerals
-t90c475_dH_clay = ((t90c475_kaolinite*6.0 + t90c475_stilbite*8.72 + t90c475_saponite*7.32 + \
-          t90c475_albite*4.0 + t90c475_celadonite*6.0) / t90c475_water) 
-# H+ consumption by basalt dissolution
-t90c475_dH_diss = -t90c475_glass * .5 / t90c475_water
 
 
 
@@ -143,56 +168,23 @@ t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
      [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
      [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
 
-# grab for each experiment
-t90_alk = np.zeros((len(temps)))
-t90_alkflux = np.zeros((len(temps)))
-t90_alkflux0 = np.zeros((len(temps)))
-t90_glass = np.zeros((len(temps)))
-t90_water = np.zeros((len(temps)))
-t90_HCO3 = np.zeros((len(temps)))
-t90_CO3 = np.zeros((len(temps)))
+out = grab(t)
 
-
-t90_kaolinite = np.zeros((len(temps)))
-t90_stilbite = np.zeros((len(temps)))
-t90_saponite = np.zeros((len(temps)))
-t90_albite = np.zeros((len(temps)))
-t90_celadonite = np.zeros((len(temps)))
-t90_quartz = np.zeros((len(temps)))
-for i in range(len(temps)):
-    bit = np.asarray(t[i])
-    t90_alk[i] = np.max(bit[0,:,3])
-    gx, gy = np.gradient(bit[0,:,:])
-    t90_alkflux[i] = gx[m,3]*1000.0 
-    t90_alkflux0[i] = bit[0,m,3]*1000.0
-    t90_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
-    t90_glass[i] = gx[n,59]
-    
-    t90_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
-    t90_water[i] = bit[0,n,63]
-    t90_HCO3[i] = bit[0,m,13]
-    t90_CO3[i] = bit[0,m,14]
-
-    t90_kaolinite[i] = gx[n,19]
-    t90_stilbite[i] = gx[n,15]
-    t90_saponite[i] = gx[n,23]
-    t90_albite[i] = gx[n,21]
-    t90_celadonite[i] = gx[n,25]
-    t90_quartz[i] = gx[n,47]
-
-##    t90_kaolinite[i] = np.max(abs(gx[:,19]))
-##    t90_stilbite[i] = np.max(abs(gx[:,15]))
-##    t90_saponite[i] = np.max(abs(gx[:,23]))
-##    t90_albite[i] = np.max(abs(gx[:,21]))
-##    t90_celadonite[i] = np.max(abs(gx[:,25]))
-##    t90_quartz[i] = np.max(abs(gx[:,47]))
-
-
-# H+ concentration change from minerals
-t90_dH_clay = ((t90_kaolinite*6.0 + t90_stilbite*8.72 + t90_saponite*7.32 + \
-          t90_albite*4.0 + t90_celadonite*6.0) / t90_water) 
-# H+ consumption by basalt dissolution
-t90_dH_diss = -t90_glass * .5 / t90_water
+t90_alk = out[0]
+t90_alkflux = out[1]
+t90_alkflux0 = out[2]
+t90_glass = out[3]
+t90_water = out[4]
+t90_HCO3 = out[5]
+t90_CO3 = out[6]
+t90_kaolinite = out[7]
+t90_stilbite = out[8]
+t90_saponite = out[9]
+t90_albite = out[10]
+t90_celadonite = out[11]
+t90_quartz = out[12]
+t90_dH_clay = out[13]
+t90_dH_diss = out[14]
 
 
 
@@ -234,58 +226,23 @@ t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
      [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
      [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
 
-# grab for each experiment
-t90c225_alk = np.zeros((len(temps)))
-t90c225_alkflux = np.zeros((len(temps)))
-t90c225_alkflux0 = np.zeros((len(temps)))
-t90c225_glass = np.zeros((len(temps)))
-t90c225_water = np.zeros((len(temps)))
-t90c225_HCO3 = np.zeros((len(temps)))
-t90c225_CO3 = np.zeros((len(temps)))
+out = grab(t)
 
-
-t90c225_kaolinite = np.zeros((len(temps)))
-t90c225_stilbite = np.zeros((len(temps)))
-t90c225_saponite = np.zeros((len(temps)))
-t90c225_albite = np.zeros((len(temps)))
-t90c225_celadonite = np.zeros((len(temps)))
-t90c225_quartz = np.zeros((len(temps)))
-for i in range(len(temps)):
-    bit = np.asarray(t[i])
-    t90c225_alk[i] = np.max(bit[0,:,3])
-    gx, gy = np.gradient(bit[0,:,:])
-    t90c225_alkflux[i] = gx[m,3]*1000.0
-    t90c225_alkflux0[i] = bit[0,m,3]*1000.0
-    t90c225_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
-    t90c225_glass[i] = gx[n,59]
-    
-    t90c225_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
-    t90c225_water[i] = bit[0,n,63]
-    t90c225_HCO3[i] = bit[0,m,13]
-    t90c225_CO3[i] = bit[0,m,14]
-
-    t90c225_kaolinite[i] = gx[n,19]
-    t90c225_stilbite[i] = gx[n,15]
-    t90c225_saponite[i] = gx[n,23]
-    t90c225_albite[i] = gx[n,21]
-    t90c225_celadonite[i] = gx[n,25]
-    t90c225_quartz[i] = gx[n,47]
-
-##    t90c225_kaolinite[i] = np.max(abs(gx[:,19]))
-##    t90c225_stilbite[i] = np.max(abs(gx[:,15]))
-##    t90c225_saponite[i] = np.max(abs(gx[:,23]))
-##    t90c225_albite[i] = np.max(abs(gx[:,21]))
-##    t90c225_celadonite[i] = np.max(abs(gx[:,25]))
-##    t90c225_quartz[i] = np.max(abs(gx[:,47]))
-
-
-# H+ concentration change from minerals
-t90c225_dH_clay = ((t90c225_kaolinite*6.0 + t90c225_stilbite*8.72 + t90c225_saponite*7.32 + \
-          t90c225_albite*4.0 + t90c225_celadonite*6.0) / t90c225_water) 
-# H+ consumption by basalt dissolution
-t90c225_dH_diss = -t90c225_glass * .5 / t90c225_water
-
-
+t90c225_alk = out[0]
+t90c225_alkflux = out[1]
+t90c225_alkflux0 = out[2]
+t90c225_glass = out[3]
+t90c225_water = out[4]
+t90c225_HCO3 = out[5]
+t90c475_CO3 = out[6]
+t90c225_kaolinite = out[7]
+t90c225_stilbite = out[8]
+t90c225_saponite = out[9]
+t90c225_albite = out[10]
+t90c225_celadonite = out[11]
+t90c225_quartz = out[12]
+t90c225_dH_clay = out[13]
+t90c225_dH_diss = out[14]
 
 
 
@@ -327,59 +284,23 @@ t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
      [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
      [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
 
-# grab for each experiment
-t90c100_alk = np.zeros((len(temps)))
-t90c100_alkflux = np.zeros((len(temps)))
-t90c100_alkflux0 = np.zeros((len(temps)))
-t90c100_glass = np.zeros((len(temps)))
-t90c100_water = np.zeros((len(temps)))
-t90c100_HCO3 = np.zeros((len(temps)))
-t90c100_CO3 = np.zeros((len(temps)))
+out = grab(t)
 
-
-t90c100_kaolinite = np.zeros((len(temps)))
-t90c100_stilbite = np.zeros((len(temps)))
-t90c100_saponite = np.zeros((len(temps)))
-t90c100_albite = np.zeros((len(temps)))
-t90c100_celadonite = np.zeros((len(temps)))
-t90c100_quartz = np.zeros((len(temps)))
-for i in range(len(temps)):
-    bit = np.asarray(t[i])
-    t90c100_alk[i] = np.max(bit[0,:,3])
-    gx, gy = np.gradient(bit[0,:,:])
-    t90c100_alkflux[i] = gx[m,3]*1000.0
-    t90c100_alkflux0[i] = bit[0,m,3]*1000.0
-    t90c100_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
-    t90c100_glass[i] = gx[n,59]
-    
-    t90c100_water[i] = bit[0,np.argmax(abs(gx[:,59])),63]
-    t90c100_water[i] = bit[0,n,63]
-    t90c100_HCO3[i] = bit[0,m,13]
-    t90c100_CO3[i] = bit[0,m,14]
-
-    t90c100_kaolinite[i] = gx[n,19]
-    t90c100_stilbite[i] = gx[n,15]
-    t90c100_saponite[i] = gx[n,23]
-    t90c100_albite[i] = gx[n,21]
-    t90c100_celadonite[i] = gx[n,25]
-    t90c100_quartz[i] = gx[n,47]
-
-##    t90c100_kaolinite[i] = np.max(abs(gx[:,19]))
-##    t90c100_stilbite[i] = np.max(abs(gx[:,15]))
-##    t90c100_saponite[i] = np.max(abs(gx[:,23]))
-##    t90c100_albite[i] = np.max(abs(gx[:,21]))
-##    t90c100_celadonite[i] = np.max(abs(gx[:,25]))
-##    t90c100_quartz[i] = np.max(abs(gx[:,47]))
-
-
-# H+ concentration change from minerals
-t90c100_dH_clay = ((t90c100_kaolinite*6.0 + t90c100_stilbite*8.72 + t90c100_saponite*7.32 + \
-          t90c100_albite*4.0 + t90c100_celadonite*6.0) / t90c100_water) 
-# H+ consumption by basalt dissolution
-t90c100_dH_diss = -t90c100_glass * .5 / t90c100_water
-
-
-
+t90c100_alk = out[0]
+t90c100_alkflux = out[1]
+t90c100_alkflux0 = out[2]
+t90c100_glass = out[3]
+t90c100_water = out[4]
+t90c100_HCO3 = out[5]
+t90c100_CO3 = out[6]
+t90c100_kaolinite = out[7]
+t90c100_stilbite = out[8]
+t90c100_saponite = out[9]
+t90c100_albite = out[10]
+t90c100_celadonite = out[11]
+t90c100_quartz = out[12]
+t90c100_dH_clay = out[13]
+t90c100_dH_diss = out[14]
 
 
 
@@ -564,17 +485,10 @@ ax = plt.subplot(2,2,3)
 ##p = plt.plot(temps,np.gradient(t90c225_albite),'b-',linewidth=1,label='albite')
 ##p = plt.plot(temps,np.gradient(t90c100_albite),'r-',linewidth=1,label='albite')
 
-p = plt.plot(temps,t90c475_albite,'c-',linewidth=1,label='albite')
-p = plt.plot(temps,t90_albite,'k-',linewidth=1,label='albite')
-p = plt.plot(temps,t90c225_albite,'b-',linewidth=1,label='albite')
-p = plt.plot(temps,t90c100_albite,'r-',linewidth=1,label='albite')
-
-
-##p = plt.plot(temps,t90c100_celadonite,'r-',linewidth=1,label='100ppm')
-##p = plt.plot(temps,t90c100_stilbite,'r--',linewidth=1)
-##p = plt.plot(temps,t90c100_kaolinite,'r:',linewidth=2)
-##p = plt.plot(temps,t90c100_albite,'r-.',linewidth=1)
-##p = plt.plot(temps,t90c100_saponite,'r-',linewidth=2)
+p = plt.plot(temps,t90c475_kaolinite-t90c475_albite,'c*-',linewidth=1,label='albite')
+p = plt.plot(temps,t90_kaolinite-t90_albite,'k*-',linewidth=1,label='albite')
+p = plt.plot(temps,t90c225_kaolinite-t90c225_albite,'b*-',linewidth=1,label='albite')
+p = plt.plot(temps,t90c100_kaolinite-t90c100_albite,'r*-',linewidth=1,label='albite')
 
 
 plt.title('mineral production rate', fontsize=8)
