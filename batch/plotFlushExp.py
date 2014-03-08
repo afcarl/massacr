@@ -26,11 +26,15 @@ def grab(t):
     t_albite = np.zeros((len(temps)))
     t_celadonite = np.zeros((len(temps)))
     t_quartz = np.zeros((len(temps)))
+    t_ph = np.zeros((len(temps)))
     for i in range(len(temps)):
         bit = np.asarray(t[i])
         t_alk[i] = np.max(bit[0,:,3])
         gx, gy = np.gradient(bit[0,:,:])
         t_alkflux[i] = gx[m,3]*1000.0
+        t_alkflux[i] = bit[0,m,3]
+
+        
         t_alkflux0[i] = bit[0,m,3]*1000.0 
         t_glass[i] = np.max(abs(gx[:,59])) # [mol / kyr]
         t_glass[i] = gx[n,59]
@@ -47,6 +51,8 @@ def grab(t):
         t_celadonite[i] = gx[n,25]
         t_quartz[i] = gx[n,47]
 
+        t_ph[i] = bit[0,m,2]
+        
 
     ##    t_kaolinite[i] = np.max(abs(gx[:,19]))
     ##    t_stilbite[i] = np.max(abs(gx[:,15]))
@@ -64,7 +70,7 @@ def grab(t):
 
     out = [t_alk, t_alkflux, t_alkflux0, t_glass, t_water, t_HCO3, t_CO3,
            t_kaolinite, t_stilbite, t_saponite, t_albite, t_celadonite, t_quartz,
-           t_dH_clay, t_dH_diss]
+           t_dH_clay, t_dH_diss, t_ph]
     
     return out
 
@@ -124,6 +130,7 @@ t90c475_celadonite = out[11]
 t90c475_quartz = out[12]
 t90c475_dH_clay = out[13]
 t90c475_dH_diss = out[14]
+t90c475_ph = out[15]
 
 
 
@@ -185,7 +192,7 @@ t90_celadonite = out[11]
 t90_quartz = out[12]
 t90_dH_clay = out[13]
 t90_dH_diss = out[14]
-
+t90_ph = out[15]
 
 
 
@@ -243,7 +250,237 @@ t90c225_celadonite = out[11]
 t90c225_quartz = out[12]
 t90c225_dH_clay = out[13]
 t90c225_dH_diss = out[14]
+t90c225_ph = out[15]
 
+
+
+#############################
+# SIMULATIONS WITH MINERALS #
+# MIXING RATIO 90/10        #
+# A.K.A.                    #
+# t_RES = 3.14e11 (10kyr)   #
+# pCO2 = 300 ppm            #
+#############################
+
+# load temps
+##t02 = np.loadtxt('r90t02c300pw.txt')
+##t04 = np.loadtxt('r90t04c300pw.txt')
+##t06 = np.loadtxt('r90t06c300pw.txt')
+##t08 = np.loadtxt('r90t08c300pw.txt')
+##t10 = np.loadtxt('r90t10c300pw.txt')
+##t12 = np.loadtxt('r90t12c300pw.txt')
+##t14 = np.loadtxt('r90t14c300pw.txt')
+##t16 = np.loadtxt('r90t16c300pw.txt')
+##t18 = np.loadtxt('r90t18c300pw.txt')
+##t20 = np.loadtxt('r90t20c300pw.txt')
+##t22 = np.loadtxt('r90t22c300pw.txt')
+##t24 = np.loadtxt('r90t24c300pw.txt')
+##t26 = np.loadtxt('r90t26c300pw.txt')
+##t28 = np.loadtxt('r90t28c300pw.txt')
+##t30 = np.loadtxt('r90t30c300pw.txt')
+##t32 = np.loadtxt('r90t32c300pw.txt')
+##t34 = np.loadtxt('r90t34c300pw.txt')
+##t36 = np.loadtxt('r90t36c300pw.txt')
+##t38 = np.loadtxt('r90t38c300pw.txt')
+##t40 = np.loadtxt('r90t40c300pw.txt')
+##
+##
+##t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
+##     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
+##     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
+##     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
+##
+##out = grab(t)
+##
+##t90c300_alk = out[0]
+##t90c300_alkflux = out[1]
+##t90c300_alkflux0 = out[2]
+##t90c300_glass = out[3]
+##t90c300_water = out[4]
+##t90c300_HCO3 = out[5]
+##t90c300_CO3 = out[6]
+##t90c300_kaolinite = out[7]
+##t90c300_stilbite = out[8]
+##t90c300_saponite = out[9]
+##t90c300_albite = out[10]
+##t90c300_celadonite = out[11]
+##t90c300_quartz = out[12]
+##t90c300_dH_clay = out[13]
+##t90c300_dH_diss = out[14]
+##t90c300_ph = out[15]
+
+
+
+
+#############################
+# SIMULATIONS WITH MINERALS #
+# MIXING RATIO 90/10        #
+# A.K.A.                    #
+# t_RES = 3.14e11 (10kyr)   #
+# pCO2 = 250 ppm            #
+#############################
+
+# load temps
+##t02 = np.loadtxt('r90t02c250pw.txt')
+##t04 = np.loadtxt('r90t04c250pw.txt')
+##t06 = np.loadtxt('r90t06c250pw.txt')
+##t08 = np.loadtxt('r90t08c250pw.txt')
+##t10 = np.loadtxt('r90t10c250pw.txt')
+##t12 = np.loadtxt('r90t12c250pw.txt')
+##t14 = np.loadtxt('r90t14c250pw.txt')
+##t16 = np.loadtxt('r90t16c250pw.txt')
+##t18 = np.loadtxt('r90t18c250pw.txt')
+##t20 = np.loadtxt('r90t20c250pw.txt')
+##t22 = np.loadtxt('r90t22c250pw.txt')
+##t24 = np.loadtxt('r90t24c250pw.txt')
+##t26 = np.loadtxt('r90t26c250pw.txt')
+##t28 = np.loadtxt('r90t28c250pw.txt')
+##t30 = np.loadtxt('r90t30c250pw.txt')
+##t32 = np.loadtxt('r90t32c250pw.txt')
+##t34 = np.loadtxt('r90t34c250pw.txt')
+##t36 = np.loadtxt('r90t36c250pw.txt')
+##t38 = np.loadtxt('r90t38c250pw.txt')
+##t40 = np.loadtxt('r90t40c250pw.txt')
+##
+##
+##t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
+##     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
+##     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
+##     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
+##
+##out = grab(t)
+##
+##t90c250_alk = out[0]
+##t90c250_alkflux = out[1]
+##t90c250_alkflux0 = out[2]
+##t90c250_glass = out[3]
+##t90c250_water = out[4]
+##t90c250_HCO3 = out[5]
+##t90c250_CO3 = out[6]
+##t90c250_kaolinite = out[7]
+##t90c250_stilbite = out[8]
+##t90c250_saponite = out[9]
+##t90c250_albite = out[10]
+##t90c250_celadonite = out[11]
+##t90c250_quartz = out[12]
+##t90c250_dH_clay = out[13]
+##t90c250_dH_diss = out[14]
+##t90c250_ph = out[15]
+
+
+
+#############################
+# SIMULATIONS WITH MINERALS #
+# MIXING RATIO 90/10        #
+# A.K.A.                    #
+# t_RES = 3.14e11 (10kyr)   #
+# pCO2 = 200 ppm            #
+#############################
+
+# load temps
+##t02 = np.loadtxt('r90t02c200pw.txt')
+##t04 = np.loadtxt('r90t04c200pw.txt')
+##t06 = np.loadtxt('r90t06c200pw.txt')
+##t08 = np.loadtxt('r90t08c200pw.txt')
+##t10 = np.loadtxt('r90t10c200pw.txt')
+##t12 = np.loadtxt('r90t12c200pw.txt')
+##t14 = np.loadtxt('r90t14c200pw.txt')
+##t16 = np.loadtxt('r90t16c200pw.txt')
+##t18 = np.loadtxt('r90t18c200pw.txt')
+##t20 = np.loadtxt('r90t20c200pw.txt')
+##t22 = np.loadtxt('r90t22c200pw.txt')
+##t24 = np.loadtxt('r90t24c200pw.txt')
+##t26 = np.loadtxt('r90t26c200pw.txt')
+##t28 = np.loadtxt('r90t28c200pw.txt')
+##t30 = np.loadtxt('r90t30c200pw.txt')
+##t32 = np.loadtxt('r90t32c200pw.txt')
+##t34 = np.loadtxt('r90t34c200pw.txt')
+##t36 = np.loadtxt('r90t36c200pw.txt')
+##t38 = np.loadtxt('r90t38c200pw.txt')
+##t40 = np.loadtxt('r90t40c200pw.txt')
+##
+##
+##t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
+##     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
+##     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
+##     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
+##
+##out = grab(t)
+##
+##t90c200_alk = out[0]
+##t90c200_alkflux = out[1]
+##t90c200_alkflux0 = out[2]
+##t90c200_glass = out[3]
+##t90c200_water = out[4]
+##t90c200_HCO3 = out[5]
+##t90c200_CO3 = out[6]
+##t90c200_kaolinite = out[7]
+##t90c200_stilbite = out[8]
+##t90c200_saponite = out[9]
+##t90c200_albite = out[10]
+##t90c200_celadonite = out[11]
+##t90c200_quartz = out[12]
+##t90c200_dH_clay = out[13]
+##t90c200_dH_diss = out[14]
+##t90c200_ph = out[15]
+
+
+
+
+#############################
+# SIMULATIONS WITH MINERALS #
+# MIXING RATIO 90/10        #
+# A.K.A.                    #
+# t_RES = 3.14e11 (10kyr)   #
+# pCO2 = 150 ppm            #
+#############################
+
+# load temps
+t02 = np.loadtxt('r90t02c150pw.txt')
+t04 = np.loadtxt('r90t04c150pw.txt')
+t06 = np.loadtxt('r90t06c150pw.txt')
+t08 = np.loadtxt('r90t08c150pw.txt')
+t10 = np.loadtxt('r90t10c150pw.txt')
+t12 = np.loadtxt('r90t12c150pw.txt')
+t14 = np.loadtxt('r90t14c150pw.txt')
+t16 = np.loadtxt('r90t16c150pw.txt')
+t18 = np.loadtxt('r90t18c150pw.txt')
+t20 = np.loadtxt('r90t20c150pw.txt')
+t22 = np.loadtxt('r90t22c150pw.txt')
+t24 = np.loadtxt('r90t24c150pw.txt')
+t26 = np.loadtxt('r90t26c150pw.txt')
+t28 = np.loadtxt('r90t28c150pw.txt')
+t30 = np.loadtxt('r90t30c150pw.txt')
+t32 = np.loadtxt('r90t32c150pw.txt')
+t34 = np.loadtxt('r90t34c150pw.txt')
+t36 = np.loadtxt('r90t36c150pw.txt')
+t38 = np.loadtxt('r90t38c150pw.txt')
+t40 = np.loadtxt('r90t40c150pw.txt')
+
+
+t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
+     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
+     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
+     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
+
+out = grab(t)
+
+t90c150_alk = out[0]
+t90c150_alkflux = out[1]
+t90c150_alkflux0 = out[2]
+t90c150_glass = out[3]
+t90c150_water = out[4]
+t90c150_HCO3 = out[5]
+t90c150_CO3 = out[6]
+t90c150_kaolinite = out[7]
+t90c150_stilbite = out[8]
+t90c150_saponite = out[9]
+t90c150_albite = out[10]
+t90c150_celadonite = out[11]
+t90c150_quartz = out[12]
+t90c150_dH_clay = out[13]
+t90c150_dH_diss = out[14]
+t90c150_ph = out[15]
 
 
 
@@ -301,6 +538,42 @@ t90c100_celadonite = out[11]
 t90c100_quartz = out[12]
 t90c100_dH_clay = out[13]
 t90c100_dH_diss = out[14]
+t90c100_ph = out[15]
+
+
+
+
+
+
+##############################
+# PLOT PCOLOR 2D PARAM SPACE #
+##############################
+
+fig=plt.figure()
+
+plt.rc('xtick', labelsize=10) 
+plt.rc('ytick', labelsize=10)
+
+pco2 = np.array([100.0, 150.0, 225.0, 350.0, 475.0, 600.0])
+
+grid = np.array([t90c100_alkflux, t90c150_alkflux, t90c225_alkflux,
+                 t90_alkflux, t90c475_alkflux])
+
+p = plt.pcolor(pco2, temps, np.transpose(grid),
+               cmap=cm.Spectral_r, edgecolors='w', linewidth=2)
+
+plt.xlabel('pCO2 [ppm]',fontsize=10)
+plt.ylabel('T [$^{\circ}$C]',fontsize=10)
+
+plt.xticks(pco2+62.5,pco2)
+plt.yticks(temps[::-1]+1.0,temps[::-1])
+
+plt.xlim([100.0,600.0])
+plt.ylim([40.0,2.0])
+
+plt.colorbar()
+
+plt.savefig('pcolor.png')
 
 
 
@@ -310,9 +583,9 @@ t90c100_dH_diss = out[14]
 
 
 
-
-
-
+########################
+# PLOT ALK FLUX (DIFF) #
+########################
 
 
 fig=plt.figure()
@@ -320,9 +593,6 @@ fig=plt.figure()
 plt.rc('xtick', labelsize=10) 
 plt.rc('ytick', labelsize=10)
 
-########################
-# PLOT ALK FLUX (DIFF) #
-########################
 
 ax = plt.subplot(1,1,1)
 
@@ -404,23 +674,20 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 
 ax = plt.subplot(2,2,2)
 
-##p = plt.plot(temps,t90c475_dH_clay,'c--',linewidth=1,label='p475 clay')
-##p = plt.plot(temps,t90_dH_clay,'k--',linewidth=1,label='p350 clay')
-##p = plt.plot(temps,t90c225_dH_clay,'b--',linewidth=1,label='p225')
-##p = plt.plot(temps,t90c100_dH_clay,'r--',linewidth=1,label='p100')
+p = plt.plot(temps,t90c475_ph,'c--',linewidth=1,label='p475 clay')
+p = plt.plot(temps,t90_ph,'k--',linewidth=1,label='p350 clay')
+p = plt.plot(temps,t90c225_ph,'b--',linewidth=1,label='p225')
+p = plt.plot(temps,t90c100_ph,'r--',linewidth=1,label='p100')
 
-p = plt.plot(temps,-t90c475_dH_diss,'c-',linewidth=1,label='p475 diss')
-p = plt.plot(temps,-t90_dH_diss,'k-',linewidth=1,label='p350 diss')
-p = plt.plot(temps,-t90c225_dH_diss,'b-',linewidth=1,label='p225')
-p = plt.plot(temps,-t90c100_dH_diss,'r-',linewidth=1,label='p100')
 
-##print t90c475_HCO3
-##p = plt.plot(temps,t90c475_HCO3+2.0*t90c475_CO3,'c^-',linewidth=1,label='p475 clay')
-##p = plt.plot(temps,t90_HCO3+2.0*t90_CO3,'k^-',linewidth=1,label='p350 clay')
-##p = plt.plot(temps,t90c225_HCO3+2.0*t90c225_CO3,'b^-',linewidth=1,label='p225')
-##p = plt.plot(temps,t90c100_HCO3+2.0*t90c100_CO3,'r^-',linewidth=1,label='p100')
 
-plt.title('H+ CONSUMPTION',fontsize=8)
+##p = plt.plot(temps,-t90c475_dH_diss,'c-',linewidth=1,label='p475 diss')
+##p = plt.plot(temps,-t90_dH_diss,'k-',linewidth=1,label='p350 diss')
+##p = plt.plot(temps,-t90c225_dH_diss,'b-',linewidth=1,label='p225')
+##p = plt.plot(temps,-t90c100_dH_diss,'r-',linewidth=1,label='p100')
+
+
+plt.title('pH',fontsize=8)
 plt.ylabel('ALK TO OCEAN [mol kgw$^{-1}$ yr$^{-1}$]',
            fontsize=6)
 plt.xlabel('T [$^{\circ}$C]',fontsize=10)
@@ -439,13 +706,13 @@ ax = plt.subplot(2,2,4)
 
 # [5:11]
 
-p = plt.plot(temps,-t90c475_glass,'c^-',linewidth=2,label='p350')
-p = plt.plot(temps,-t90_glass,'k^-',linewidth=2,label='p350')
-p = plt.plot(temps,-t90c225_glass,'b^-',linewidth=2,label='p225')
-p = plt.plot(temps,-t90c100_glass,'r^-',linewidth=2,label='p100')
+p = plt.plot(temps[5:11],t90c475_water[5:11],'c^-',linewidth=2,label='p350')
+p = plt.plot(temps[5:11],t90_water[5:11],'k^-',linewidth=2,label='p350')
+p = plt.plot(temps[5:11],t90c225_water[5:11],'b^-',linewidth=2,label='p225')
+p = plt.plot(temps[5:11],t90c100_water[5:11],'r^-',linewidth=2,label='p100')
 
 
-plt.title('BASALT DISSOLUTION RATE',fontsize=8)
+plt.title('ALK',fontsize=8)
 plt.ylabel('[mol kyr$^{-1}$]',fontsize=6)
 plt.xlabel('T [$^{\circ}$C]',fontsize=6)
 
@@ -463,27 +730,6 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 
 ax = plt.subplot(2,2,3)
 
-##p = plt.plot(temps,t90_celadonite,'k-',linewidth=1,label='celadonite')
-##p = plt.plot(temps,t90_stilbite,'k--',linewidth=1,label='stilbite')
-##p = plt.plot(temps,t90_kaolinite,'k:',linewidth=2,label='kaolinite')
-##p = plt.plot(temps,t90_albite,'k-.',linewidth=1,label='albite')
-##p = plt.plot(temps,t90_saponite,'k-',linewidth=2,label='saponite')
-
-
-
-##p = plt.plot(temps,t90c475_saponite,'c-',linewidth=2)
-##p = plt.plot(temps,t90c225_saponite,'b-',linewidth=2)
-##p = plt.plot(temps,t90c100_saponite,'r-',linewidth=2)
-##
-##p = plt.plot(temps,t90c475_kaolinite,'c:',linewidth=2)
-##p = plt.plot(temps,t90c225_kaolinite,'b:',linewidth=2)
-##p = plt.plot(temps,t90c100_kaolinite,'r:',linewidth=2)
-
-
-##p = plt.plot(temps,np.gradient(t90c475_albite),'c-',linewidth=1,label='albite')
-##p = plt.plot(temps,np.gradient(t90_albite),'k-',linewidth=1,label='albite')
-##p = plt.plot(temps,np.gradient(t90c225_albite),'b-',linewidth=1,label='albite')
-##p = plt.plot(temps,np.gradient(t90c100_albite),'r-',linewidth=1,label='albite')
 
 p = plt.plot(temps,t90c475_kaolinite-t90c475_albite,'c*-',linewidth=1,label='albite')
 p = plt.plot(temps,t90_kaolinite-t90_albite,'k*-',linewidth=1,label='albite')

@@ -216,7 +216,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-&"    CO2(g) -3.31 100" //NEW_LINE('')// &
+&"    CO2(g) -3.59 100" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -453,7 +453,7 @@ END IF
 ! PRINT DUMP/OUTPUT
 DO i=1,GetOutputStringLineCount(id)
 	call GetOutputStringLine(id, i, line)
-	write(*,*) trim(line)
+	!write(*,*) trim(line)
 END DO
   
 ! NOW KINDA USELESS PRINT STATEMENTS FOR WRITING TO FILES
