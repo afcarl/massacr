@@ -70,7 +70,7 @@ solute(7) = 1.0e-4 ! S(6)
 solute(8) = 2.0e-4 ! Si
 solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
-solute(11) = 2.0e-3 ! Alk 1.6e-3 
+solute(11) = 2.0e-1 ! Alk 1.6e-3 
 solute(12) = 0.0 !1.2e-2 ! H2CO3
 
  solute(1) = 8.22 ! ph
@@ -205,7 +205,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Si " // trim(s_si) //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
-&"    CO2 " // trim(s_co2) //NEW_LINE('')// &
+&"    H2CO3 " // trim(s_co2) //NEW_LINE('')// &
 &"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
 !&"    -water		5.0	# kg" //NEW_LINE('')// &
 &"    -water "// trim(s_water) //NEW_LINE('')// &
@@ -216,7 +216,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-&"    CO2(g) -3.59 100" //NEW_LINE('')// &
+!&"    CO2(g) -3.25 100" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -232,10 +232,10 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    K-Feldspar 0.0 " // trim(s_kspar) //NEW_LINE('')// &
 
 !  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
-!  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
+  &"    Analcime 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
 !  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
 !  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
-!  &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+  &"    Boehmite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
 !&"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
 
 ! ----------------------------------%%
@@ -251,8 +251,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ EQUI('Saponite-Mg')*385.537/2.4 + EQUI('Celadonite')*396.8/3.0" // &
 &"+ EQUI('Clinoptilolite-Ca')*1344.49/2.62 + EQUI('Pyrite')*120.0/4.84" // &
 &"+ EQUI('Hematite')*103.8/5.3 + EQUI('Goethite')*88.8/3.8" // &
-&"+ EQUI('Dolomite')*184.3/2.84 + EQUI('Smectite-high-Fe-Mg')*425.7/2.7" // &
-&"+ EQUI('Dawsonite')*144.0/2.42 + EQUI('Magnesite')*84.3/3.0" // &
+&"+ EQUI('Boehmite')*184.3/2.84 + EQUI('Smectite-high-Fe-Mg')*425.7/2.7" // &
+&"+ EQUI('Dawsonite')*144.0/2.42 + EQUI('Analcime')*84.3/3.0" // &
 &"+ EQUI('Siderite')*115.8/3.96 + EQUI('Calcite')*100.0/2.71" // &
 &"+ EQUI('Quartz')*60.0/2.62 + EQUI('K-Feldspar')*193.0/2.56" // &
 &"+ KIN('Plagioclase')*270.0/2.68 + KIN('Augite')*230.0/3.4" // &
@@ -286,8 +286,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ EQUI('Saponite-Mg')*2.4 + EQUI('Celadonite')*3.0" // &
 &"+ EQUI('Clinoptilolite-Ca')*2.62 + EQUI('Pyrite')*4.84" // &
 &"+ EQUI('Hematite')*5.3 + EQUI('Goethite')*3.8" // &
-&"+ EQUI('Dolomite')*2.84 + EQUI('Smectite-high-Fe-Mg')*2.7" // &
-&"+ EQUI('Dawsonite')*2.42 + EQUI('Magnesite')*3.0" // &
+&"+ EQUI('Boehmite')*2.84 + EQUI('Smectite-high-Fe-Mg')*2.7" // &
+&"+ EQUI('Dawsonite')*2.42 + EQUI('Analcime')*3.0" // &
 &"+ EQUI('Siderite')*3.96 + EQUI('Calcite')*2.71" // &
 &"+ EQUI('Quartz')*2.62 + EQUI('k-Feldspar')*2.56" // &
 &"+ KIN('Plagioclase')*2.68 + KIN('Augite')*3.4" // &
@@ -298,8 +298,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ EQUI('Saponite-Mg') + EQUI('Celadonite')" // &
 &"+ EQUI('Clinoptilolite-Ca') + EQUI('Pyrite')" // &
 &"+ EQUI('Hematite') + EQUI('Goethite')" // &
-&"+ EQUI('Dolomite') + EQUI('Smectite-high-Fe-Mg')" // &
-&"+ EQUI('Dawsonite') + EQUI('Magnesite')" // &
+&"+ EQUI('Boehmite') + EQUI('Smectite-high-Fe-Mg')" // &
+&"+ EQUI('Dawsonite') + EQUI('Analcime')" // &
 &"+ EQUI('Siderite') + EQUI('Calcite')" // &
 &"+ EQUI('Quartz') + EQUI('K-Feldspar')" // &
 &"+ KIN('Plagioclase') + KIN('Augite')" // &
@@ -416,8 +416,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -alkalinity" //NEW_LINE('')// &
 !  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
-  &"    -p pyrite hematite goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
-  &"    -p magnesite siderite calcite quartz k-feldspar" //NEW_LINE('')// &
+  &"    -p pyrite hematite goethite boehmite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
+  &"    -p analcime siderite calcite quartz k-feldspar" //NEW_LINE('')// &
   &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
   &"END"
@@ -453,7 +453,7 @@ END IF
 ! PRINT DUMP/OUTPUT
 DO i=1,GetOutputStringLineCount(id)
 	call GetOutputStringLine(id, i, line)
-	!write(*,*) trim(line)
+	write(*,*) trim(line)
 END DO
   
 ! NOW KINDA USELESS PRINT STATEMENTS FOR WRITING TO FILES
