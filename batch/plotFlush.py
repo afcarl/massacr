@@ -41,17 +41,17 @@ flush = np.loadtxt(infile)
 # 28
 # 29 pyrite
 # 30
-# 31 hematite
+# 31 hematite / Montmor-Na
 # 32
 # 33 goethite
 # 34
-# 35 dolomite
+# 35 dolomite / boehmite
 # 36
 # 37 smectite
 # 38
 # 39 dawsonite
 # 40
-# 41 magnesite
+# 41 magnesite / analcime
 # 42
 # 43 siderite
 # 44
@@ -134,7 +134,7 @@ p = plt.plot(flush[:,0],flush[:,25],'grey', label="celadonite")
 p = plt.plot(flush[:,0],flush[:,37],'k--', label="smectite")
 p = plt.plot(flush[:,0],flush[:,27],'r--', label="Clinoptilolite-Ca")
 p = plt.plot(flush[:,0],flush[:,49],'b--', label="k-spar")
-#p = plt.plot(flush[:,0],flush[:,47],'purple', label="quartz")
+p = plt.plot(flush[:,0],flush[:,31],'k--', label="Montmor-Na",linewidth=2)
 p = plt.plot(flush[:,0],flush[:,45],'c-', label="calcite")
 
 handles, labels = ax.get_legend_handles_labels()
