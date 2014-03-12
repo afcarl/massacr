@@ -745,6 +745,51 @@ t90c100_montna = out[22]
 
 fig=plt.figure()
 
+ax = plt.subplot(1,1,1)
+
+plt.rc('xtick', labelsize=10) 
+plt.rc('ytick', labelsize=10)
+
+pco2 = np.array([100.0, 150.0, 200.0, 250.0, 300.0, 350.0, 400.0, 450.0, 500.0, 550.0, 600.0])
+
+grid = np.array([t90c100_alkflux, t90c150_alkflux, t90c200_alkflux,
+                 t90c250_alkflux, t90c300_alkflux, t90_alkflux,
+                 t90c400_alkflux, t90c450_alkflux, t90c500_alkflux,
+                 t90c550_alkflux])
+
+p = plt.pcolor(pco2, temps, np.transpose(grid),
+               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
+#p = plt.contourf(pco2, temps, np.transpose(grid),20)
+
+cbar = fig.colorbar(p, orientation='horizontal')
+
+plt.xlabel('pCO2 [ppm]',fontsize=10)
+plt.ylabel('T [$^{\circ}$C]',fontsize=10)
+
+plt.xticks(pco2+25.0,pco2)
+plt.yticks(temps[::-1]+1.0,temps[::-1])
+
+##plt.xticks(pco2,pco2)
+##plt.yticks(temps[::-1],temps[::-1])
+
+plt.xlim([100.0,600.0])
+plt.ylim([40.0,2.0])
+
+plt.colorbar()
+
+plt.savefig('pcolor.png')
+
+
+
+
+###############################
+# PLOT CONTOUR 2D PARAM SPACE #
+###############################
+
+fig=plt.figure()
+
+ax = plt.subplot(1,1,1)
+
 plt.rc('xtick', labelsize=10) 
 plt.rc('ytick', labelsize=10)
 
@@ -757,13 +802,14 @@ grid = np.array([t90c100_alkflux, t90c150_alkflux, t90c200_alkflux,
 
 #p = plt.pcolor(pco2, temps, np.transpose(grid),
 #               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
-p = plt.contourf(pco2, temps, np.transpose(grid),20)
+p = plt.contourf(pco2, temps, np.transpose(grid),20, cm=cm.rainbow)
 
 plt.xlabel('pCO2 [ppm]',fontsize=10)
 plt.ylabel('T [$^{\circ}$C]',fontsize=10)
+plt.title('ALKALINITY IN SYSTEM [eq kgw$^{-1}$]')
 
-#plt.xticks(pco2+25.0,pco2)
-#plt.yticks(temps[::-1]+1.0,temps[::-1])
+##plt.xticks(pco2+25.0,pco2)
+##plt.yticks(temps[::-1]+1.0,temps[::-1])
 
 plt.xticks(pco2,pco2)
 plt.yticks(temps[::-1],temps[::-1])
@@ -773,10 +819,7 @@ plt.ylim([40.0,2.0])
 
 plt.colorbar()
 
-plt.savefig('pcolor.png')
-
-
-
+plt.savefig('contour.png')
 
 
 
@@ -797,16 +840,16 @@ plt.rc('ytick', labelsize=10)
 ax = plt.subplot(1,1,1)
 
 p = plt.plot([0.0,40.0], [0.0,0.0], 'k:')
-p = plt.plot(temps,t90c100_alkflux,'r',linewidth=1,label='100ppm CO$_2$')
-p = plt.plot(temps,t90c150_alkflux,'orange',linewidth=1,label='150ppm CO$_2$')
-p = plt.plot(temps,t90c200_alkflux,'gold',linewidth=1,label='200ppm CO$_2$')
-p = plt.plot(temps,t90c250_alkflux,'yellow',linewidth=1,label='250ppm CO$_2$')
-p = plt.plot(temps,t90c300_alkflux,'g',linewidth=1,label='300ppm CO$_2$')
-p = plt.plot(temps,t90_alkflux,'c',linewidth=1,label='350ppm CO$_2$')
-p = plt.plot(temps,t90c400_alkflux,'b',linewidth=1,label='400ppm CO$_2$')
-p = plt.plot(temps,t90c450_alkflux,'purple',linewidth=1,label='450ppm CO$_2$')
-p = plt.plot(temps,t90c500_alkflux,'m',linewidth=1,label='500ppm CO$_2$')
-p = plt.plot(temps,t90c550_alkflux,'k',linewidth=1,label='550ppm CO$_2$')
+p = plt.plot(temps,t90c100_alkflux,'r',linewidth=2,label='100ppm CO$_2$')
+p = plt.plot(temps,t90c150_alkflux,'orange',linewidth=2,label='150ppm CO$_2$')
+p = plt.plot(temps,t90c200_alkflux,'gold',linewidth=2,label='200ppm CO$_2$')
+p = plt.plot(temps,t90c250_alkflux,'yellow',linewidth=2,label='250ppm CO$_2$')
+p = plt.plot(temps,t90c300_alkflux,'g',linewidth=2,label='300ppm CO$_2$')
+p = plt.plot(temps,t90_alkflux,'c',linewidth=2,label='350ppm CO$_2$')
+p = plt.plot(temps,t90c400_alkflux,'b',linewidth=2,label='400ppm CO$_2$')
+p = plt.plot(temps,t90c450_alkflux,'purple',linewidth=2,label='450ppm CO$_2$')
+p = plt.plot(temps,t90c500_alkflux,'m',linewidth=2,label='500ppm CO$_2$')
+p = plt.plot(temps,t90c550_alkflux,'k',linewidth=2,label='550ppm CO$_2$')
 
 
 
@@ -814,8 +857,6 @@ p = plt.plot(temps,t90c550_alkflux,'k',linewidth=1,label='550ppm CO$_2$')
 #plt.text(6, .023, r"+ ALK TO OCEAN", horizontalalignment='center', fontsize=12)
 #plt.text(23, -.02, r"- ALK TO OCEAN", horizontalalignment='center', fontsize=12)
 
-plt.text(7, .03, r"+ SYSTEM PRODUCES ALKALINITY", horizontalalignment='center', fontsize=8)
-plt.text(23, -.02, r"- SYSTEM CONSUMES ALKALINITY", horizontalalignment='center', fontsize=8)
 
 plt.title('ALKALINITY FLUX',fontsize=10)
 plt.ylabel('[eq kgw$^{-1}$ yr$^{-1}$]',fontsize=10)
@@ -849,28 +890,46 @@ plt.rc('ytick', labelsize=7)
 
 ax = plt.subplot(1,1,1)
 
-print t90_dH_clay
-print t90_dH_diss
-# clay >> diss
 
-p = plt.plot(temps[0:20],t90c400_dH_clay[0:20]-t90c400_dH_diss[0:20],
-             'c-',linewidth=1,label='p475 both')
-p = plt.plot(temps[0:20],t90c300_dH_clay[0:20]-t90c300_dH_diss[0:20],
-             'k-',linewidth=1,label='p350')
-p = plt.plot(temps[0:20],t90c200_dH_clay[0:20]-t90c200_dH_diss[0:20],
-             'b-',linewidth=1,label='p225')
-p = plt.plot(temps[0:20],t90c100_dH_clay[0:20]-t90c100_dH_diss[0:20],
-             'r-',linewidth=1,label='p100')
+p = plt.plot(np.log10(t90c100_si),np.log10(t90c100_na/(10.0**-t90c100_ph)),
+             'red',linewidth=2,label='100 ppm')
+
+p = plt.plot(np.log10(t90c150_si),np.log10(t90c150_na/(10.0**-t90c150_ph)),
+             'orange',linewidth=2,label='150 ppm')
+
+p = plt.plot(np.log10(t90c200_si),np.log10(t90c200_na/(10.0**-t90c200_ph)),
+             'gold',linewidth=2,label='200 ppm')
+
+p = plt.plot(np.log10(t90c250_si),np.log10(t90c250_na/(10.0**-t90c250_ph)),
+             'yellow',linewidth=2,label='250 ppm')
+
+p = plt.plot(np.log10(t90c300_si),np.log10(t90c300_na/(10.0**-t90c300_ph)),
+             'g',linewidth=2,label='300 ppm')
+
+p = plt.plot(np.log10(t90_si),np.log10(t90_na/(10.0**-t90_ph)),
+             'c',linewidth=2,label='350 ppm')
+
+p = plt.plot(np.log10(t90c400_si),np.log10(t90c400_na/(10.0**-t90c400_ph)),
+             'b',linewidth=2,label='400 ppm')
+
+p = plt.plot(np.log10(t90c450_si),np.log10(t90c450_na/(10.0**-t90c450_ph)),
+             'purple',linewidth=2,label='450 ppm')
+
+p = plt.plot(np.log10(t90c500_si),np.log10(t90c500_na/(10.0**-t90c500_ph)),
+             'm',linewidth=2,label='500 ppm')
+
+p = plt.plot(np.log10(t90c550_si),np.log10(t90c550_na/(10.0**-t90c550_ph)),
+             'k',linewidth=2,label='550 ppm')
 
 
-plt.title('PRODUCTION - H+ CONSUMPTION',fontsize=8)
-plt.ylabel('ALK TO OCEAN [mol kgw$^{-1}$ yr$^{-1}$]',
-           fontsize=6)
-plt.xlabel('T [$^{\circ}$C]',fontsize=10)
+plt.title('ALUMINUM MINERAL PHASE DIAGRAM',fontsize=16)
+plt.ylabel('log$_{10}$([Na$^+$] / [H$^+$])',fontsize=16)
+plt.xlabel('log$_{10}$([H$_2$SiO$_4$]) (TEMPERATURE)',fontsize=16)
+
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
-plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
+plt.legend(handles, labels,loc='best',prop={'size':10}, ncol=1)
 
 
 
@@ -921,23 +980,23 @@ ax = plt.subplot(2,2,4)
 
 # [5:11]
 
+p = plt.plot(temps[0:20],t90c400_dH_clay[0:20]-t90c400_dH_diss[0:20],
+             'c-',linewidth=1,label='p475 both')
+p = plt.plot(temps[0:20],t90c300_dH_clay[0:20]-t90c300_dH_diss[0:20],
+             'k-',linewidth=1,label='p350')
+p = plt.plot(temps[0:20],t90c200_dH_clay[0:20]-t90c200_dH_diss[0:20],
+             'b-',linewidth=1,label='p225')
+p = plt.plot(temps[0:20],t90c100_dH_clay[0:20]-t90c100_dH_diss[0:20],
+             'r-',linewidth=1,label='p100')
+
+
+plt.title('PRODUCTION - H+ CONSUMPTION',fontsize=8)
+plt.ylabel('ALK TO OCEAN [mol kgw$^{-1}$ yr$^{-1}$]',
+           fontsize=6)
+plt.xlabel('T [$^{\circ}$C]',fontsize=10)
+
 #(10.0**-t90c475_ph)
 
-p = plt.plot(np.log10(t90c100_si),np.log10(t90c100_na/(10.0**-t90c100_ph)),
-             'r-',linewidth=1,label='p100')
-p = plt.plot(np.log10(t90c200_si),np.log10(t90c200_na/(10.0**-t90c200_ph)),
-             'b-',linewidth=1,label='p200')
-p = plt.plot(np.log10(t90c300_si),np.log10(t90c300_na/(10.0**-t90c300_ph)),
-             'k-',linewidth=1,label='p300 clay')
-p = plt.plot(np.log10(t90c400_si),np.log10(t90c400_na/(10.0**-t90c400_ph)),
-             'c-',linewidth=1,label='p400 clay')
-
-
-
-
-plt.title('AL3+',fontsize=8)
-plt.ylabel('log$_{10}$(a$_{Na+}$ / a$_{H+}$)',fontsize=10)
-plt.xlabel('log$_{10}$(H$_2$SiO$_4$) (TEMPERATURE)',fontsize=10)
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])

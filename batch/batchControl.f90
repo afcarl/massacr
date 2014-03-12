@@ -10,10 +10,10 @@ program batchControl
 INCLUDE "IPhreeqc.f90.inc"
 
 !implicit none
-INTEGER(KIND=4) :: id, all=64, its=100, its0=1
+INTEGER(KIND=4) :: id, all=84, its=100, its0=1
 INTEGER(KIND=4) :: i, j, jj
-CHARACTER(LEN=12000) :: line
-character(len=31200) :: inputz0
+CHARACTER(LEN=52000) :: line
+character(len=51200) :: inputz0
 character(len=4) :: fake_in
 real(8) :: alter(1,59), mix1= 0.90, mix2=0.1
 real(8), allocatable :: outmat(:,:)
@@ -21,13 +21,14 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(18), solute(12), solute0(12) ! important information
+real(8) :: temp, timestep, primary(5), secondary(28), solute(12), solute0(12) ! important information
 
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
-character(len=50) :: s_sio2, s_albite, s_calcite, s_hematite, s_smectite, s_saponite ! secondary
+character(len=50) :: s_sio2, s_albite, s_calcite, s_mont_na, s_smectite, s_saponite ! secondary
 character(len=50) :: s_stilbite, s_dawsonite, s_magnesite, s_clinoptilolite, s_pyrite ! secondary
-character(len=50) :: s_quartz, s_kspar
+character(len=50) :: s_quartz, s_kspar, s_saponite_na, s_nont_na, s_nont_mg, s_nont_k ! secondary
+character(len=50) :: s_nont_h, s_nont_ca, s_muscovite, s_mesolite, s_hematite, s_diaspore ! 
 character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! primary
 character(len=50) :: s_temp, s_timestep ! important information
 character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk, s_co2 ! solutes
@@ -125,7 +126,7 @@ write(s_celadonite,'(F25.10)') secondary(5)
 write(s_sio2,'(F25.10)') secondary(6)
 write(s_albite,'(F25.10)') secondary(7)
 write(s_calcite,'(F25.10)') secondary(8)
-write(s_hematite,'(F25.10)') secondary(9)
+write(s_mont_na,'(F25.10)') secondary(9)
 write(s_smectite,'(F25.10)') secondary(10)
 write(s_saponite,'(F25.10)') secondary(11)
 write(s_stilbite,'(F25.10)') secondary(12)
@@ -135,6 +136,16 @@ write(s_clinoptilolite,'(F25.10)') secondary(15)
 write(s_pyrite,'(F25.10)') secondary(16)
 write(s_quartz,'(F25.10)') secondary(17)
 write(s_kspar,'(F25.10)') secondary(18)
+write(s_saponite_na,'(F25.10)') secondary(19)
+write(s_nont_na,'(F25.10)') secondary(20)
+write(s_nont_mg,'(F25.10)') secondary(21)
+write(s_nont_k,'(F25.10)') secondary(22)
+write(s_nont_h,'(F25.10)') secondary(23)
+write(s_nont_ca,'(F25.10)') secondary(24)
+write(s_muscovite,'(F25.10)') secondary(25)
+write(s_mesolite,'(F25.10)') secondary(26)
+write(s_hematite,'(F25.10)') secondary(27)
+write(s_diaspore,'(F25.10)') secondary(28)
 
 ! OTHER INFORMATION TO STRINGS
 write(s_temp,'(F25.10)') temp
@@ -223,13 +234,28 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
 &"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
 &"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
-&"    Montmor-Na 0.0 " // trim(s_hematite) //NEW_LINE('')// &
+&"    Montmor-Na 0.0 " // trim(s_mont_na) //NEW_LINE('')// &
 &"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
 &"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
 &"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
 &"    Pyrite 0.0 " // trim(s_pyrite) //NEW_LINE('')// &
 &"    Quartz 0.0 " // trim(s_quartz) //NEW_LINE('')// &
 &"    K-Feldspar 0.0 " // trim(s_kspar) //NEW_LINE('')// &
+
+! NEW MINS
+
+  &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+!  &"    Saponite-Na 0.0 " // trim(s_saponite_na) //NEW_LINE('')// &
+!   &"    Nontronite-Na 0.0 " // trim(s_nont_na) //NEW_LINE('')// &
+!   &"    Nontronite-Mg 0.0 " // trim(s_nont_mg) //NEW_LINE('')// &
+!   &"    Nontronite-K 0.0 " // trim(s_nont_k) //NEW_LINE('')// &
+!   &"    Nontronite-H 0.0 " // trim(s_nont_h) //NEW_LINE('')// &
+!   &"    Nontronite-Ca 0.0 " // trim(s_nont_ca) //NEW_LINE('')// &
+!  &"    Muscovite 0.0 " // trim(s_muscovite) //NEW_LINE('')// &
+!  &"    Mesolite 0.0 " // trim(s_mesolite) //NEW_LINE('')// &
+!  &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
+!  &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
+
 
 !  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
 !  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
@@ -418,6 +444,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite Montmor-Na goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
   &"    -p magnesite siderite calcite quartz k-feldspar" //NEW_LINE('')// &
+  &"    -p saponite-na Nontronite-Na Nontronite-Mg Nontronite-K Nontronite-H " //NEW_LINE('')// &
+  &"    -p Nontronite-Ca muscovite mesolite hematite diaspore" //NEW_LINE('')// &
   &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
   &"END"
@@ -453,7 +481,7 @@ END IF
 ! PRINT DUMP/OUTPUT
 DO i=1,GetOutputStringLineCount(id)
 	call GetOutputStringLine(id, i, line)
-	!write(*,*) trim(line)
+	write(*,*) trim(line)
 END DO
   
 ! NOW KINDA USELESS PRINT STATEMENTS FOR WRITING TO FILES
@@ -481,7 +509,6 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 		read(line,*) outmat(its0*j+i-its0-1,2:)
 	end if
 END DO
-  
 ! DESTROY INSTANCE
 IF (DestroyIPhreeqc(id).NE.IPQ_OK) THEN
 	STOP
@@ -490,14 +517,16 @@ END IF
 jj = its0*j
 
 write(*,*) "TIMESTEP:", jj
-
+!write(*,*) primary
+!write(*,*) secondary
+!write(*,*) solute
 
 ! PUT IN VALUES FOR THE NEXT TIMESTEP
-primary(1) = outmat(jj,52) ! feldspar
-primary(2) = outmat(jj,54) ! augite
-primary(3) = outmat(jj,56) ! pigeonite
-primary(4) = outmat(jj,58) ! magnetite
-primary(5) = outmat(jj,60) ! basaltic glass
+primary(1) = outmat(jj,72) ! feldspar
+primary(2) = outmat(jj,74) ! augite
+primary(3) = outmat(jj,76) ! pigeonite
+primary(4) = outmat(jj,78) ! magnetite
+primary(5) = outmat(jj,80) ! basaltic glass
 secondary(1) = outmat(jj,44)
 secondary(2) = outmat(jj,20)
 secondary(3) = outmat(jj,34)
@@ -516,6 +545,16 @@ secondary(15) = outmat(jj,28)
 secondary(16) = outmat(jj,30)
 secondary(17) = outmat(jj,48)
 secondary(18) = outmat(jj,50)
+secondary(19) = outmat(jj,52)
+secondary(20) = outmat(jj,54)
+secondary(21) = outmat(jj,56)
+secondary(22) = outmat(jj,58)
+secondary(23) = outmat(jj,60)
+secondary(24) = outmat(jj,62)
+secondary(25) = outmat(jj,64)
+secondary(26) = outmat(jj,66)
+secondary(27) = outmat(jj,68)
+secondary(28) = outmat(jj,70)
 solute(1) = -log10(mix1*10.0**(-outmat(jj,3)) + mix2*10.0**(-solute0(1)))
 solute(2) = outmat(jj,5)*mix1 + solute0(2)*mix2
 solute(3) = outmat(jj,6)*mix1 + solute0(3)*mix2
@@ -528,7 +567,7 @@ solute(9) = outmat(jj,12)*mix1 + solute0(9)*mix2
 solute(10) = outmat(jj,13)*mix1 + solute0(10)*mix2
 solute(11) = outmat(jj,4)*mix1 + solute0(11)*mix2
 solute(12) = solute0(12)*mix2
-water = outmat(jj,64) 
+water = outmat(jj,84) 
 write(*,*) water
 !write(*,*) solute
 
@@ -564,7 +603,7 @@ write(s_celadonite,'(F25.10)') secondary(5)
 write(s_sio2,'(F25.10)') secondary(6)
 write(s_albite,'(F25.10)') secondary(7)
 write(s_calcite,'(F25.10)') secondary(8)
-write(s_hematite,'(F25.10)') secondary(9)
+write(s_mont_na,'(F25.10)') secondary(9)
 write(s_smectite,'(F25.10)') secondary(10)
 write(s_saponite,'(F25.10)') secondary(11)
 write(s_stilbite,'(F25.10)') secondary(12)
@@ -574,6 +613,16 @@ write(s_clinoptilolite,'(F25.10)') secondary(15)
 write(s_pyrite,'(F25.10)') secondary(16)
 write(s_quartz,'(F25.10)') secondary(17)
 write(s_kspar,'(F25.10)') secondary(18)
+write(s_saponite_na,'(F25.10)') secondary(19)
+write(s_nont_na,'(F25.10)') secondary(20)
+write(s_nont_mg,'(F25.10)') secondary(21)
+write(s_nont_k,'(F25.10)') secondary(22)
+write(s_nont_h,'(F25.10)') secondary(23)
+write(s_nont_ca,'(F25.10)') secondary(24)
+write(s_muscovite,'(F25.10)') secondary(25)
+write(s_mesolite,'(F25.10)') secondary(26)
+write(s_hematite,'(F25.10)') secondary(27)
+write(s_diaspore,'(F25.10)') secondary(28)
 
 ! END BIG LOOP
 end do
