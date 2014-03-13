@@ -21,7 +21,7 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(28), solute(12), solute0(12) ! important information
+real(8) :: temp, timestep, primary(5), secondary(28), solute(14), solute0(14) ! important information
 
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
@@ -32,6 +32,7 @@ character(len=50) :: s_nont_h, s_nont_ca, s_muscovite, s_mesolite, s_hematite, s
 character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! primary
 character(len=50) :: s_temp, s_timestep ! important information
 character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk, s_co2 ! solutes
+character(len=50) :: s_hco3, s_co3
 real(8) :: water
 character(len=50) :: s_water
 
@@ -71,8 +72,10 @@ solute(7) = 1.0e-4 ! S(6)
 solute(8) = 2.0e-4 ! Si
 solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
-solute(11) = 2.0e-3 ! Alk 1.6e-3 
-solute(12) = 0.0 !1.2e-2 ! H2CO3
+solute(11) = 6.0e-3 ! Alk 1.6e-3 
+solute(12) = 6.0e-3 !1.2e-2 ! H2CO3
+solute(13) = 0.0 ! HCO3-
+solute(14) = 0.0 ! CO3-2
 
  solute(1) = 8.22 ! ph
 ! solute(2) = 1.094e-02 ! Ca
@@ -91,7 +94,7 @@ solute0 = solute
 
 
 ! flushing timestep
-timestep = 3.14e10
+timestep = 3.14e8
 temp = 10.0
 water = 5.0
 
@@ -108,6 +111,8 @@ write(s_cl,'(F25.10)') solute(9)
 write(s_al,'(F25.10)') solute(10)
 write(s_alk,'(F25.10)') solute(11)
 write(s_co2,'(F25.10)') solute(12)
+write(s_hco3,'(F25.10)') solute(13)
+write(s_co3,'(F25.10)') solute(14)
 write(s_water,'(F25.10)') water
 
 ! PRIMARIES TO STRINGS
@@ -202,7 +207,7 @@ do j = 1,its
 !  &"END" //NEW_LINE('')// &
  
 inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
-&"    pH " // trim(s_pH) //NEW_LINE('')// &
+!&"    pH " // trim(s_pH) //NEW_LINE('')// &
 !&"    pe 8.451 " //NEW_LINE('')// &
 &"    units   mol/kgw" //NEW_LINE('')// &
 !&"    temp 10.0"  //NEW_LINE('')// &
@@ -216,7 +221,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Si " // trim(s_si) //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
-&"    H2CO3 " // trim(s_co2) //NEW_LINE('')// &
+&"    C " // trim(s_co2) //NEW_LINE('')// &
 &"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
 !&"    -water		5.0	# kg" //NEW_LINE('')// &
 &"    -water "// trim(s_water) //NEW_LINE('')// &
@@ -227,7 +232,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-&"    CO2(g) -3.25 100" //NEW_LINE('')// &
+!&"    CO2(g) -3.30 100" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -244,17 +249,17 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 ! NEW MINS
 
-  &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
-!  &"    Saponite-Na 0.0 " // trim(s_saponite_na) //NEW_LINE('')// &
-!   &"    Nontronite-Na 0.0 " // trim(s_nont_na) //NEW_LINE('')// &
-!   &"    Nontronite-Mg 0.0 " // trim(s_nont_mg) //NEW_LINE('')// &
-!   &"    Nontronite-K 0.0 " // trim(s_nont_k) //NEW_LINE('')// &
-!   &"    Nontronite-H 0.0 " // trim(s_nont_h) //NEW_LINE('')// &
-!   &"    Nontronite-Ca 0.0 " // trim(s_nont_ca) //NEW_LINE('')// &
-!  &"    Muscovite 0.0 " // trim(s_muscovite) //NEW_LINE('')// &
-!  &"    Mesolite 0.0 " // trim(s_mesolite) //NEW_LINE('')// &
-!  &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
-!  &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
+ &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+ &"    Saponite-Na 0.0 " // trim(s_saponite_na) //NEW_LINE('')// &
+ &"    Nontronite-Na 0.0 " // trim(s_nont_na) //NEW_LINE('')// &
+ &"    Nontronite-Mg 0.0 " // trim(s_nont_mg) //NEW_LINE('')// &
+ &"    Nontronite-K 0.0 " // trim(s_nont_k) //NEW_LINE('')// &
+ &"    Nontronite-H 0.0 " // trim(s_nont_h) //NEW_LINE('')// &
+ &"    Nontronite-Ca 0.0 " // trim(s_nont_ca) //NEW_LINE('')// &
+ &"    Muscovite 0.0 " // trim(s_muscovite) //NEW_LINE('')// &
+ &"    Mesolite 0.0 " // trim(s_mesolite) //NEW_LINE('')// &
+ &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
+ &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
 
 
 !  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
@@ -438,7 +443,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -high_precision true" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
-  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3 HCO3- CO3-2" //NEW_LINE('')// &
+  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3 HCO3-" //NEW_LINE('')// &
+  &"    -totals C" //NEW_LINE('')// &
   &"    -alkalinity" //NEW_LINE('')// &
 !  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
@@ -481,7 +487,7 @@ END IF
 ! PRINT DUMP/OUTPUT
 DO i=1,GetOutputStringLineCount(id)
 	call GetOutputStringLine(id, i, line)
-	write(*,*) trim(line)
+	!write(*,*) trim(line)
 END DO
   
 ! NOW KINDA USELESS PRINT STATEMENTS FOR WRITING TO FILES
@@ -556,17 +562,18 @@ secondary(26) = outmat(jj,66)
 secondary(27) = outmat(jj,68)
 secondary(28) = outmat(jj,70)
 solute(1) = -log10(mix1*10.0**(-outmat(jj,3)) + mix2*10.0**(-solute0(1)))
-solute(2) = outmat(jj,5)*mix1 + solute0(2)*mix2
-solute(3) = outmat(jj,6)*mix1 + solute0(3)*mix2
-solute(4) = outmat(jj,7)*mix1 + solute0(4)*mix2
-solute(5) = outmat(jj,8)*mix1 + solute0(5)*mix2
-solute(6) = outmat(jj,9)*mix1 + solute0(6)*mix2
-solute(7) = outmat(jj,10)*mix1 + solute0(7)*mix2
-solute(8) = outmat(jj,11)*mix1 + solute0(8)*mix2
-solute(9) = outmat(jj,12)*mix1 + solute0(9)*mix2
-solute(10) = outmat(jj,13)*mix1 + solute0(10)*mix2
+solute(2) = outmat(jj,6)*mix1 + solute0(2)*mix2
+solute(3) = outmat(jj,7)*mix1 + solute0(3)*mix2
+solute(4) = outmat(jj,8)*mix1 + solute0(4)*mix2
+solute(5) = outmat(jj,9)*mix1 + solute0(5)*mix2
+solute(6) = outmat(jj,10)*mix1 + solute0(6)*mix2
+solute(7) = outmat(jj,11)*mix1 + solute0(7)*mix2
+solute(8) = outmat(jj,12)*mix1 + solute0(8)*mix2
+solute(9) = outmat(jj,13)*mix1 + solute0(9)*mix2
+solute(10) = outmat(jj,14)*mix1 + solute0(10)*mix2
 solute(11) = outmat(jj,4)*mix1 + solute0(11)*mix2
-solute(12) = solute0(12)*mix2
+solute(12) = (outmat(jj,5))*mix1 + solute0(12)*mix2
+
 water = outmat(jj,84) 
 write(*,*) water
 !write(*,*) solute
@@ -584,6 +591,8 @@ write(s_cl,'(F25.10)') solute(9)
 write(s_al,'(F25.10)') solute(10)
 write(s_alk,'(F25.10)') solute(11)
 write(s_co2,'(F25.10)') solute(12)
+write(s_hco3,'(F25.10)') solute(13)
+write(s_co3,'(F25.10)') solute(14)
 write(s_water,'(F25.10)') water
 
 
