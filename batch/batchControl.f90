@@ -4,18 +4,20 @@
 ! gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc batchControl.o
 ! ./a.out
 
+! gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc batchControl.o -o c02
+
 
 program batchControl
 !use globals
 INCLUDE "IPhreeqc.f90.inc"
 
 !implicit none
-INTEGER(KIND=4) :: id, all=84, its=100, its0=1
+INTEGER(KIND=4) :: id, all=84, its=50, its0=1
 INTEGER(KIND=4) :: i, j, jj
 CHARACTER(LEN=52000) :: line
 character(len=51200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,59), mix1= 0.90, mix2=0.1
+real(8) :: alter(1,59), mix1= 0.9, mix2=0.1
 real(8), allocatable :: outmat(:,:)
 
 ! REAL GRABS
@@ -72,8 +74,8 @@ solute(7) = 1.0e-4 ! S(6)
 solute(8) = 2.0e-4 ! Si
 solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
-solute(11) = 6.0e-3 ! Alk 1.6e-3 
-solute(12) = 6.0e-3 !1.2e-2 ! H2CO3
+solute(11) = 2.0e-3 ! Alk 1.6e-3 
+solute(12) = 2.00e-3 !1.2e-2 ! H2CO3
 solute(13) = 0.0 ! HCO3-
 solute(14) = 0.0 ! CO3-2
 
@@ -94,7 +96,7 @@ solute0 = solute
 
 
 ! flushing timestep
-timestep = 3.14e8
+timestep = 3.14e9
 temp = 10.0
 water = 5.0
 
@@ -207,7 +209,7 @@ do j = 1,its
 !  &"END" //NEW_LINE('')// &
  
 inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
-!&"    pH " // trim(s_pH) //NEW_LINE('')// &
+&"    pH " // trim(s_pH) //NEW_LINE('')// &
 !&"    pe 8.451 " //NEW_LINE('')// &
 &"    units   mol/kgw" //NEW_LINE('')// &
 !&"    temp 10.0"  //NEW_LINE('')// &
@@ -222,7 +224,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
 &"    C " // trim(s_co2) //NEW_LINE('')// &
-&"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
+!&"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
 !&"    -water		5.0	# kg" //NEW_LINE('')// &
 &"    -water "// trim(s_water) //NEW_LINE('')// &
 &"END" //NEW_LINE('')// &
@@ -232,7 +234,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-!&"    CO2(g) -3.30 100" //NEW_LINE('')// &
+!&"    CO2(g) -3.25 100" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -249,7 +251,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 ! NEW MINS
 
- &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
  &"    Saponite-Na 0.0 " // trim(s_saponite_na) //NEW_LINE('')// &
  &"    Nontronite-Na 0.0 " // trim(s_nont_na) //NEW_LINE('')// &
  &"    Nontronite-Mg 0.0 " // trim(s_nont_mg) //NEW_LINE('')// &
@@ -374,10 +376,12 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"Magnetite" //NEW_LINE('')// &
 &"-m0 " // trim(s_magnetite) //NEW_LINE('')// &
 &"BGlass" //NEW_LINE('')// &
-&"-f Ca 0.015 Fe 0.095 Mg 0.065 " //&
-& "Na 0.025 K 0.01 Al 0.105 Si 0.5 S 0.003 O 1.35" //NEW_LINE('')// &
+&"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
+& "Na2O 0.0125 K2O 0.005 Al2O3 0.034999 SiO2 0.5" //NEW_LINE('')// &
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 !&"-m0 0.0"  //NEW_LINE('')// &
+
+! SO2 0.003
 
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
 !&"    -step 3.14e11 in 1" //NEW_LINE('')// &
@@ -575,8 +579,6 @@ solute(11) = outmat(jj,4)*mix1 + solute0(11)*mix2
 solute(12) = (outmat(jj,5))*mix1 + solute0(12)*mix2
 
 water = outmat(jj,84) 
-write(*,*) water
-!write(*,*) solute
 
 ! SOLUTES TO STRINGS
 write(s_ph,'(F25.10)') solute(1)
@@ -632,6 +634,9 @@ write(s_muscovite,'(F25.10)') secondary(25)
 write(s_mesolite,'(F25.10)') secondary(26)
 write(s_hematite,'(F25.10)') secondary(27)
 write(s_diaspore,'(F25.10)') secondary(28)
+
+!write(*,*) s_dolomite
+write(*,*) s_calcite
 
 ! END BIG LOOP
 end do

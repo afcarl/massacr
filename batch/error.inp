@@ -1,52 +1,50 @@
 SOLUTION_RAW                 1 
-  -temp                      40
-  -total_h                   552.80569102113
-  -total_o                   276.45157488296
-  -cb                        -0.034056007373714
+  -temp                      8
+  -total_h                   554.35266349339
+  -total_o                   277.26345537179
+  -cb                        -0.048078873469448
   -density                   1
   -totals
-    Al                       4.9778497535043e-07
-    C(4)                     0.0046010623676776
-    Ca                       0.00029867098521001
-    Cl(-1)                   0.0014951539209509
-    Fe(2)                    5.5100688074468e-18
-    Fe(3)                    5.9734197162579e-07
-    K                        5.0794476669689e-05
-    Mg                       9.9561972919754e-06
-    Na                       0.00066662169214931
-    O(0)                     2.9063638503209e-22
-    S(6)                     0.0069398264243341
-    Si                       0.00087918185004356
-    -pH                        10.854390392585
+    Al                       4.9918057579e-09
+    C(4)                     0.019999823516644
+    Ca                       3.0844367778064e-06
+    Cl(-1)                   0.001498190162938
+    Fe(2)                    5.4719397336021e-18
+    Fe(3)                    5.9901669040082e-09
+    K                        6.9126526135399e-06
+    Mg                       1.7920582670861e-07
+    Na                       0.00056233839978081
+    S(6)                     0.0077172328639594
+    Si                       0.00019701609047222
+    -pH                        10.4962658639
   -pe                        4
-  -mu                        0.0057813678903132
-  -ah2o                      0.99991307728761
-  -mass_water                4.9778497535
-  -total_alkalinity          0.020017961834815
+  -mu                        0.0087094952486029
+  -ah2o                      0.99989649874671
+  -mass_water                4.9918057579
+  -total_alkalinity          0.031722016881779
   -activities
-    Al                       -29.079616520687
-    Alkalinity               -3.8807747845587
-    C(-2)                    -203.46699269744
-    C(-3)                    -167.49997443378
-    C(-4)                    -106.47496782918
-    C(2)                     -42.795225818533
-    C(4)                     -3.8807747845587
-    Ca                       -4.7397259298393
-    Cl(-1)                   -3.5593395888932
-    Cl(1)                    -29.397002552153
-    Cl(3)                    -48.276148712659
-    Cl(5)                    -53.96222574878
-    Cl(7)                    -63.84799767895
+    Al                       -26.222493409516
+    C(-2)                    -197.72629669242
+    C(-3)                    -153.80065018247
+    C(-4)                    -100.28226109659
+    C(2)                     -41.311524954952
+    C(4)                     -2.7934832695011
+    Ca                       -6.8051550448658
+    Cl(-1)                   -3.5650729553293
+    Cl(1)                    -35.936248920204
+    Cl(3)                    -60.998781803364
+    Cl(5)                    -71.375057741007
+    Cl(7)                    -86.185759237056
     E                        -4
-    Fe(2)                    -19.966483397391
-    Fe(3)                    -28.796020571947
-    H(0)                     -32.505787452279
-    K                        -5.0320513924034
-    Mg                       -6.0882237132384
-    Na                       -3.9150078594196
-    O(0)                     -22.534106381914
-    S(6)                     -3.0022441435145
-    Si                       -4.9477465063662
+    Fe(2)                    -20.125482520075
+    Fe(3)                    -29.394389641936
+    H(0)                     -32.450367800286
+    K                        -5.9044723024713
+    Mg                       -7.9033445695015
+    Na                       -3.9978765848783
+    O(0)                     -33.104602050899
+    S(6)                     -2.9768942893751
+    Si                       -4.9087128067009
   -gammas
 KINETICS_RAW                 1 
   # KINETICS_MODIFY candidate identifiers #
@@ -95,8 +93,8 @@ KINETICS_RAW                 1
   -component                 Magnetite
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     3.9999997896
-      -m0                    3.9999997896
+      -m                     3.9999996495
+      -m0                    3.9999996495
       -namecoef
         Magnetite            1
       -d_params
@@ -107,16 +105,16 @@ KINETICS_RAW                 1
   -component                 BGlass
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     960.4442399722
-      -m0                    960.4442399722
+      -m                     965.2307243741
+      -m0                    965.2307243741
       -namecoef
         Al                   0.105
-        Ca                   0.015
+        Ca                   0.025
         Fe                   0.095
         K                    0.01
         Mg                   0.065
         Na                   0.025
-        O                    1.35
+        O                    1.37
         S                    0.003
         Si                   0.5
       -d_params
@@ -127,7 +125,7 @@ KINETICS_RAW                 1
   -equal_increments           1
   -count                     1
   -steps             
-    314000000 
+    3140000000 
   # KINETICS workspace variables #
   -totals                    
 EQUILIBRIUM_PHASES_RAW       1 
@@ -160,7 +158,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Celadonite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 0.0251877543
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -182,18 +180,6 @@ EQUILIBRIUM_PHASES_RAW       1
       -initial_moles         0
       -totals                
   -component                 Diaspore
-      # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
-      -si                    0
-      -moles                 0.0128029183
-      -force_equality        0
-      -dissolve_only         0
-      -precipitate_only      0
-      # PPassemblage workspace variables #
-      -si_org                0
-      -delta                 0
-      -initial_moles         0
-      -totals                
-  -component                 Dolomite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
       -moles                 0
@@ -256,7 +242,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Mesolite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0.1824904888
+      -moles                 0.0917761454
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -280,7 +266,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Muscovite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0.0743042658
+      -moles                 0
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -292,7 +278,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Nontronite-Ca
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 0.0265436312
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -328,7 +314,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Nontronite-Mg
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0.2711691522
+      -moles                 0.079502356
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -340,7 +326,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Nontronite-Na
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0.0734913147
+      -moles                 0.0112485289
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -364,7 +350,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Quartz
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0.9620881516
+      -moles                 0.2848267118
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -376,7 +362,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Saponite-Mg
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 0.0386236312
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -388,7 +374,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Saponite-Na
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0.1424073829
+      -moles                 0
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -423,14 +409,14 @@ EQUILIBRIUM_PHASES_RAW       1
       -totals                
   -eltList                   # List of all elements in phases and alternate reactions
     Al                       20.6
-    C                        3
-    Ca                       5.5745
+    C                        1
+    Ca                       4.5745
     Fe                       14.017
     H                        68.128
     K                        3.336
-    Mg                       8.66
+    Mg                       7.66
     Na                       2.802
-    O                        249.899
+    O                        243.899
     S                        2
     Si                       71.053
   # PPassemblage workspace variables #

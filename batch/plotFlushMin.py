@@ -10,7 +10,7 @@ import math
 from scipy.optimize import curve_fit
 
 
-temps = np.arange(2,42,2)
+temps = np.arange(2,32,2)
 m=-8 # alk/other step
 n=-8 # precip step
 
@@ -64,7 +64,7 @@ def grab(t):
 
         t_ph[i] = bit[0,m,2]
         t_al[i] = bit[0,m,12]
-        t_na[i] = bit[0,m,6]
+        t_na[i] = bit[0,m,7]
         t_si[i] = bit[0,m,10]
 
         t_kaolinite0[i] = bit[0,n,19]
@@ -74,9 +74,9 @@ def grab(t):
         t_montna[i] = bit[0,m,31]
         
         t_dolomite[i] = bit[0,m,35]
-        t_calcite[i] = bit[0,m,45]
+        t_calcite[i] = gx[m,45]
 
-        t_ca[i] = bit[0,m,4]
+        t_ca[i] = bit[0,m,5]
 
     # H+ concentration change from minerals
     t_dH_clay = ((t_kaolinite*6.0 + t_stilbite*8.72 + t_saponite*7.32 + \
@@ -94,520 +94,198 @@ def grab(t):
 
 
 
-#############################
-# t_RES = 3.14e9 (109yr)    #
-# DIC = 1.0 mmol/kgw        #
-#############################
-
-# load temps
-t02 = np.loadtxt('r100t02c01mm.txt')
-t04 = np.loadtxt('r100t04c01mm.txt')
-t06 = np.loadtxt('r100t06c01mm.txt')
-t08 = np.loadtxt('r100t08c01mm.txt')
-t10 = np.loadtxt('r100t10c01mm.txt')
-t12 = np.loadtxt('r100t12c01mm.txt')
-t14 = np.loadtxt('r100t14c01mm.txt')
-t16 = np.loadtxt('r100t16c01mm.txt')
-t18 = np.loadtxt('r100t18c01mm.txt')
-t20 = np.loadtxt('r100t20c01mm.txt')
-t22 = np.loadtxt('r100t22c01mm.txt')
-t24 = np.loadtxt('r100t24c01mm.txt')
-t26 = np.loadtxt('r100t26c01mm.txt')
-t28 = np.loadtxt('r100t28c01mm.txt')
-t30 = np.loadtxt('r100t30c01mm.txt')
-t32 = np.loadtxt('r100t32c01mm.txt')
-t34 = np.loadtxt('r100t34c01mm.txt')
-t36 = np.loadtxt('r100t36c01mm.txt')
-t38 = np.loadtxt('r100t38c01mm.txt')
-t40 = np.loadtxt('r100t40c01mm.txt')
-
-
-t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
-     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
-
-out = grab(t)
-
-c01mm_alk = out[0]
-c01mm_alkflux = out[1]
-c01mm_alkflux0 = out[2]
-c01mm_glass = out[3]
-c01mm_water = out[4]
-c01mm_HCO3 = out[5]
-c01mm_CO3 = out[6]
-c01mm_kaolinite = out[7]
-c01mm_stilbite = out[8]
-c01mm_saponite = out[9]
-c01mm_albite = out[10]
-c01mm_celadonite = out[11]
-c01mm_quartz = out[12]
-c01mm_dH_clay = out[13]
-c01mm_dH_diss = out[14]
-c01mm_ph = out[15]
-c01mm_al = out[16]
-c01mm_na = out[17]
-c01mm_si = out[18]
-c01mm_kaolinite0 = out[19]
-c01mm_albite0 = out[20]
-c01mm_mg = out[21]
-c01mm_montna = out[22]
-c01mm_dolomite = out[23]
-c01mm_calcite = out[24]
-c01mm_ca = out[25]
-
-
-
 
 #############################
-# t_RES = 3.14e9 (109yr)    #
+# t_RES = 3.14e10 (10kyr)   #
 # DIC = 2.0 mmol/kgw        #
 #############################
 
 # load temps
-t02 = np.loadtxt('r100t02c02mm.txt')
-t04 = np.loadtxt('r100t04c02mm.txt')
-t06 = np.loadtxt('r100t06c02mm.txt')
-t08 = np.loadtxt('r100t08c02mm.txt')
-t10 = np.loadtxt('r100t10c02mm.txt')
-t12 = np.loadtxt('r100t12c02mm.txt')
-t14 = np.loadtxt('r100t14c02mm.txt')
-t16 = np.loadtxt('r100t16c02mm.txt')
-t18 = np.loadtxt('r100t18c02mm.txt')
-t20 = np.loadtxt('r100t20c02mm.txt')
-t22 = np.loadtxt('r100t22c02mm.txt')
-t24 = np.loadtxt('r100t24c02mm.txt')
-t26 = np.loadtxt('r100t26c02mm.txt')
-t28 = np.loadtxt('r100t28c02mm.txt')
-t30 = np.loadtxt('r100t30c02mm.txt')
-t32 = np.loadtxt('r100t32c02mm.txt')
-t34 = np.loadtxt('r100t34c02mm.txt')
-t36 = np.loadtxt('r100t36c02mm.txt')
-t38 = np.loadtxt('r100t38c02mm.txt')
-t40 = np.loadtxt('r100t40c02mm.txt')
+t02 = np.loadtxt('r10kt02c02.txt')
+t04 = np.loadtxt('r10kt04c02.txt')
+t06 = np.loadtxt('r10kt06c02.txt')
+t08 = np.loadtxt('r10kt08c02.txt')
+t10 = np.loadtxt('r10kt10c02.txt')
+t12 = np.loadtxt('r10kt12c02.txt')
+t14 = np.loadtxt('r10kt14c02.txt')
+t16 = np.loadtxt('r10kt16c02.txt')
+t18 = np.loadtxt('r10kt18c02.txt')
+t20 = np.loadtxt('r10kt20c02.txt')
+t22 = np.loadtxt('r10kt22c02.txt')
+t24 = np.loadtxt('r10kt24c02.txt')
+t26 = np.loadtxt('r10kt26c02.txt')
+t28 = np.loadtxt('r10kt28c02.txt')
+t30 = np.loadtxt('r10kt30c02.txt')
+##t32 = np.loadtxt('r10kt32c02.txt')
+##t34 = np.loadtxt('r10kt34c02.txt')
+##t36 = np.loadtxt('r10kt36c02.txt')
+##t38 = np.loadtxt('r10kt38c02.txt')
+##t40 = np.loadtxt('r10kt40c02.txt')
 
 
 t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
      [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
+     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]]]
+#     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
 
 out = grab(t)
 
-c02mm_alk = out[0]
-c02mm_alkflux = out[1]
-c02mm_alkflux0 = out[2]
-c02mm_glass = out[3]
-c02mm_water = out[4]
-c02mm_HCO3 = out[5]
-c02mm_CO3 = out[6]
-c02mm_kaolinite = out[7]
-c02mm_stilbite = out[8]
-c02mm_saponite = out[9]
-c02mm_albite = out[10]
-c02mm_celadonite = out[11]
-c02mm_quartz = out[12]
-c02mm_dH_clay = out[13]
-c02mm_dH_diss = out[14]
-c02mm_ph = out[15]
-c02mm_al = out[16]
-c02mm_na = out[17]
-c02mm_si = out[18]
-c02mm_kaolinite0 = out[19]
-c02mm_albite0 = out[20]
-c02mm_mg = out[21]
-c02mm_montna = out[22]
-c02mm_dolomite = out[23]
-c02mm_calcite = out[24]
-c02mm_ca = out[25]
+c02_alk = out[0]
+c02_alkflux = out[1]
+c02_alkflux0 = out[2]
+c02_glass = out[3]
+c02_water = out[4]
+c02_HCO3 = out[5]
+c02_CO3 = out[6]
+c02_kaolinite = out[7]
+c02_stilbite = out[8]
+c02_saponite = out[9]
+c02_albite = out[10]
+c02_celadonite = out[11]
+c02_quartz = out[12]
+c02_dH_clay = out[13]
+c02_dH_diss = out[14]
+c02_ph = out[15]
+c02_al = out[16]
+c02_na = out[17]
+c02_si = out[18]
+c02_kaolinite0 = out[19]
+c02_albite0 = out[20]
+c02_mg = out[21]
+c02_montna = out[22]
+c02_dolomite = out[23]
+c02_calcite = out[24]
+c02_ca = out[25]
+
+
 
 
 
 #############################
-# t_RES = 3.14e9 (109yr)    #
+# t_RES = 3.14e10 (10kyr)   #
 # DIC = 3.0 mmol/kgw        #
 #############################
 
 # load temps
-t02 = np.loadtxt('r100t02c03mm.txt')
-t04 = np.loadtxt('r100t04c03mm.txt')
-t06 = np.loadtxt('r100t06c03mm.txt')
-t08 = np.loadtxt('r100t08c03mm.txt')
-t10 = np.loadtxt('r100t10c03mm.txt')
-t12 = np.loadtxt('r100t12c03mm.txt')
-t14 = np.loadtxt('r100t14c03mm.txt')
-t16 = np.loadtxt('r100t16c03mm.txt')
-t18 = np.loadtxt('r100t18c03mm.txt')
-t20 = np.loadtxt('r100t20c03mm.txt')
-t22 = np.loadtxt('r100t22c03mm.txt')
-t24 = np.loadtxt('r100t24c03mm.txt')
-t26 = np.loadtxt('r100t26c03mm.txt')
-t28 = np.loadtxt('r100t28c03mm.txt')
-t30 = np.loadtxt('r100t30c03mm.txt')
-t32 = np.loadtxt('r100t32c03mm.txt')
-t34 = np.loadtxt('r100t32c03mm.txt') ####### 32 repeat
-t36 = np.loadtxt('r100t36c03mm.txt')
-t38 = np.loadtxt('r100t38c03mm.txt')
-t40 = np.loadtxt('r100t40c03mm.txt')
+t02 = np.loadtxt('r10kt02c03.txt')
+t04 = np.loadtxt('r10kt04c03.txt')
+t06 = np.loadtxt('r10kt06c03.txt')
+t08 = np.loadtxt('r10kt08c03.txt')
+t10 = np.loadtxt('r10kt10c03.txt')
+t12 = np.loadtxt('r10kt12c03.txt')
+t14 = np.loadtxt('r10kt14c03.txt')
+t16 = np.loadtxt('r10kt16c03.txt')
+t18 = np.loadtxt('r10kt18c03.txt')
+t20 = np.loadtxt('r10kt20c03.txt')
+t22 = np.loadtxt('r10kt22c03.txt')
+t24 = np.loadtxt('r10kt24c03.txt')
+t26 = np.loadtxt('r10kt26c03.txt')
+t28 = np.loadtxt('r10kt28c03.txt')
+t30 = np.loadtxt('r10kt30c03.txt')
+##t32 = np.loadtxt('r10kt32c03.txt')
+##t34 = np.loadtxt('r10kt34c03.txt')
+##t36 = np.loadtxt('r10kt36c03.txt')
+##t38 = np.loadtxt('r10kt38c03.txt')
+##t40 = np.loadtxt('r10kt40c03.txt')
 
 
 t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
      [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
+     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]]]
+#     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
 
 out = grab(t)
 
-c03mm_alk = out[0]
-c03mm_alkflux = out[1]
-c03mm_alkflux0 = out[2]
-c03mm_glass = out[3]
-c03mm_water = out[4]
-c03mm_HCO3 = out[5]
-c03mm_CO3 = out[6]
-c03mm_kaolinite = out[7]
-c03mm_stilbite = out[8]
-c03mm_saponite = out[9]
-c03mm_albite = out[10]
-c03mm_celadonite = out[11]
-c03mm_quartz = out[12]
-c03mm_dH_clay = out[13]
-c03mm_dH_diss = out[14]
-c03mm_ph = out[15]
-c03mm_al = out[16]
-c03mm_na = out[17]
-c03mm_si = out[18]
-c03mm_kaolinite0 = out[19]
-c03mm_albite0 = out[20]
-c03mm_mg = out[21]
-c03mm_montna = out[22]
-c03mm_dolomite = out[23]
-c03mm_calcite = out[24]
-c03mm_ca = out[25]
+c03_alk = out[0]
+c03_alkflux = out[1]
+c03_alkflux0 = out[2]
+c03_glass = out[3]
+c03_water = out[4]
+c03_HCO3 = out[5]
+c03_CO3 = out[6]
+c03_kaolinite = out[7]
+c03_stilbite = out[8]
+c03_saponite = out[9]
+c03_albite = out[10]
+c03_celadonite = out[11]
+c03_quartz = out[12]
+c03_dH_clay = out[13]
+c03_dH_diss = out[14]
+c03_ph = out[15]
+c03_al = out[16]
+c03_na = out[17]
+c03_si = out[18]
+c03_kaolinite0 = out[19]
+c03_albite0 = out[20]
+c03_mg = out[21]
+c03_montna = out[22]
+c03_dolomite = out[23]
+c03_calcite = out[24]
+c03_ca = out[25]
 
 
 
 #############################
-# t_RES = 3.14e9 (109yr)    #
+# t_RES = 3.14e10 (10kyr)   #
 # DIC = 4.0 mmol/kgw        #
 #############################
 
 # load temps
-t02 = np.loadtxt('r100t02c04mm.txt')
-t04 = np.loadtxt('r100t04c04mm.txt')
-t06 = np.loadtxt('r100t06c04mm.txt')
-t08 = np.loadtxt('r100t08c04mm.txt')
-t10 = np.loadtxt('r100t10c04mm.txt')
-t12 = np.loadtxt('r100t12c04mm.txt')
-t14 = np.loadtxt('r100t14c04mm.txt')
-t16 = np.loadtxt('r100t16c04mm.txt')
-t18 = np.loadtxt('r100t18c04mm.txt')
-t20 = np.loadtxt('r100t20c04mm.txt')
-t22 = np.loadtxt('r100t22c04mm.txt')
-t24 = np.loadtxt('r100t24c04mm.txt')
-t26 = np.loadtxt('r100t26c04mm.txt')
-t28 = np.loadtxt('r100t28c04mm.txt')
-t30 = np.loadtxt('r100t30c04mm.txt')
-t32 = np.loadtxt('r100t32c04mm.txt')
-t34 = np.loadtxt('r100t34c04mm.txt')
-t36 = np.loadtxt('r100t36c04mm.txt')
-t38 = np.loadtxt('r100t38c04mm.txt')
-t40 = np.loadtxt('r100t40c04mm.txt')
+t02 = np.loadtxt('r10kt02c04.txt')
+t04 = np.loadtxt('r10kt04c04.txt')
+t06 = np.loadtxt('r10kt06c04.txt')
+t08 = np.loadtxt('r10kt08c04.txt')
+t10 = np.loadtxt('r10kt10c04.txt')
+t12 = np.loadtxt('r10kt12c04.txt')
+t14 = np.loadtxt('r10kt14c04.txt')
+t16 = np.loadtxt('r10kt16c04.txt')
+t18 = np.loadtxt('r10kt18c04.txt')
+t20 = np.loadtxt('r10kt20c04.txt')
+t22 = np.loadtxt('r10kt22c04.txt')
+t24 = np.loadtxt('r10kt24c04.txt')
+t26 = np.loadtxt('r10kt26c04.txt')
+t28 = np.loadtxt('r10kt28c04.txt')
+t30 = np.loadtxt('r10kt30c04.txt')
+##t32 = np.loadtxt('r10kt32c04.txt')
+##t34 = np.loadtxt('r10kt34c04.txt')
+##t36 = np.loadtxt('r10kt36c04.txt')
+##t38 = np.loadtxt('r10kt38c04.txt')
+##t40 = np.loadtxt('r10kt40c04.txt')
 
 
 t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
      [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
+     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]]]
+#     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
 
 out = grab(t)
 
-c04mm_alk = out[0]
-c04mm_alkflux = out[1]
-c04mm_alkflux0 = out[2]
-c04mm_glass = out[3]
-c04mm_water = out[4]
-c04mm_HCO3 = out[5]
-c04mm_CO3 = out[6]
-c04mm_kaolinite = out[7]
-c04mm_stilbite = out[8]
-c04mm_saponite = out[9]
-c04mm_albite = out[10]
-c04mm_celadonite = out[11]
-c04mm_quartz = out[12]
-c04mm_dH_clay = out[13]
-c04mm_dH_diss = out[14]
-c04mm_ph = out[15]
-c04mm_al = out[16]
-c04mm_na = out[17]
-c04mm_si = out[18]
-c04mm_kaolinite0 = out[19]
-c04mm_albite0 = out[20]
-c04mm_mg = out[21]
-c04mm_montna = out[22]
-c04mm_dolomite = out[23]
-c04mm_calcite = out[24]
-c04mm_ca = out[25]
-
-
-#############################
-# t_RES = 3.14e9 (109yr)    #
-# DIC = 5.0 mmol/kgw        #
-#############################
-
-# load temps
-t02 = np.loadtxt('r100t02c05mm.txt')
-t04 = np.loadtxt('r100t04c05mm.txt')
-t06 = np.loadtxt('r100t06c05mm.txt')
-t08 = np.loadtxt('r100t08c05mm.txt')
-t10 = np.loadtxt('r100t10c05mm.txt')
-t12 = np.loadtxt('r100t12c05mm.txt')
-t14 = np.loadtxt('r100t14c05mm.txt')
-t16 = np.loadtxt('r100t16c05mm.txt')
-t18 = np.loadtxt('r100t18c05mm.txt')
-t20 = np.loadtxt('r100t20c05mm.txt')
-t22 = np.loadtxt('r100t22c05mm.txt')
-t24 = np.loadtxt('r100t24c05mm.txt')
-t26 = np.loadtxt('r100t26c05mm.txt')
-t28 = np.loadtxt('r100t28c05mm.txt')
-t30 = np.loadtxt('r100t30c05mm.txt')
-t32 = np.loadtxt('r100t32c05mm.txt')
-t34 = np.loadtxt('r100t34c05mm.txt')
-t36 = np.loadtxt('r100t36c05mm.txt')
-t38 = np.loadtxt('r100t36c05mm.txt') ### REPEAT?
-t40 = np.loadtxt('r100t40c05mm.txt')
-
-
-t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
-     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
-
-out = grab(t)
-
-c05mm_alk = out[0]
-c05mm_alkflux = out[1]
-c05mm_alkflux0 = out[2]
-c05mm_glass = out[3]
-c05mm_water = out[4]
-c05mm_HCO3 = out[5]
-c05mm_CO3 = out[6]
-c05mm_kaolinite = out[7]
-c05mm_stilbite = out[8]
-c05mm_saponite = out[9]
-c05mm_albite = out[10]
-c05mm_celadonite = out[11]
-c05mm_quartz = out[12]
-c05mm_dH_clay = out[13]
-c05mm_dH_diss = out[14]
-c05mm_ph = out[15]
-c05mm_al = out[16]
-c05mm_na = out[17]
-c05mm_si = out[18]
-c05mm_kaolinite0 = out[19]
-c05mm_albite0 = out[20]
-c05mm_mg = out[21]
-c05mm_montna = out[22]
-c05mm_dolomite = out[23]
-c05mm_calcite = out[24]
-c05mm_ca = out[25]
-
-
-
-
-#############################
-# t_RES = 3.14e9 (109yr)    #
-# DIC = 6.0 mmol/kgw        #
-#############################
-
-# load temps
-t02 = np.loadtxt('r100t02c06mm.txt')
-t04 = np.loadtxt('r100t04c06mm.txt')
-t06 = np.loadtxt('r100t06c06mm.txt')
-t08 = np.loadtxt('r100t08c06mm.txt')
-t10 = np.loadtxt('r100t10c06mm.txt')
-t12 = np.loadtxt('r100t12c06mm.txt')
-t14 = np.loadtxt('r100t14c06mm.txt')
-t16 = np.loadtxt('r100t16c06mm.txt')
-t18 = np.loadtxt('r100t18c06mm.txt')
-t20 = np.loadtxt('r100t20c06mm.txt')
-t22 = np.loadtxt('r100t22c06mm.txt')
-t24 = np.loadtxt('r100t24c06mm.txt')
-t26 = np.loadtxt('r100t26c06mm.txt')
-t28 = np.loadtxt('r100t28c06mm.txt')
-t30 = np.loadtxt('r100t30c06mm.txt')
-t32 = np.loadtxt('r100t32c06mm.txt')
-t34 = np.loadtxt('r100t34c06mm.txt')
-t36 = np.loadtxt('r100t36c06mm.txt')
-t38 = np.loadtxt('r100t38c06mm.txt') 
-t40 = np.loadtxt('r100t38c06mm.txt') ## REPEAT ??
-
-
-t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
-     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
-
-out = grab(t)
-
-c06mm_alk = out[0]
-c06mm_alkflux = out[1]
-c06mm_alkflux0 = out[2]
-c06mm_glass = out[3]
-c06mm_water = out[4]
-c06mm_HCO3 = out[5]
-c06mm_CO3 = out[6]
-c06mm_kaolinite = out[7]
-c06mm_stilbite = out[8]
-c06mm_saponite = out[9]
-c06mm_albite = out[10]
-c06mm_celadonite = out[11]
-c06mm_quartz = out[12]
-c06mm_dH_clay = out[13]
-c06mm_dH_diss = out[14]
-c06mm_ph = out[15]
-c06mm_al = out[16]
-c06mm_na = out[17]
-c06mm_si = out[18]
-c06mm_kaolinite0 = out[19]
-c06mm_albite0 = out[20]
-c06mm_mg = out[21]
-c06mm_montna = out[22]
-c06mm_dolomite = out[23]
-c06mm_calcite = out[24]
-c06mm_ca = out[25]
-
-
-
-
-#############################
-# t_RES = 3.14e9 (100yr)    #
-# DIC = 7.0 mmol/kgw        #
-#############################
-
-# load temps
-t02 = np.loadtxt('r100t02c07mm.txt')
-t04 = np.loadtxt('r100t04c07mm.txt')
-t06 = np.loadtxt('r100t06c07mm.txt')
-t08 = np.loadtxt('r100t08c07mm.txt')
-t10 = np.loadtxt('r100t10c07mm.txt')
-t12 = np.loadtxt('r100t12c07mm.txt')
-t14 = np.loadtxt('r100t14c07mm.txt')
-t16 = np.loadtxt('r100t16c07mm.txt')
-t18 = np.loadtxt('r100t18c07mm.txt')
-t20 = np.loadtxt('r100t20c07mm.txt')
-t22 = np.loadtxt('r100t22c07mm.txt')
-t24 = np.loadtxt('r100t24c07mm.txt')
-t26 = np.loadtxt('r100t26c07mm.txt')
-t28 = np.loadtxt('r100t28c07mm.txt')
-t30 = np.loadtxt('r100t30c07mm.txt')
-t32 = np.loadtxt('r100t32c07mm.txt')
-t34 = np.loadtxt('r100t34c07mm.txt')
-t36 = np.loadtxt('r100t36c07mm.txt')
-t38 = np.loadtxt('r100t36c07mm.txt') ### REPEAT?
-t40 = np.loadtxt('r100t40c07mm.txt')
-
-
-t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
-     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
-
-out = grab(t)
-
-c07mm_alk = out[0]
-c07mm_alkflux = out[1]
-c07mm_alkflux0 = out[2]
-c07mm_glass = out[3]
-c07mm_water = out[4]
-c07mm_HCO3 = out[5]
-c07mm_CO3 = out[6]
-c07mm_kaolinite = out[7]
-c07mm_stilbite = out[8]
-c07mm_saponite = out[9]
-c07mm_albite = out[10]
-c07mm_celadonite = out[11]
-c07mm_quartz = out[12]
-c07mm_dH_clay = out[13]
-c07mm_dH_diss = out[14]
-c07mm_ph = out[15]
-c07mm_al = out[16]
-c07mm_na = out[17]
-c07mm_si = out[18]
-c07mm_kaolinite0 = out[19]
-c07mm_albite0 = out[20]
-c07mm_mg = out[21]
-c07mm_montna = out[22]
-c07mm_dolomite = out[23]
-c07mm_calcite = out[24]
-c07mm_ca = out[25]
-
-
-
-
-
-
-#############################
-# t_RES = 3.14e9 (109yr)    #
-# DIC = 8.0 mmol/kgw        #
-#############################
-
-# load temps
-t02 = np.loadtxt('r100t02c08mm.txt')
-t04 = np.loadtxt('r100t04c08mm.txt')
-t06 = np.loadtxt('r100t06c08mm.txt')
-t08 = np.loadtxt('r100t08c08mm.txt')
-t10 = np.loadtxt('r100t10c08mm.txt')
-t12 = np.loadtxt('r100t12c08mm.txt')
-t14 = np.loadtxt('r100t14c08mm.txt')
-t16 = np.loadtxt('r100t16c08mm.txt')
-t18 = np.loadtxt('r100t18c08mm.txt')
-t20 = np.loadtxt('r100t20c08mm.txt')
-t22 = np.loadtxt('r100t22c08mm.txt')
-t24 = np.loadtxt('r100t24c08mm.txt')
-t26 = np.loadtxt('r100t26c08mm.txt')
-t28 = np.loadtxt('r100t28c08mm.txt')
-t30 = np.loadtxt('r100t30c08mm.txt')
-t32 = np.loadtxt('r100t32c08mm.txt')
-t34 = np.loadtxt('r100t34c08mm.txt')
-t36 = np.loadtxt('r100t36c08mm.txt')
-t38 = np.loadtxt('r100t38c08mm.txt') 
-t40 = np.loadtxt('r100t38c08mm.txt') ### REPEAT?
-
-
-t = [[t02[:,:]], [t04[:,:]], [t06[:,:]], [t08[:,:]], [t10[:,:]],
-     [t12[:,:]], [t14[:,:]], [t16[:,:]], [t18[:,:]], [t20[:,:]],
-     [t22[:,:]], [t24[:,:]], [t26[:,:]], [t28[:,:]], [t30[:,:]],
-     [t32[:,:]], [t34[:,:]], [t36[:,:]], [t38[:,:]], [t40[:,:]]]
-
-out = grab(t)
-
-c08mm_alk = out[0]
-c08mm_alkflux = out[1]
-c08mm_alkflux0 = out[2]
-c08mm_glass = out[3]
-c08mm_water = out[4]
-c08mm_HCO3 = out[5]
-c08mm_CO3 = out[6]
-c08mm_kaolinite = out[7]
-c08mm_stilbite = out[8]
-c08mm_saponite = out[9]
-c08mm_albite = out[10]
-c08mm_celadonite = out[11]
-c08mm_quartz = out[12]
-c08mm_dH_clay = out[13]
-c08mm_dH_diss = out[14]
-c08mm_ph = out[15]
-c08mm_al = out[16]
-c08mm_na = out[17]
-c08mm_si = out[18]
-c08mm_kaolinite0 = out[19]
-c08mm_albite0 = out[20]
-c08mm_mg = out[21]
-c08mm_montna = out[22]
-c08mm_dolomite = out[23]
-c08mm_calcite = out[24]
-c08mm_ca = out[25]
+c04_alk = out[0]
+c04_alkflux = out[1]
+c04_alkflux0 = out[2]
+c04_glass = out[3]
+c04_water = out[4]
+c04_HCO3 = out[5]
+c04_CO3 = out[6]
+c04_kaolinite = out[7]
+c04_stilbite = out[8]
+c04_saponite = out[9]
+c04_albite = out[10]
+c04_celadonite = out[11]
+c04_quartz = out[12]
+c04_dH_clay = out[13]
+c04_dH_diss = out[14]
+c04_ph = out[15]
+c04_al = out[16]
+c04_na = out[17]
+c04_si = out[18]
+c04_kaolinite0 = out[19]
+c04_albite0 = out[20]
+c04_mg = out[21]
+c04_montna = out[22]
+c04_dolomite = out[23]
+c04_calcite = out[24]
+c04_ca = out[25]
 
 
 
@@ -626,7 +304,7 @@ plt.rc('ytick', labelsize=10)
 
 dic = np.array([.001])
 
-grid = np.array([c01mm_alkflux])
+#grid = np.array([c02_alkflux])
 
 #p = plt.pcolor(dic, temps, np.transpose(grid),
 #               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
@@ -655,9 +333,9 @@ plt.savefig('pcolor0.png')
 
 
 
-########################
-# PLOT ALK FLUX (DIFF) #
-########################
+############################
+# PLOT CALCITE GROWTH RATE #
+############################
 
 
 fig=plt.figure()
@@ -669,17 +347,13 @@ plt.rc('ytick', labelsize=10)
 ax = plt.subplot(2,2,1)
 
 p = plt.plot([0.0,40.0], [0.0,0.0], 'k:')
-p = plt.plot(temps,c01mm_dolomite,linewidth=2,label='DIC = 1.0 mmol/kgw')
-p = plt.plot(temps,c02mm_dolomite,linewidth=2,label='DIC = 2.0 mmol/kgw')
-p = plt.plot(temps,c03mm_dolomite,linewidth=2,label='DIC = 3.0 mmol/kgw')
-p = plt.plot(temps,c04mm_dolomite,linewidth=2,label='DIC = 4.0 mmol/kgw')
-p = plt.plot(temps,c05mm_dolomite,linewidth=2,label='DIC = 5.0 mmol/kgw')
-p = plt.plot(temps,c06mm_dolomite,linewidth=2,label='DIC = 6.0 mmol/kgw')
-p = plt.plot(temps,c07mm_dolomite,linewidth=2,label='DIC = 7.0 mmol/kgw')
+p = plt.plot(temps,c02_calcite*100.0,linewidth=2,label='DIC = 2.0 mmol/kgw')
+p = plt.plot(temps,c03_calcite*100.0,linewidth=2,label='DIC = 3.0 mmol/kgw')
+p = plt.plot(temps,c04_calcite*100.0,linewidth=2,label='DIC = 4.0 mmol/kgw')
 
 
-plt.title('ALKALINITY FLUX',fontsize=10)
-plt.ylabel('[eq kgw$^{-1}$ yr$^{-1}$]',fontsize=10)
+plt.title('CALCITE GROWTH RATE',fontsize=10)
+plt.ylabel('[mol / yr ]',fontsize=10)
 plt.xlabel('T [$^{\circ}$C]',fontsize=10)
 
 handles, labels = ax.get_legend_handles_labels()
@@ -691,13 +365,9 @@ plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 ax = plt.subplot(2,2,2)
 
 p = plt.plot([0.0,40.0], [0.0,0.0], 'k:')
-p = plt.plot(temps,c01mm_alkflux,linewidth=2,label='DIC = 1.0 mmol/kgw')
-p = plt.plot(temps,c02mm_alkflux,linewidth=2,label='DIC = 2.0 mmol/kgw')
-p = plt.plot(temps,c03mm_alkflux,linewidth=2,label='DIC = 3.0 mmol/kgw')
-p = plt.plot(temps,c04mm_alkflux,linewidth=2,label='DIC = 4.0 mmol/kgw')
-p = plt.plot(temps,c05mm_alkflux,linewidth=2,label='DIC = 5.0 mmol/kgw')
-p = plt.plot(temps,c06mm_alkflux,linewidth=2,label='DIC = 6.0 mmol/kgw')
-p = plt.plot(temps,c07mm_alkflux,linewidth=2,label='DIC = 7.0 mmol/kgw')
+p = plt.plot(temps,c02_alkflux*100.0,linewidth=2,label='DIC = 2.0 mmol/kgw')
+p = plt.plot(temps,c03_alkflux*100.0,linewidth=2,label='DIC = 3.0 mmol/kgw')
+p = plt.plot(temps,c04_alkflux*100.0,linewidth=2,label='DIC = 4.0 mmol/kgw')
 
 plt.title('ALKALINITY FLUX',fontsize=10)
 plt.ylabel('[eq kgw$^{-1}$ yr$^{-1}$]',fontsize=10)
@@ -712,20 +382,17 @@ handles, labels = ax.get_legend_handles_labels()
 
 ax = plt.subplot(2,2,3)
 
-p = plt.plot([0.0,40.0], [0.0,0.0], 'k:')
-p = plt.plot(temps,.0077*c01mm_glass,'r',linewidth=2,label='DIC = 1.0 mmol/kgw')
-p = plt.plot(temps,.0077*c02mm_glass,'g',linewidth=2,label='DIC = 2.0 mmol/kgw')
-p = plt.plot(temps,.0077*c03mm_glass,'b',linewidth=2,label='DIC = 3.0 mmol/kgw')
-p = plt.plot(temps,.0077*c04mm_glass,'c',linewidth=2,label='DIC = 4.0 mmol/kgw')
-p = plt.plot(temps,.0077*c05mm_glass,'gold',linewidth=2,label='DIC = 5.0 mmol/kgw')
+p = plt.plot(temps,c02_glass*100.0,linewidth=2,label='DIC = 2.0 mmol/kgw')
+p = plt.plot(temps,c03_glass*100.0,linewidth=2,label='DIC = 3.0 mmol/kgw')
+p = plt.plot(temps,c04_glass*100.0,linewidth=2,label='DIC = 4.0 mmol/kgw')
 
 plt.title('Ca2+',fontsize=10)
 plt.ylabel('[eq kgw$^{-1}$ yr$^{-1}$]',fontsize=10)
 plt.xlabel('T [$^{\circ}$C]',fontsize=10)
 
-handles, labels = ax.get_legend_handles_labels()
-plt.legend(handles[::-1], labels[::-1])
-plt.legend(handles, labels,loc='best',prop={'size':10}, ncol=1)
+#handles, labels = ax.get_legend_handles_labels()
+#plt.legend(handles[::-1], labels[::-1])
+#plt.legend(handles, labels,loc='best',prop={'size':6}, ncol=1)
 
 
 

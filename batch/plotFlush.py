@@ -6,24 +6,26 @@ import matplotlib.cm as cm
 import math
 from scipy.optimize import curve_fit
 
-infile = 'r100t02c06mm.txt'
+infile = 'r10kt04c04.txt'
 flush = np.loadtxt(infile)
+
 
 # 0 step #
 # 1 time (2)
 # 2 ph (3)
 # 3 alkalinity (4)
-# 4 ca 
-# 5 mg
-# 6 na
-# 7 k
-# 8 fe
-# 9 s6
-# 10 si
-# 11 cl
-# 12 al
-# 13 hco3-
-# 14 co32-
+# 4 total C (5)
+# 5 ca 
+# 6 mg
+# 7 na
+# 8 k
+# 9 fe
+# 10 s6
+# 11 si
+# 12 cl
+# 13 al
+# 14 hco3-
+###### 14 co32-
 ######### nothing al (NOW ALKALINITY)
 # 15 stilbite
 # 16
@@ -143,18 +145,41 @@ plt.xlabel('time [yrs]',fontsize=6)
 ######################
 
 ax = plt.subplot(2,2,2)
-p = plt.plot(flush[:,0],flush[:,15],'r', label="stilbite")
-p = plt.plot(flush[:,0],flush[:,17],'g', label="sio2")
-p = plt.plot(flush[:,0],flush[:,19],'b', label="kaolinite")
-p = plt.plot(flush[:,0],flush[:,21],'m', label="albite")
-p = plt.plot(flush[:,0],flush[:,23],'gold', label="saponite")
-p = plt.plot(flush[:,0],flush[:,25],'grey', label="celadonite")
-p = plt.plot(flush[:,0],flush[:,37],'k--', label="smectite")
-p = plt.plot(flush[:,0],flush[:,27],'r--', label="Clinoptilolite-Ca")
-p = plt.plot(flush[:,0],flush[:,49],'b--', label="k-spar")
-p = plt.plot(flush[:,0],flush[:,31],'k--', label="Montmor-Na",linewidth=2)
-p = plt.plot(flush[:,0],flush[:,45],'c-', label="calcite")
-p = plt.plot(flush[:,0],flush[:,35],'y-', label="dolomite")
+p = plt.plot(flush[:,0],flush[:,15], label="stilbite")
+p = plt.plot(flush[:,0],flush[:,17], label="sio2")
+p = plt.plot(flush[:,0],flush[:,19], label="kaolinite")
+p = plt.plot(flush[:,0],flush[:,21], label="albite")
+p = plt.plot(flush[:,0],flush[:,23], label="saponite")
+p = plt.plot(flush[:,0],flush[:,25], label="celadonite")
+p = plt.plot(flush[:,0],flush[:,27], label="clinop")
+#p = plt.plot(flush[:,0],flush[:,29], label="pyrite")
+p = plt.plot(flush[:,0],flush[:,31], '--', label="mont-na")
+p = plt.plot(flush[:,0],flush[:,33], '--', label="goethite")
+p = plt.plot(flush[:,0],flush[:,35], '--', label="dolomite")
+p = plt.plot(flush[:,0],flush[:,37], '--', label="smectite")
+p = plt.plot(flush[:,0],flush[:,39], '--', label="dawsonite")
+p = plt.plot(flush[:,0],flush[:,41], '--', label="magnesite")
+#p = plt.plot(flush[:,0],flush[:,43], label="siderite")
+p = plt.plot(flush[:,0],flush[:,45], '--', label="calcite")
+#p = plt.plot(flush[:,0],flush[:,47], ':', label="qtz")
+p = plt.plot(flush[:,0],flush[:,49], ':', label="k-spar")
+p = plt.plot(flush[:,0],flush[:,51], ':', label="saponite-na")
+p = plt.plot(flush[:,0],flush[:,53], ':', label="nont-na")
+p = plt.plot(flush[:,0],flush[:,55], ':', label="nont-mg")
+p = plt.plot(flush[:,0],flush[:,57], ':', label="nont-k")
+p = plt.plot(flush[:,0],flush[:,59], ':', label="nont-h")
+p = plt.plot(flush[:,0],flush[:,61], linewidth=2, label="nont-ca")
+p = plt.plot(flush[:,0],flush[:,63], linewidth=2, label="muscovite")
+p = plt.plot(flush[:,0],flush[:,65], linewidth=2, label="mesolite")
+p = plt.plot(flush[:,0],flush[:,67], linewidth=2, label="hematite")
+p = plt.plot(flush[:,0],flush[:,69], linewidth=2, label="diaspore")
+
+##p = plt.plot(flush[:,0],flush[:,37], label="smectite")
+##p = plt.plot(flush[:,0],flush[:,27], label="Clinoptilolite-Ca")
+##p = plt.plot(flush[:,0],flush[:,49], label="k-spar")
+##p = plt.plot(flush[:,0],flush[:,31], label="Montmor-Na",linewidth=2)
+##p = plt.plot(flush[:,0],flush[:,45], label="calcite")
+##p = plt.plot(flush[:,0],flush[:,35], label="dolomite")
 
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
@@ -191,6 +216,8 @@ plt.xlabel('time [yrs]',fontsize=6)
 ax = plt.subplot(2,2,4)
 p = plt.plot(flush[:,0],flush[:,3],'g', label="alk")
 
+#+2.0*flush[:,35]/flush[:,83]
+
 handles, labels = ax.get_legend_handles_labels()
 plt.legend(handles[::-1], labels[::-1])
 plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
@@ -198,7 +225,6 @@ plt.legend(handles, labels,loc='best',prop={'size':5}, ncol=2)
 
 plt.ylabel('amount [mol]',fontsize=6)
 plt.xlabel('time [yrs]',fontsize=6)
-
 
 
 
