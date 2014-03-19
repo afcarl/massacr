@@ -17,7 +17,7 @@
 !
 ! MOST BASIC PARALLELIZING
 ! make -f theMakeFile
-! mpirun -np 8 ./massacr
+! mpirun -np 1 ./massacr
 !
 ! ----------------------------------------------------------------------------------%%
 
@@ -537,7 +537,7 @@ else
 	
 		! slave processor goes through phreeqc loop here
 		do m=1,num_rows_to_receive
-			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+			!alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
 
 			!PARSING
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &

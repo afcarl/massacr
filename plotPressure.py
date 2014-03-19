@@ -84,24 +84,24 @@ glass = np.append(glass, glass[:,-1:], axis=1)
 ####################
 # STREAM FUNCTIONS #
 ####################
-##
-##ax1=fig.add_subplot(2,2,1, aspect='equal')
-##levels00 = np.linspace(.00015, np.max(psi), 15)
-##levels0 = np.linspace(np.min(psi), -.00015, 15)
-##levels = np.append(levels0,levels00,axis=1)
-##CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([2.0]))
-###plt.quiver(xg,yg,u,v)
-##
-##plt.title("STREAMFUNCTIONS",fontsize=8)
-##
-##plt.xlim(np.min(x), np.max(x))
+
+ax1=fig.add_subplot(2,1,1, aspect='equal')
+levels00 = np.linspace(.00015, np.max(psi), 15)
+levels0 = np.linspace(np.min(psi), -.00015, 15)
+levels = np.append(levels0,levels00,axis=1)
+CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([2.0]))
+#plt.quiver(xg,yg,u,v)
+
+plt.title("STREAMFUNCTIONS",fontsize=8)
+
+plt.xlim(np.min(x), np.max(x))
 
 
 #############
 # ISOTHERMS #
 #############
 
-ax1=fig.add_subplot(2,1,1, aspect='equal')
+ax1=fig.add_subplot(2,1,2, aspect='equal')
 p = plt.contour(xg,yg,h-273.0,np.arange(0,150,10),
                 colors='k',linewidths=np.array([2.0]))
 plt.clabel(p,inline=True,fontsize=8,fontweight='bold')
@@ -128,18 +128,18 @@ plt.xlim(np.min(x), np.max(x))
 # BASALTIC GLASS DISSOLUTION #
 ##############################
 
-print glass.shape
-print glass0.shape
-ax1=fig.add_subplot(2,1,2)
-p = plt.contourf(glass[5:,:],cmap=cm.Greys)
-plt.grid(b=True, which='both', color='0.65',linestyle='-')
-plt.title("AMOUNT OF BASALTIC GLASS [mol]",fontsize=8)
-plt.colorbar(p,orientation='horizontal')
-
-#plt.xlim(0, len(x)/cell-1)
-#plt.ylim(0, len(y)/cell-1)
-
-plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
+##print glass.shape
+##print glass0.shape
+##ax1=fig.add_subplot(2,1,2)
+##p = plt.contourf(glass[5:,:],cmap=cm.Greys)
+##plt.grid(b=True, which='both', color='0.65',linestyle='-')
+##plt.title("AMOUNT OF BASALTIC GLASS [mol]",fontsize=8)
+##plt.colorbar(p,orientation='horizontal')
+##
+###plt.xlim(0, len(x)/cell-1)
+###plt.ylim(0, len(y)/cell-1)
+##
+##plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 
 
 
@@ -151,7 +151,7 @@ plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
 #cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
 #cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
 
-plt.savefig('d225.png')
+plt.savefig('prs.png')
 print "flow field plots"
 
 ###################
@@ -181,7 +181,7 @@ plt.xlabel('x [m]',fontsize=8)
 plt.ylabel('FLUID FLUX [m/s]',fontsize=8)
 plt.title('FLUID FLUX',fontsize=8)
 
-plt.savefig('benchGraphs0.png')
+plt.savefig('prs0.png')
 print "benchmark plots"
 
 print sum(sum(np.sqrt(u**2+v**2)))
