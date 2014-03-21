@@ -34,8 +34,8 @@ glass0 = np.loadtxt('glassMat.txt')
 fig=plt.figure()
 
 
-i=4
-cell = 4
+i=28
+cell = 28
 print h0.shape
 
 
@@ -89,7 +89,7 @@ ax1=fig.add_subplot(2,1,1, aspect='equal')
 levels00 = np.linspace(.00015, np.max(psi), 15)
 levels0 = np.linspace(np.min(psi), -.00015, 15)
 levels = np.append(levels0,levels00,axis=1)
-CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([2.0]))
+CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([1.5]))
 #plt.quiver(xg,yg,u,v)
 
 plt.title("STREAMFUNCTIONS",fontsize=8)
@@ -103,7 +103,7 @@ plt.xlim(np.min(x), np.max(x))
 
 ax1=fig.add_subplot(2,1,2, aspect='equal')
 p = plt.contour(xg,yg,h-273.0,np.arange(0,150,10),
-                colors='k',linewidths=np.array([2.0]))
+                colors='k',linewidths=np.array([1.5]))
 plt.clabel(p,inline=True,fontsize=8,fontweight='bold')
 
 plt.title("ISOTHERMS",fontsize=8)
@@ -163,8 +163,9 @@ fig=plt.figure()
 # TOP HEAT FLUX
 ax1=fig.add_subplot(2,1,1)
 plt.plot([0,3000],[.27,.27],'r-')
-plt.plot(x,-1.6*(h[-3,:]-h[-4,:])/(y[2]-y[1]))
+plt.plot(x,-2.6*(h[-2,:]-h[-3,:])/(y[2]-y[1]))
 plt.xlim(0,3000)
+plt.yticks([0.0, 0.5, 1.0])
 plt.ylim(0,1)
 plt.xlabel('x [m]',fontsize=8)
 plt.ylabel('HEAT FLUX [W/m^2]',fontsize=8)
@@ -175,7 +176,7 @@ ax1=fig.add_subplot(2,1,2)
 plt.plot([0,3000],[0.0,0.0],'r-')
 plt.plot(x,-v[-1,:])
 plt.xlim(0,3000)
-#plt.ylim(-10.0e-14,10.0e-14)
+#plt.ylim(-10.0e-12,10.0e-12)
 #plt.yticks([-10e-12, -5e-12, 0, 5e-12, 10e-12])
 plt.xlabel('x [m]',fontsize=8)
 plt.ylabel('FLUID FLUX [m/s]',fontsize=8)

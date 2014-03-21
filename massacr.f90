@@ -253,7 +253,7 @@ write(*,*) j
 	! HEAT FLUX BOUNDARY CONDITIONS
 	! bottom
 	do i = 1,xn
-	flux(i,1) = h(i,2) +((.27))*dy/(1.6)
+	flux(i,1) = h(i,2) +((.27))*dy/(2.6)
 	end do
 	! top
 	do i = 1,xn
@@ -280,7 +280,7 @@ write(*,*) j
 	psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
 	psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
 	psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
-	psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2)) 
+	psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2))/1.0
 	permeable = psi(:,yn)
 
 	! GET VELOCITIES
@@ -862,11 +862,11 @@ permyLong = reshape(permy(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 rhs1 = rhs0
 
 rhs1(2,:) = rhs1(2,:) 
-rhs1(yn-1,:) = rhs1(xn-1,:) 
+rhs1(xn-1,:) = rhs1(xn-1,:) 
 rhs1(:,2) = rhs1(:,2) 
 rhs1(:,xn-1) = rhs1(:,xn-1)
 rhs1(:,xn-1) = rhs1(:,xn-1) +&
-& top_in(:,1)/(4.0/(dy*dy*(permeability(:,xn-1)*rho_in(:,xn-1))))
+& top_in(:,1)/(4.0/(dy*dy*(permeability(:,xn)*rho_in(:,xn))))
 
 uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
