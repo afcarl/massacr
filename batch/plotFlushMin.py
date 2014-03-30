@@ -22,7 +22,7 @@ def grab(t):
     t_glass = np.zeros((len(temps)))
     t_water = np.zeros((len(temps)))
     t_HCO3 = np.zeros((len(temps)))
-    t_CO3 = np.zeros((len(temps)))
+    t_mineral = np.zeros((len(temps)))
     t_kaolinite = np.zeros((len(temps)))
     t_stilbite = np.zeros((len(temps)))
     t_saponite = np.zeros((len(temps)))
@@ -52,8 +52,8 @@ def grab(t):
         t_glass[i] = np.abs(gx[n,79])
 
         t_water[i] = bit[0,n,83]
-        t_HCO3[i] = bit[0,m,13]
-        t_CO3[i] = bit[0,m,14]
+        t_HCO3[i] = bit[0,m,14]
+        t_mineral[i] = bit[0,m,4]
 
         t_kaolinite[i] = gx[n,19]
         t_stilbite[i] = gx[n,15]
@@ -70,11 +70,12 @@ def grab(t):
         t_kaolinite0[i] = bit[0,n,19]
         t_albite0[i] = bit[0,n,21]
 
-        t_mg[i] = bit[0,m,5]
+        t_mg[i] = bit[0,m,6]
         t_montna[i] = bit[0,m,31]
         
         t_dolomite[i] = bit[0,m,35]
         t_calcite[i] = gx[m,45]
+        #t_calcite[i] = np.max(gx[20:,45])
 
         t_ca[i] = bit[0,m,5]
 
@@ -84,7 +85,7 @@ def grab(t):
     # H+ consumption by basalt dissolution
     t_dH_diss = -t_glass * .5 / t_water
 
-    out = [t_alk, t_alkflux, t_alkflux0, t_glass, t_water, t_HCO3, t_CO3,
+    out = [t_alk, t_alkflux, t_alkflux0, t_glass, t_water, t_HCO3, t_mineral,
            t_kaolinite, t_stilbite, t_saponite, t_albite, t_celadonite, t_quartz,
            t_dH_clay, t_dH_diss, t_ph, t_al, t_na, t_si, t_kaolinite0, t_albite0,
            t_mg, t_montna, t_dolomite, t_calcite, t_ca]
@@ -756,7 +757,7 @@ grid = np.array([c01_calcite, c02_calcite, c03_calcite, c04_calcite,
                  c05_calcite, c06_calcite, c07_calcite, c08_calcite,
                  c09_calcite, c10_calcite])
 
-p = plt.contourf(dic, temps, np.transpose(grid),
+p = plt.contourf(dic, temps, np.transpose(grid), 20,
                cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
 
 
@@ -779,6 +780,122 @@ plt.savefig('pcolor0.png')
 
 
 
+##############################
+# PLOT PCOLOR 2D PARAM SPACE #
+##############################
+
+fig=plt.figure()
+
+ax = plt.subplot(1,1,1)
+
+plt.rc('xtick', labelsize=10) 
+plt.rc('ytick', labelsize=10)
+
+dic = np.array([.001, .002, .003, .004, .005, .006, .007, .008, .009, .010])
+
+grid = np.array([c01_glass, c02_glass, c03_glass, c04_glass,
+                 c05_glass, c06_glass, c07_glass, c08_glass,
+                 c09_glass, c10_glass])
+
+p = plt.contourf(dic, temps, np.transpose(grid), 20,
+               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
+
+
+plt.xlabel('SEAWATER DIC [mol kgw$^{-1}$]',fontsize=10)
+plt.ylabel('T [$^{\circ}$C]',fontsize=10)
+
+#plt.xticks(dic+.0005,dic)
+#plt.yticks(temps[::-1]+1.0,temps[::-1])
+
+plt.xticks(dic,dic)
+plt.yticks(temps[::-1],temps[::-1])
+
+#plt.xlim([.002,.005])
+plt.ylim([40.0,2.0])
+
+cbar = plt.colorbar(orientation='horizontal')
+cbar.ax.set_xlabel('BASALT DISSOLUTION RATE [mol yr$^{-1}$]')
+
+plt.savefig('pcolor_glass.png')
+
+
+
+##############################
+# PLOT PCOLOR 2D PARAM SPACE #
+##############################
+
+fig=plt.figure()
+
+ax = plt.subplot(1,1,1)
+
+plt.rc('xtick', labelsize=10) 
+plt.rc('ytick', labelsize=10)
+
+dic = np.array([.001, .002, .003, .004, .005, .006, .007, .008, .009, .010])
+
+grid = np.array([c01_ca, c02_ca, c03_ca, c04_ca,
+                 c05_ca, c06_ca, c07_ca, c08_ca,
+                 c09_ca, c10_ca])
+
+p = plt.contourf(dic, temps, np.transpose(grid), 20,
+               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
+
+
+plt.xlabel('SEAWATER DIC [mol kgw$^{-1}$]',fontsize=10)
+plt.ylabel('T [$^{\circ}$C]',fontsize=10)
+
+#plt.xticks(dic+.0005,dic)
+#plt.yticks(temps[::-1]+1.0,temps[::-1])
+
+plt.xticks(dic,dic)
+plt.yticks(temps[::-1],temps[::-1])
+
+#plt.xlim([.002,.005])
+plt.ylim([40.0,2.0])
+
+cbar = plt.colorbar(orientation='horizontal')
+cbar.ax.set_xlabel('[Ca] [mol kgw$^{-1}$]')
+
+plt.savefig('pcolor_ca.png')
+
+
+##############################
+# PLOT PCOLOR 2D PARAM SPACE #
+##############################
+
+fig=plt.figure()
+
+ax = plt.subplot(1,1,1)
+
+plt.rc('xtick', labelsize=10) 
+plt.rc('ytick', labelsize=10)
+
+dic = np.array([.001, .002, .003, .004, .005, .006, .007, .008, .009, .010])
+
+grid = np.array([c01_CO3, c02_CO3, c03_CO3, c04_CO3,
+                 c05_CO3, c06_CO3, c07_CO3, c08_CO3,
+                 c09_CO3, c10_CO3])
+
+p = plt.contourf(dic, temps, np.transpose(grid), 20,
+               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
+
+
+plt.xlabel('SEAWATER DIC [mol kgw$^{-1}$]',fontsize=10)
+plt.ylabel('T [$^{\circ}$C]',fontsize=10)
+
+#plt.xticks(dic+.0005,dic)
+#plt.yticks(temps[::-1]+1.0,temps[::-1])
+
+plt.xticks(dic,dic)
+plt.yticks(temps[::-1],temps[::-1])
+
+#plt.xlim([.002,.005])
+plt.ylim([40.0,2.0])
+
+cbar = plt.colorbar(orientation='horizontal')
+cbar.ax.set_xlabel('SECONDARY MINERAL [mol yr$^{-1}$]')
+
+plt.savefig('pcolor_mineral.png')
 
 
 

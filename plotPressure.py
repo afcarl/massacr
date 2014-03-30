@@ -34,8 +34,8 @@ glass0 = np.loadtxt('glassMat.txt')
 fig=plt.figure()
 
 
-i=28
-cell = 28
+i=55
+cell = 55
 print h0.shape
 
 
@@ -86,8 +86,8 @@ glass = np.append(glass, glass[:,-1:], axis=1)
 ####################
 
 ax1=fig.add_subplot(2,1,1, aspect='equal')
-levels00 = np.linspace(.00015, np.max(psi), 15)
-levels0 = np.linspace(np.min(psi), -.00015, 15)
+levels00 = np.linspace(.00005, np.max(psi), 15)
+levels0 = np.linspace(np.min(psi), -.00005, 15)
 levels = np.append(levels0,levels00,axis=1)
 CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([1.5]))
 #plt.quiver(xg,yg,u,v)
@@ -111,48 +111,11 @@ plt.title("ISOTHERMS",fontsize=8)
 plt.xlim(np.min(x), np.max(x))
 
 
-########################
-# SINGLE CROSS-SECTION #
-########################
-
-##print glass[11,:]
-##
-##ax1=fig.add_subplot(2,2,3)
-##p = plt.plot(glass[11,:])
-##plt.xlim(0, len(x)/cell-1)
-##plt.title("BASALTIC GLASS (horiz. x-section)",fontsize=8)
-
-
-
-##############################
-# BASALTIC GLASS DISSOLUTION #
-##############################
-
-##print glass.shape
-##print glass0.shape
-##ax1=fig.add_subplot(2,1,2)
-##p = plt.contourf(glass[5:,:],cmap=cm.Greys)
-##plt.grid(b=True, which='both', color='0.65',linestyle='-')
-##plt.title("AMOUNT OF BASALTIC GLASS [mol]",fontsize=8)
-##plt.colorbar(p,orientation='horizontal')
-##
-###plt.xlim(0, len(x)/cell-1)
-###plt.ylim(0, len(y)/cell-1)
-##
-##plt.subplots_adjust(bottom=.2, left=.1, right=.90, top=0.9, hspace=.3)
-
-
-
-
-# COLORBAR STUFF, MAYBE
-
-#cax = fig.add_axes([0.2, 0.1, 0.6, 0.03])
-##cax = fig.add_axes([0.2, 0.2, 0.6, 0.03])
-#cbar = plt.colorbar(p, cax=cax,orientation='horizontal')
-#cbar.set_label(r'TEMPERATURE [K]',fontsize=8)
-
 plt.savefig('prs.png')
+
+
 print "flow field plots"
+
 
 ###################
 # BENCHMARK PLOTS #
@@ -167,18 +130,18 @@ plt.plot(x,-2.6*(h[-2,:]-h[-3,:])/(y[2]-y[1]))
 plt.xlim(0,3000)
 plt.yticks([0.0, 0.5, 1.0])
 plt.ylim(0,1)
-plt.xlabel('x [m]',fontsize=8)
+#plt.xlabel('x [m]',fontsize=8)
 plt.ylabel('HEAT FLUX [W/m^2]',fontsize=8)
 plt.title('HEAT FLUX',fontsize=8)
 
 # TOP FLUID FLUX
 ax1=fig.add_subplot(2,1,2)
 plt.plot([0,3000],[0.0,0.0],'r-')
-plt.plot(x,-v[-1,:])
+plt.plot(x,-v[-1,:]*.4)
 plt.xlim(0,3000)
-#plt.ylim(-10.0e-12,10.0e-12)
-#plt.yticks([-10e-12, -5e-12, 0, 5e-12, 10e-12])
-plt.xlabel('x [m]',fontsize=8)
+plt.ylim(-10.0e-12,10.0e-12)
+plt.yticks([-10e-12, -5e-12, 0, 5e-12, 10e-12],[-10e-12, -5e-12, 0, 5e-12, 10e-12])
+#plt.xlabel('x [m]',fontsize=8)
 plt.ylabel('FLUID FLUX [m/s]',fontsize=8)
 plt.title('FLUID FLUX',fontsize=8)
 
