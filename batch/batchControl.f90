@@ -75,7 +75,7 @@ solute(8) = 2.0e-4 ! Si
 solute(9) = 3.0e-4 ! Cl
 solute(10) = 1.0e-6 ! Al
 solute(11) = 10.0e-3 ! Alk 1.6e-3 
-solute(12) = 10.00e-3 !1.2e-2 ! H2CO3
+solute(12) = 105.00e-3 !1.2e-2 ! H2CO3
 solute(13) = 0.0 ! HCO3-
 solute(14) = 0.0 ! CO3-2
 

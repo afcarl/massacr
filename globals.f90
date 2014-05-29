@@ -2,9 +2,9 @@ module globals
 save
 
 integer, parameter :: testInt = 31, xn =80, yn = 80, altnum = 58, mstep = 500, cell = 4
-integer, parameter :: tn = 30000
+integer, parameter :: tn = 5000
 real(8) :: x_min = 0.0D+00, x_max = 3000.0D+00, y_min = -1300.0D+00, y_max = 0.0D+00
-real(8) :: t_min = 0.0D+00, t_max = 6000000000.0 
+real(8) :: t_min = 0.0D+00, t_max = 1000000000.0 
 real(8) :: dt, dx, dy, dt0 = 0.001
 
 !real(8) :: topo(xn), s(xn,yn), ds(xn)

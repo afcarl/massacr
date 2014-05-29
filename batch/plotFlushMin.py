@@ -53,7 +53,8 @@ def grab(t):
 
         t_water[i] = bit[0,n,83]
         t_HCO3[i] = bit[0,m,14]
-        t_mineral[i] = bit[0,m,4]
+        t_mineral[i] = np.log10(bit[0,m,3])
+        #t_mineral[i] = gx[n,61]
 
         t_kaolinite[i] = gx[n,19]
         t_stilbite[i] = gx[n,15]
@@ -78,6 +79,7 @@ def grab(t):
         #t_calcite[i] = np.max(gx[20:,45])
 
         t_ca[i] = bit[0,m,5]
+        
 
     # H+ concentration change from minerals
     t_dH_clay = ((t_kaolinite*6.0 + t_stilbite*8.72 + t_saponite*7.32 + \
@@ -736,10 +738,6 @@ c10_ca = out[25]
 
 
 
-
-
-
-
 ##############################
 # PLOT PCOLOR 2D PARAM SPACE #
 ##############################
@@ -748,48 +746,8 @@ fig=plt.figure()
 
 ax = plt.subplot(1,1,1)
 
-plt.rc('xtick', labelsize=10) 
-plt.rc('ytick', labelsize=10)
-
-dic = np.array([.001, .002, .003, .004, .005, .006, .007, .008, .009, .010])
-
-grid = np.array([c01_calcite, c02_calcite, c03_calcite, c04_calcite,
-                 c05_calcite, c06_calcite, c07_calcite, c08_calcite,
-                 c09_calcite, c10_calcite])
-
-p = plt.contourf(dic, temps, np.transpose(grid), 20,
-               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
-
-
-plt.xlabel('SEAWATER DIC [mol kgw$^{-1}$]',fontsize=10)
-plt.ylabel('T [$^{\circ}$C]',fontsize=10)
-
-#plt.xticks(dic+.0005,dic)
-#plt.yticks(temps[::-1]+1.0,temps[::-1])
-
-plt.xticks(dic,dic)
-plt.yticks(temps[::-1],temps[::-1])
-
-#plt.xlim([.002,.005])
-plt.ylim([40.0,2.0])
-
-cbar = plt.colorbar(orientation='horizontal')
-cbar.ax.set_xlabel('CALCITE PRECIPITATION RATE [mol yr$^{-1}$]')
-
-plt.savefig('pcolor0.png')
-
-
-
-##############################
-# PLOT PCOLOR 2D PARAM SPACE #
-##############################
-
-fig=plt.figure()
-
-ax = plt.subplot(1,1,1)
-
-plt.rc('xtick', labelsize=10) 
-plt.rc('ytick', labelsize=10)
+plt.rc('xtick', labelsize=8) 
+plt.rc('ytick', labelsize=8)
 
 dic = np.array([.001, .002, .003, .004, .005, .006, .007, .008, .009, .010])
 
@@ -820,6 +778,8 @@ plt.savefig('pcolor_glass.png')
 
 
 
+
+
 ##############################
 # PLOT PCOLOR 2D PARAM SPACE #
 ##############################
@@ -828,8 +788,52 @@ fig=plt.figure()
 
 ax = plt.subplot(1,1,1)
 
-plt.rc('xtick', labelsize=10) 
-plt.rc('ytick', labelsize=10)
+plt.rc('xtick', labelsize=8) 
+plt.rc('ytick', labelsize=8)
+
+dic = np.array([.001, .002, .003, .004, .005, .006, .007, .008, .009, .010])
+
+grid = np.array([c01_calcite, c02_calcite, c03_calcite, c04_calcite,
+                 c05_calcite, c06_calcite, c07_calcite, c08_calcite,
+                 c09_calcite, c10_calcite])
+
+grid = grid/1000.0
+
+p = plt.contourf(dic, temps, np.transpose(grid), 20,
+               cmap=cm.Spectral_r)
+
+
+plt.xlabel('SEAWATER DIC [mol kgw$^{-1}$]',fontsize=10)
+plt.ylabel('T [$^{\circ}$C]',fontsize=10)
+
+#plt.xticks(dic+.0005,dic)
+#plt.yticks(temps[::-1]+1.0,temps[::-1])
+
+plt.xticks(dic,dic)
+plt.yticks(temps[::-1],temps[::-1])
+
+#plt.xlim([.002,.005])
+plt.ylim([40.0,2.0])
+
+cbar = plt.colorbar(orientation='horizontal')
+cbar.ax.set_xlabel('CaCO$_3$ formation rate [mol yr$^{-1}$ mol basalt$^{-1}$]')
+
+plt.savefig('pcolor_calcite.png')
+
+
+
+
+
+##############################
+# PLOT PCOLOR 2D PARAM SPACE #
+##############################
+
+fig=plt.figure()
+
+ax = plt.subplot(1,1,1)
+
+plt.rc('xtick', labelsize=8) 
+plt.rc('ytick', labelsize=8)
 
 dic = np.array([.001, .002, .003, .004, .005, .006, .007, .008, .009, .010])
 
@@ -838,7 +842,7 @@ grid = np.array([c01_ca, c02_ca, c03_ca, c04_ca,
                  c09_ca, c10_ca])
 
 p = plt.contourf(dic, temps, np.transpose(grid), 20,
-               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
+               cmap=cm.Spectral_r)
 
 
 plt.xlabel('SEAWATER DIC [mol kgw$^{-1}$]',fontsize=10)
@@ -867,17 +871,19 @@ fig=plt.figure()
 
 ax = plt.subplot(1,1,1)
 
-plt.rc('xtick', labelsize=10) 
-plt.rc('ytick', labelsize=10)
+plt.rc('xtick', labelsize=8) 
+plt.rc('ytick', labelsize=8)
 
 dic = np.array([.001, .002, .003, .004, .005, .006, .007, .008, .009, .010])
 
-grid = np.array([c01_CO3, c02_CO3, c03_CO3, c04_CO3,
-                 c05_CO3, c06_CO3, c07_CO3, c08_CO3,
-                 c09_CO3, c10_CO3])
+grid = np.array([c01_CO3, c02_CO3, c03_CO3,
+                 c04_CO3, c05_CO3, c06_CO3,
+                 c07_CO3, c08_CO3, c09_CO3,
+                 c10_CO3])
+grid = grid/1000.0
 
 p = plt.contourf(dic, temps, np.transpose(grid), 20,
-               cmap=cm.Spectral_r, edgecolors='#444444', linewidth=2)
+               cmap=cm.Spectral_r)
 
 
 plt.xlabel('SEAWATER DIC [mol kgw$^{-1}$]',fontsize=10)
@@ -893,7 +899,7 @@ plt.yticks(temps[::-1],temps[::-1])
 plt.ylim([40.0,2.0])
 
 cbar = plt.colorbar(orientation='horizontal')
-cbar.ax.set_xlabel('SECONDARY MINERAL [mol yr$^{-1}$]')
+cbar.ax.set_xlabel('Nontronite-Ca formation rate [mol yr$^{-1}$ mol basalt$^{-1}$]')
 
 plt.savefig('pcolor_mineral.png')
 
