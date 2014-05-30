@@ -66,15 +66,15 @@ do i=1,yn
 do j=1,xn
 	
 	if (y(i) .ge. y_min) then
-	permeability(j,i) = (0.5+0.5*tanh((y(i)+((800.0)))/10.0))*1e-13 &
-	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/4.0)))*1e-21
+	permeability(j,i) = (0.5+0.5*tanh((y(i)+((800.0)))/40.0))*1e-13 &
+	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/40.0)))*1e-21
 	end if
 	
-	sedx = 50.0-200.0*( ( (x(j)/(x_max/2.0)) - 1.0) **2.0)
+	sedx = 400.0-1000.0*( ( (x(j)/(x_max/2.0)) - 1.0) **2.0)
 	
 	if (y(i) .gt. -500.0) then
-	permeability(j,i) = (0.5+0.5*tanh((y(i)+sedx)/4.0))*5e-15 &
-	&+ (1.0 - (0.5+0.5*tanh((y(i)+sedx)/10.0)))*1e-13
+	permeability(j,i) = (0.5+0.5*tanh((y(i)+sedx)/40.0))*4e-17 &
+	&+ (1.0 - (0.5+0.5*tanh((y(i)+sedx)/40.0)))*1e-13
 	end if
 	
 	if (y(i) .ge. -200.0) then
