@@ -11,9 +11,9 @@ plt.rc('ytick', labelsize=8)
 # LOAD MODEL OUTPUT #
 #####################
 
-t = np.loadtxt('t4.txt',delimiter='\n')
-x0 = np.loadtxt('x4.txt',delimiter='\n')
-y0 = np.loadtxt('y4.txt',delimiter='\n')
+t = np.loadtxt('t5.txt',delimiter='\n')
+x0 = np.loadtxt('x5.txt',delimiter='\n')
+y0 = np.loadtxt('y5.txt',delimiter='\n')
 
 x=x0
 y=y0
@@ -23,17 +23,17 @@ y = np.append(y0, np.max(y0)+(y0[-1]-y0[-2]))
 
 xg, yg = np.meshgrid(x[:],y[:])
 
-h0 = np.loadtxt('hMat4.txt') # no 1
-u0= np.loadtxt('uMat4.txt')
-v0= np.loadtxt('vMat4.txt')
-psi0 = np.loadtxt('psiMat4.txt') # no 1
+h0 = np.loadtxt('hMat5.txt') # no 1
+u0= np.loadtxt('uMat5.txt')
+v0= np.loadtxt('vMat5.txt')
+psi0 = np.loadtxt('psiMat5.txt') # no 1
 feldspar0 = np.loadtxt('feldsparMat.txt') 
 glass0 = np.loadtxt('glassMat.txt')
 perm0 = np.loadtxt('permeability4.txt')
 
 
-h02 = np.loadtxt('hMat4.txt') # no 1
-v02= np.loadtxt('vMat4.txt')
+h02 = np.loadtxt('hMat5.txt') # no 1
+v02= np.loadtxt('vMat5.txt')
 
 for i in range(0,95,3):
     

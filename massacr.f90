@@ -881,10 +881,10 @@ do i = 1,(xn-2)*(yn-2)
 	aBand0(i,(m+1)/2) = (2.0)/(permLong(i)*rhoLong(i)*dx*dx) + (2.0)/(permLong(i)*rhoLong(i)*dy*dy)
 	! OFF-DIAGONALS
 	if (i .gt. 1) then
-	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) - (permxLong(i))/(2.0*dx)
+	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) !- (permxLong(i))/(2.0*dx)
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) + (permxLong(i))/(2.0*dx)
+	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) !+ (permxLong(i))/(2.0*dx)
 	end if
 	! MORE OFF-DIAGONALS
 	if (i .le. (xn-2)*(yn-2)-(xn-2)) then
