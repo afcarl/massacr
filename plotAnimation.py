@@ -34,7 +34,7 @@ perm0 = np.loadtxt('permeability.txt')
 
 
     
-i=50
+i=90
 cell = 55
 print h0.shape
 
@@ -88,7 +88,7 @@ levels0 = np.linspace(np.min(psi), -.0001, 15)
 levels = np.append(levels0,levels00,axis=1)
 
 # permeability plot
-#permC = plt.contourf(xg, yg, np.log10(perm), 20, cmap=cm.summer)
+permC = plt.contourf(xg, yg, np.log10(perm), 20, cmap=cm.summer)
 
 # stream function plot
 # levels[::2],

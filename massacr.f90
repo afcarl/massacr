@@ -257,7 +257,7 @@ write(*,*) j
 	end do
 	! top
 	do i = 1,xn
-	flux(i,2) = 273.0 !+ 0.005*x(i)
+	flux(i,2) = 273.0 + 0.01*x(i)
 	end do
   
 	! SOLVE THERMAL NRG EQUATION
@@ -265,7 +265,7 @@ write(*,*) j
 	h = h_next(h, psi,rho, flux)
   
 	! PUT HEAT FLUX BOUNDARY CONDITIONS IN ARRAY
-	h(1,:) = 273.0 !(4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
+	h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
 	h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
 	h(:,1) = flux(:,1)
 	h(:,yn) = flux(:,2)
@@ -867,7 +867,7 @@ rhs1(xn-1,:) = rhs1(xn-1,:)
 rhs1(:,2) = rhs1(:,2) 
 rhs1(:,yn-1) = rhs1(:,yn-1)
 rhs1(:,yn-1) = rhs1(:,yn-1) +&
-& top_in(:,1)/(4.0/(dy*dy*(permeability(:,yn)*rho_in(:,yn)))) !+ top_in(:,1)*(permx(:,yn))/(2.0*dx)
+& top_in(:,1)*(1.0/(dy*dy*(permeability(:,yn)*rho_in(:,yn))))
 
 uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 

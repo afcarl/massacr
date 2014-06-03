@@ -17,7 +17,7 @@ INTEGER(KIND=4) :: i, j, jj
 CHARACTER(LEN=52000) :: line
 character(len=51200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,59), mix1= 0.9, mix2=0.1
+real(8) :: alter(1,59), mix1= .9, mix2=0.1
 real(8), allocatable :: outmat(:,:)
 
 ! REAL GRABS
@@ -435,14 +435,7 @@ DO i=1,GetOutputStringLineCount(id)
 	call GetOutputStringLine(id, i, line)
 	!write(*,*) trim(line)
 END DO
-  
-! NOW KINDA USELESS PRINT STATEMENTS FOR WRITING TO FILES
-!WRITE(*,*) "WRITING TO 2D ARRAY AND OUTPUT FILES"
-!WRITE(*,*) "NUMBER OF LINES:"
-!WRITE(*,*) GetSelectedOutputStringLineCount(id)
-! OPEN FILE (don't need no file) (USEFUL)
-!OPEN(UNIT=12, FILE="testMat.txt", ACTION="write", STATUS="replace") 
-  
+
 ! WRITE AWAY
 !allocate(outmat(GetSelectedOutputStringLineCount(id)+1,all))
 DO i=1,GetSelectedOutputStringLineCount(id)
@@ -508,6 +501,7 @@ secondary(26) = outmat(jj,67)
 secondary(27) = outmat(jj,69)
 secondary(28) = outmat(jj,71)
 solute(1) = -log10(mix1*10.0**(-outmat(jj,3)) + mix2*10.0**(-solute0(1)))
+!solute(1) = outmat(jj,3)
 solute(2) = outmat(jj,7)*mix1 + solute0(2)*mix2
 solute(3) = outmat(jj,8)*mix1 + solute0(3)*mix2
 solute(4) = outmat(jj,9)*mix1 + solute0(4)*mix2
@@ -518,8 +512,9 @@ solute(8) = outmat(jj,13)*mix1 + solute0(8)*mix2
 solute(9) = outmat(jj,14)*mix1 + solute0(9)*mix2
 solute(10) = outmat(jj,15)*mix1 + solute0(10)*mix2
 solute(11) = outmat(jj,5)*mix1 + solute0(11)*mix2
-solute(12) = (outmat(jj,6))*mix1 + solute0(12)*mix2
-!solute(15) = -log10(mix1*10.0**(-outmat(jj,4)) + mix2*10.0**(-solute0(15)))
+!solute(12) = (outmat(jj,6))*mix1 + solute0(12)*mix2
+solute(15) = -log10(mix1*10.0**(-outmat(jj,4)) + mix2*10.0**(-solute0(15)))
+!solute(15) = outmat(jj,4)
 water = outmat(jj,85) 
 
 ! SOLUTES TO STRINGS
