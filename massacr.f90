@@ -257,7 +257,7 @@ write(*,*) j
 	end do
 	! top
 	do i = 1,xn
-	flux(i,2) = 273.0 + 0.01*x(i)
+	flux(i,2) = 273.0 !+ 0.005*x(i)
 	end do
   
 	! SOLVE THERMAL NRG EQUATION
@@ -265,7 +265,7 @@ write(*,*) j
 	h = h_next(h, psi,rho, flux)
   
 	! PUT HEAT FLUX BOUNDARY CONDITIONS IN ARRAY
-	h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
+	h(1,:) = 273.0 !(4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
 	h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
 	h(:,1) = flux(:,1)
 	h(:,yn) = flux(:,2)
@@ -431,13 +431,13 @@ end do ! END ALL TIMESTEP LOOP
 
 
 ! WRITE EVERYTHING TO FILE
-yep = write_vec ( xn, real(x,kind=4), 'x5.txt' )
-yep = write_vec ( yn, real(y,kind=4), 'y5.txt' )
-yep = write_vec ( tn, real(t, kind=4), 't5.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(hmat, kind = 4), 'hMat5.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat5.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat5.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat5.txt' )
+yep = write_vec ( xn, real(x,kind=4), 'x.txt' )
+yep = write_vec ( yn, real(y,kind=4), 'y.txt' )
+yep = write_vec ( tn, real(t, kind=4), 't.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(hmat, kind = 4), 'hMat.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat.txt' )
+yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat.txt' )
 
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,1),kind=4), 'feldsparMat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'glassMat.txt' )
@@ -451,8 +451,8 @@ yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4)
 !yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat1.txt' )
 !yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat1.txt' )
 
-yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho5.txt' )
-yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability5.txt' )
+yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho.txt' )
+yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 
 ! WRITE THINGS TO NETCDF FILES
 ! call check( nf90_create('thermalNRG.nc', NF90_CLOBBER, ncid) )
@@ -853,6 +853,7 @@ mn = psi
 permx = partial((1/(permeability*rho_in)),xn,yn,dx,dy,1)
 permy = partial((1/(permeability*rho_in)),xn,yn,dx,dy,2)
 
+
 rhoLong = reshape(rho_in(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 permLong = reshape(permeability(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 permxLong = reshape(permx(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
@@ -864,9 +865,9 @@ rhs1 = rhs0
 rhs1(2,:) = rhs1(2,:) 
 rhs1(xn-1,:) = rhs1(xn-1,:) 
 rhs1(:,2) = rhs1(:,2) 
-rhs1(:,xn-1) = rhs1(:,xn-1)
-rhs1(:,xn-1) = rhs1(:,xn-1) +&
-& top_in(:,1)/(4.0/(dy*dy*(permeability(:,xn)*rho_in(:,xn))))
+rhs1(:,yn-1) = rhs1(:,yn-1)
+rhs1(:,yn-1) = rhs1(:,yn-1) +&
+& top_in(:,1)/(4.0/(dy*dy*(permeability(:,yn)*rho_in(:,yn)))) !+ top_in(:,1)*(permx(:,yn))/(2.0*dx)
 
 uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
@@ -881,10 +882,10 @@ do i = 1,(xn-2)*(yn-2)
 	aBand0(i,(m+1)/2) = (2.0)/(permLong(i)*rhoLong(i)*dx*dx) + (2.0)/(permLong(i)*rhoLong(i)*dy*dy)
 	! OFF-DIAGONALS
 	if (i .gt. 1) then
-	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) !- (permxLong(i))/(2.0*dx)
+	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) + (permxLong(i))/(2.0*dx)
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) !+ (permxLong(i))/(2.0*dx)
+	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) - (permxLong(i))/(2.0*dx)
 	end if
 	! MORE OFF-DIAGONALS
 	if (i .le. (xn-2)*(yn-2)-(xn-2)) then

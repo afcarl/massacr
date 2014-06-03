@@ -34,7 +34,7 @@ perm0 = np.loadtxt('permeability1.txt')
 fig=plt.figure()
 
 
-i=10
+i=40
 cell = 55
 print h0.shape
 
@@ -97,12 +97,11 @@ levels = np.append(levels0,levels00,axis=1)
 permC = plt.contourf(xg, yg, np.log10(perm), cmap=cm.summer)
 
 # stream function plot
-#CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([1.5]))
+CS = plt.contour(xg, yg, psi, levels, colors='k',linewidths=np.array([1.5]))
 
-np.putmask(u, np.abs(u) <= 1.0e-9, 0)
-np.putmask(v, np.abs(v) <= 1.0e-9, 0)
-
-CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
+#np.putmask(u, np.abs(u) <= 1.0e-9, 0)
+#np.putmask(v, np.abs(v) <= 1.0e-9, 0)
+#CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
 
 #plt.quiver(xg,yg,u,v)
 plt.yticks([0.0, -650.0, -1300.0], [-2, -2.65, -3.30])
