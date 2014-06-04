@@ -21,13 +21,17 @@ initialize.f90: contains just one subroutine, init(), called at the beginning of
 main method that sets up the material properties set in globals.f90 and boundary/
 initial conditions.
 
+POST-PROCESSING
+=======
+
+plotPressure.py: plot streamfunctions, isotherms, and several benchmark values that 
+correspond to output in hydrothermal circulation simulations by snelgrove and forster,
+1996.
+
+plotAnimation.py: for making animations for talks and navahnavahnavah.com
+
 GEOCHEMISTRY
 =======
-phreeqout/: this is where i originally developed the basalt alteration experiments
-(based on carbon sequestration simulations by pham et al., 2012) by interfacing
-aqueous geochemistry package PHREEQC to FORTRAN using IPHREEQC. everything in
-this directory is decoupled from the fluid dynamic model for screwing around
-purposes.
 
 alteration.f90: this is a module that contains all of the necessary functionality for
 basalt alteration that can be coupled to the fluid dynamic model by running alter()
@@ -36,13 +40,21 @@ such as cell temperature, timestep size, amounts of primary consituents, and amo
 secondary alteration products which are then used as inputs to PHREEQC. the output is
 PHREEQC SELECTED-OUTPUT and is not parsed in alter().
 
-POST-PROCESSING
+ONE-BOX MODELS
 =======
 
-plotPressure.py: plot streamfunctions, isotherms, and several benchmark values that 
-correspond to output in hydrothermal circulation simulations by snelgrove and forster,
-1996.
+i made a bunch of models for screwing around purposes. each does something slightly
+different and the directory contains individual post-processing and visualization 
+scripts.
 
-phreeqout/plotGlass.py: parse and visualize basalt alteration, pH evolution, secondary 
-mineral precipitation and carbonate precipitation in carbon sequestration experiments 
-based off those by pham et al., 2012.
+phreeqout/: original basalt alteration experiments (based on carbon sequestration 
+simulations by pham et al., 2012) using aqueous geochemistry package PHREEQC 
+interfaced to FORTRAN using IPHREEQC.
+
+batch/: single box model of basalt alterating and carbonate precipitation including
+mixing of seawater-derived hydrothermal fluid with fresh deep ocean seawater.
+batch.f90 and batchControl.f90 handle the mixing differently. batchControl.f90 is
+probably better.
+
+cell/: pretty much the same as batchControl but with better output/post-processing
+and ultimately for the development of MASSACR's geochemical model.

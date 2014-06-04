@@ -92,13 +92,13 @@ permC = plt.contourf(xg, yg, np.log10(perm), 20, cmap=cm.summer)
 
 # stream function plot
 # levels[::2],
-CS = plt.contour(xg, yg, psi, colors='k',linewidths=np.array([1.0]))
+CS = plt.contour(xg, yg, psi, levels[::2], colors='k',linewidths=np.array([1.0]))
 plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
 
-p = plt.contourf(xg,yg,h-273.0, np.arange(0.0,150.0,5.0), cmap=cm.jet)
-plt.clim(0.0,150.0)
-cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,150.0,10.0))
-cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
+#p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,150.0,5.0), cmap=cm.jet)
+#plt.clim(0.0,150.0)
+#cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,150.0,10.0))
+#cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
 
 
 

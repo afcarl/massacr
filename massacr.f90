@@ -201,7 +201,7 @@ solute(:,:,11) = 2.0e-3 ! Alk
 
 
 
-!-----------------------MESSAGE PASSING-----------------------!
+!--------------INITIALIZE ALL PROCESSORS--------------!
 ! process #0 is the root process
 root_process = 0
 
@@ -215,10 +215,11 @@ call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
 write(*,*) "my_id:", my_id
 write(*,*) " "
 
-! what to do if the process is the root process
-if (my_id .eq. root_process) then
-!-----------------------MESSAGE PASSING-----------------------!
 
+if (my_id .eq. root_process) then ! BEGIN LOOP THROUGH PROCESSORS
+
+!--------------DO STUFF WITH THE MASTER--------------!
+! what to do if the process is the root process
 
 ! INITIALIZE
 call init()
@@ -256,9 +257,11 @@ write(*,*) j
 	flux(i,1) = h(i,2) +((.27))*dy/(2.6)
 	end do
 	! top
-	do i = 1,xn
-	flux(i,2) = 273.0 + 0.01*x(i)
+	flux(:,2) = 288.0
+	do i = 1,xn/2
+	flux(i,2) = 273.0 !+ .01*x(i)
 	end do
+
   
 	! SOLVE THERMAL NRG EQUATION
 	rho = rho_next(h)
@@ -270,7 +273,6 @@ write(*,*) j
 	h(:,1) = flux(:,1)
 	h(:,yn) = flux(:,2)
   
-
 	! SOLVE STREAMFUNCTION-VORTICITY EQUATION
 	rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 	psi = psi_next(h, rhs0, psi, permeable, rho)
@@ -291,16 +293,13 @@ write(*,*) j
 ! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
 if (mod(j,mstep) .eq. 0) then
 	
-	
 	! stretch everything out
 	hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/))
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
 	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 16/))
 	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 11/))
 	
-	!-----------------------MESSAGE PASSING-----------------------!
-	
-	! DISTRIBUTE TO SLAVE PROCESSORS
+	!--------------MESSAGE DISTRIBUTING FROM MASTER TO SLAVES--------------!
 	do an_id = 1, num_procs - 1
 		
 		! put number of rows in vector here for hLong
@@ -344,13 +343,13 @@ if (mod(j,mstep) .eq. 0) then
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		write(*,*) "DONE SENDING TO PROCESSOR", an_id
-		
-     end do
+
+	end do
 
 	write(*,*) "BEFORE"
 	write(*,*) priLong(:,5)
 	
-	! RECEIVE EVERYTHING FROM SLAVE PROCESSORS HERE
+	!--------------MESSAGE RECEIVING BACK TO MASTER--------------!
 	do an_id = 1, num_procs - 1
 		
 		! get the size of each chunk again
@@ -389,13 +388,11 @@ if (mod(j,mstep) .eq. 0) then
 		end do
 
 		write(*,*) "DONE RECEIVING FROM PROCESSOR", an_id
+		
 	end do
 	
-	!-----------------------MESSAGE PASSING-----------------------!
+	!--------------MASTER WRITES MESSAGES FROM SLAVE--------------!
 	
-
-
-
 	! put stretched vectors back into 2d arrays
 	primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
 	secondary = reshape(secLong,(/(xn/cell), (yn/cell), 16/))
@@ -422,7 +419,6 @@ end if ! END mTH TIMESTEP LOOP
 ! psimat(1:xn,1:yn) = psi
 ! umat(1:xn,1:yn) = u
 ! vmat(1:xn,1:yn) = v
-
 
 end do ! END ALL TIMESTEP LOOP
 
@@ -491,7 +487,7 @@ write(*,*) "ALL DONE!"
 
 
 
-!-----------------------MESSAGE PASSING-----------------------!
+!--------------SLAVE RECEIVES MESSAGE--------------!
 else
 	do jj = 1, tn/mstep
 		! here is a slave process, each process must receive a chunk of the h array and 
@@ -531,7 +527,7 @@ else
 			solLocal(:,ii) = solLocalBit
 		end do
 	
-	!-----------------------MESSAGE PASSING-----------------------!
+	!--------------SLAVE RUNS GEOCHEMICAL MODEL--------------!
 
 		!  DO ALL THE SLAVEWORK HERE
 	
@@ -551,7 +547,7 @@ else
 		end do
 	
 	
-	!-----------------------MESSAGE PASSING-----------------------!
+	!--------------SLAVE SENDS ALTERED MESSAGE TO MASTER--------------!
 	
 		! send primary chunk back to root process
 		do ii = 1,5
@@ -575,12 +571,8 @@ else
 	
 	end do
 	
-end if ! END MESSAGE PASSING LOOP
+end if ! END LOOP THROUGH PROCESSORS
 call MPI_FINALIZE ( ierr )
-!-----------------------MESSAGE PASSING-----------------------!
-
-
-
 
 
 END PROGRAM main
@@ -706,7 +698,7 @@ do i = 1,(xn-2)*(yn-2)
 	if (i .gt. 1) then
 	aBand(i,3) =  0.0
 	end if
-	if (i .lt. (xn-2)*(yn-2)) then
+	if (i .le. (xn-2)*(yn-2)) then
 	aBand(i,1) = -sxLong(i)/2.0 + uLong(i)*qx
 	end if
 	end if
@@ -763,7 +755,7 @@ do i = 1,(xn-2)*(yn-2)
 	if (i .gt. 1) then
 	bBand(i,3) =  0.0
 	end if
-	if (i .lt. (xn-2)*(yn-2)) then
+	if (i .le. (xn-2)*(yn-2)) then
 	bBand(i,1) = -syLong(i)/2.0 - vLong(i)*qy
 	end if
 	end if
