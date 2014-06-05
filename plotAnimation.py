@@ -34,7 +34,7 @@ perm0 = np.loadtxt('permeability.txt')
 
 
     
-i=90
+i=96
 cell = 55
 print h0.shape
 

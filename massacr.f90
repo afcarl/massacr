@@ -76,9 +76,9 @@ interface
 	use alteration
 	! declare yo shit
 	real(8) :: temp, timestep
-	real(8) :: alt_next(1,58)
-	real(8) :: alter0(1,58)
-	real(8) :: primaryList(5), secondaryList(16), soluteList(11)
+	real(8) :: alt_next(1,85)
+	real(8) :: alter0(1,85)
+	real(8) :: primaryList(5), secondaryList(28), soluteList(15)
 	end function alt_next
 
 	function rho_next (h_in)
@@ -149,9 +149,9 @@ real(8) :: nusseltLocalv(xn,1), nuBar
 real(8) :: alt0(1,altnum)
 
 ! ALTERATION ARRAYS
-real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,16), solute(xn/cell,yn/cell,11)
-real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),16)
-real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),11)
+real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,28), solute(xn/cell,yn/cell,15)
+real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
+real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),15)
 
 ! DECLARE MPI STUFF
 !integer :: ierr
@@ -168,8 +168,8 @@ real(8) :: hLocal((xn/cell)*(yn/cell)), dt_local
 
 ! MPI STRETCHED OUT ARRAYS
 real(8) :: hLong((xn/cell)*(yn/cell))
-real(8) :: priLong((xn/cell)*(yn/cell),5), secLong((xn/cell)*(yn/cell),16), solLong((xn/cell)*(yn/cell),11)
-real(8) :: priLocal((xn/cell)*(yn/cell),5), secLocal((xn/cell)*(yn/cell),16), solLocal((xn/cell)*(yn/cell),11)
+real(8) :: priLong((xn/cell)*(yn/cell),5), secLong((xn/cell)*(yn/cell),28), solLong((xn/cell)*(yn/cell),15)
+real(8) :: priLocal((xn/cell)*(yn/cell),5), secLocal((xn/cell)*(yn/cell),28), solLocal((xn/cell)*(yn/cell),15)
 real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
 real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
@@ -182,24 +182,31 @@ primary(:,:,3) = 1.26 ! pigeonite
 primary(:,:,4) = .4 ! magnetite
 primary(:,:,5) = 96.77 ! basaltic glass
 
+!primary(:,:,:) = 0.0
+
 secondary(:,:,:) = 0.0
 
-solute(:,:,1) = 7.5 ! ph
-solute(:,:,2) = 6.0e-4 ! Ca
-solute(:,:,3) = 2.0e-5 ! Mg
-solute(:,:,4) = 1.0e-3 ! Na
-solute(:,:,5) = 1.0e-4 ! K
-solute(:,:,6) = 1.2e-6 ! Fe
-solute(:,:,7) = 1.0e-4 ! S(6)
-solute(:,:,8) = 2.0e-4 ! Si
-solute(:,:,9) = 3.0e-4 ! Cl
-solute(:,:,10) = 1.0e-6 ! Al
-solute(:,:,11) = 2.0e-3 ! Alk
+solute(:,:,1) = 7.8 ! ph
+solute(:,:,2) = 8.451 ! pe
+solute(:,:,3) = 6.0e-4 ! Ca
+solute(:,:,4) = 2.0e-5 ! Mg
+solute(:,:,5) = 1.0e-3 ! Na
+solute(:,:,6) = 1.0e-4 ! K
+solute(:,:,7) = 1.2e-6 ! Fe
+solute(:,:,8) = 1.0e-4 ! S(6)
+solute(:,:,9) = 2.0e-4 ! Si
+solute(:,:,10) = 3.0e-4 ! Cl
+solute(:,:,11) = 1.0e-6 ! Al
+solute(:,:,12) = 2.3e-3 ! Alk 1.6e-3 
+solute(:,:,13) = 2.200e-3 !1.2e-2 ! H2CO3
+solute(:,:,14) = 0.0 ! HCO3-
+solute(:,:,15) = 0.0 ! CO3-2
 
 
-
-
-
+! solute(:,:,:) = 0.0
+! solute(:,:,1) = 7.8 ! ph
+! solute(:,:,15) = 8.451 ! pe
+! solute(:,:,11) = 2.3e-3 ! Alk 1.6e-3 
 
 !--------------INITIALIZE ALL PROCESSORS--------------!
 ! process #0 is the root process
@@ -257,7 +264,7 @@ write(*,*) j
 	flux(i,1) = h(i,2) +((.27))*dy/(2.6)
 	end do
 	! top
-	flux(:,2) = 288.0
+	flux(:,2) = 300.0
 	do i = 1,xn/2
 	flux(i,2) = 273.0 !+ .01*x(i)
 	end do
@@ -296,8 +303,8 @@ if (mod(j,mstep) .eq. 0) then
 	! stretch everything out
 	hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/))
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
-	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 16/))
-	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 11/))
+	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 28/))
+	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 15/))
 	
 	!--------------MESSAGE DISTRIBUTING FROM MASTER TO SLAVES--------------!
 	do an_id = 1, num_procs - 1
@@ -330,14 +337,14 @@ if (mod(j,mstep) .eq. 0) then
 		end do
 		
 		! send secondary chunk to the an_id
-		do ii = 1,16
+		do ii = 1,28
 			secLongBit = secLong(:,ii)
         	call MPI_SEND( secLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
 		! send solute chunk to the an_id
-		do ii = 1,11
+		do ii = 1,15
 			solLongBit = solLong(:,ii)
         	call MPI_SEND( solLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
@@ -370,7 +377,7 @@ if (mod(j,mstep) .eq. 0) then
 		end do
 		
 		! secondary chunk
-		do ii = 1,16
+		do ii = 1,28
 			! receive it
 			call MPI_RECV( secLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 			an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
@@ -379,7 +386,7 @@ if (mod(j,mstep) .eq. 0) then
 		end do
 		
 		! solute chunk
-		do ii = 1,11
+		do ii = 1,15
 			! receive it
 			call MPI_RECV( solLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 			an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
@@ -395,8 +402,8 @@ if (mod(j,mstep) .eq. 0) then
 	
 	! put stretched vectors back into 2d arrays
 	primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
-	secondary = reshape(secLong,(/(xn/cell), (yn/cell), 16/))
-	solute = reshape(solLong,(/(xn/cell), (yn/cell), 11/))
+	secondary = reshape(secLong,(/(xn/cell), (yn/cell), 28/))
+	solute = reshape(solLong,(/(xn/cell), (yn/cell), 15/))
 	
 	! LOOK AT PRIMARY SEE IF IT WORKS
 	write(*,*) "AFTER"
@@ -514,14 +521,14 @@ else
 		end do
 	
 		! receive secondary chunk, save in local priLocal
-		do ii = 1,16
+		do ii = 1,28
 			call MPI_RECV ( secLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			secLocal(:,ii) = secLocalBit
 		end do
 	
 		! receive solute chunk, save in local priLocal
-		do ii = 1,11
+		do ii = 1,15
 			call MPI_RECV ( solLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			solLocal(:,ii) = solLocalBit
@@ -533,17 +540,20 @@ else
 	
 		! slave processor goes through phreeqc loop here
 		do m=1,num_rows_to_receive
-			!alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
 
 			!PARSING
-			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
-			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12) /)
+			solLocal(m,:) = (/ alt0(1,1), alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
+			alt0(1,13), alt0(1,14), alt0(1,15) /)
 
-			secLocal(m,:) = (/ alt0(1,13), alt0(1,15), alt0(1,17), alt0(1,19), alt0(1,21), &
-			alt0(1,23), alt0(1,25), alt0(1,27), alt0(1,29), alt0(1,31), alt0(1,33), alt0(1,35), &
-			alt0(1,37), alt0(1,39), alt0(1,41), alt0(1,43)/)
+			secLocal(m,:) = (/ alt0(1,16), alt0(1,18), alt0(1,20), &
+			alt0(1,22), alt0(1,24), alt0(1,26), alt0(1,28), alt0(1,30), alt0(1,32), alt0(1,34), &
+			alt0(1,36), alt0(1,38), alt0(1,40), alt0(1,42), alt0(1,44), alt0(1,46), alt0(1,48), &
+			alt0(1,50), alt0(1,52), alt0(1,54), alt0(1,56), alt0(1,58), alt0(1,60), alt0(1,62), &
+			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70)/)
 
-			priLocal(m,:) = (/ alt0(1,45), alt0(1,47), alt0(1,49), alt0(1,51), alt0(1,53)/)
+			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 		end do
 	
 	
@@ -556,13 +566,13 @@ else
 		end do
 		
 		! send secondary chunk back to root process
-		do ii = 1,16
+		do ii = 1,28
 			call MPI_SEND( secLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
 		! send solute chunk back to root process
-		do ii = 1,11
+		do ii = 1,15
 			call MPI_SEND( solLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
@@ -962,13 +972,14 @@ use alteration
 implicit none
 
 interface
+
 end interface
 
 ! DECLARE YO SHIT
 real(8) :: temp, timestep
-real(8) :: alt_next(1,58)
-real(8) :: alter0(1,58)
-real(8) :: primaryList(5), secondaryList(16), soluteList(11)
+real(8) :: alt_next(1,85)
+real(8) :: alter0(1,85)
+real(8) :: primaryList(5), secondaryList(28), soluteList(15)
 
 ! GRAB EVERYTHING FROM THE ALTERATION MODULE
 alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList)
