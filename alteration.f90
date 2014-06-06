@@ -178,21 +178,21 @@ siderite = 0.0
 ! SOLUTES TO STRINGS
 write(s_ph,'(F25.10)') solute(1)
 write(s_pe,'(F25.10)') solute(2)
-write(s_ca,'(F25.10)') solute(3)
-write(s_mg,'(F25.10)') solute(4)
-write(s_na,'(F25.10)') solute(5)
-write(s_k,'(F25.10)') solute(6)
-write(s_fe,'(F25.10)') solute(7)
-write(s_s,'(F25.10)') solute(8)
-write(s_si,'(F25.10)') solute(9)
-write(s_cl,'(F25.10)') solute(10)
-write(s_al,'(F25.10)') solute(11)
-write(s_alk,'(F25.10)') solute(12)
-write(s_co2,'(F25.10)') solute(13)
+write(s_alk,'(F25.10)') solute(3)
+write(s_co2,'(F25.10)') solute(4)
+write(s_ca,'(F25.10)') solute(5)
+write(s_mg,'(F25.10)') solute(6)
+write(s_na,'(F25.10)') solute(7)
+write(s_k,'(F25.10)') solute(8)
+write(s_fe,'(F25.10)') solute(9)
+write(s_s,'(F25.10)') solute(10)
+write(s_si,'(F25.10)') solute(11)
+write(s_cl,'(F25.10)') solute(12)
+write(s_al,'(F25.10)') solute(13)
 write(s_hco3,'(F25.10)') solute(14)
 write(s_co3,'(F25.10)') solute(15)
 
-water = 5.0
+water = 1.0
 write(s_water,'(F25.10)') water
 
 ! PRIMARIES TO STRINGS
@@ -203,22 +203,22 @@ write(s_magnetite,'(F25.10)') primary(4)
 write(s_glass,'(F25.10)') primary(5)
 
 ! SECONDARIES TO STRINGS
-write(s_siderite,'(F25.10)') secondary(1)
-write(s_kaolinite,'(F25.10)') secondary(2)
-write(s_goethite,'(F25.10)') secondary(3)
-write(s_dolomite,'(F25.10)') secondary(4)
-write(s_celadonite,'(F25.10)') secondary(5)
-write(s_sio2,'(F25.10)') secondary(6)
-write(s_albite,'(F25.10)') secondary(7)
-write(s_calcite,'(F25.10)') secondary(8)
+write(s_stilbite,'(F25.10)') secondary(1)
+write(s_sio2,'(F25.10)') secondary(2)
+write(s_kaolinite,'(F25.10)') secondary(3)
+write(s_albite,'(F25.10)') secondary(4)
+write(s_saponite,'(F25.10)') secondary(5)
+write(s_celadonite,'(F25.10)') secondary(6)
+write(s_clinoptilolite,'(F25.10)') secondary(7)
+write(s_pyrite,'(F25.10)') secondary(8)
 write(s_mont_na,'(F25.10)') secondary(9)
-write(s_smectite,'(F25.10)') secondary(10)
-write(s_saponite,'(F25.10)') secondary(11)
-write(s_stilbite,'(F25.10)') secondary(12)
+write(s_goethite,'(F25.10)') secondary(10)
+write(s_dolomite,'(F25.10)') secondary(11)
+write(s_smectite,'(F25.10)') secondary(12)
 write(s_dawsonite,'(F25.10)') secondary(13)
 write(s_magnesite,'(F25.10)') secondary(14)
-write(s_clinoptilolite,'(F25.10)') secondary(15)
-write(s_pyrite,'(F25.10)') secondary(16)
+write(s_siderite,'(F25.10)') secondary(15)
+write(s_calcite,'(F25.10)') secondary(16)
 write(s_quartz,'(F25.10)') secondary(17)
 write(s_kspar,'(F25.10)') secondary(18)
 write(s_saponite_na,'(F25.10)') secondary(19)
@@ -253,7 +253,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Na " // trim(s_na) //NEW_LINE('')// &
 &"    K " // trim(s_k) //NEW_LINE('')// &
 &"    Fe " // trim(s_fe) //NEW_LINE('')// &
-&"    S(6) "// trim(s_s) // " as SO4" //NEW_LINE('')// &
+&"    S(6) "// trim(s_s)  //NEW_LINE('')// &
+!&"    S "// trim(s_s)  //NEW_LINE('')// &
 &"    Si " // trim(s_si) //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
@@ -443,6 +444,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 &"Plagioclase" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
+!(1-SR('Plagioclase'))*
 &"    10 rate = (1-SR('Plagioclase'))*M*270.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-9)"//&
 &"*exp(-53.5/(.008314*TK))*(ACT('H+')^0.541) +(3.39e-12)*exp(-57.4/(.008314*TK)) +"//&
 &"(4.78e-15)*exp(-59.0/(.008314*TK))*(ACT('H+'))^-0.57))"//NEW_LINE('')//&
@@ -548,6 +550,7 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	! HEADER BITS YOU MAY WANT
 	if (i .eq. 1) then
  	   !write(12,*) trim(line)
+	   write(*,*) "cell"
 	   !write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
 	end if
 	! MEAT

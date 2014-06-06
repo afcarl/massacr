@@ -1,22 +1,40 @@
 SOLUTION_RAW                 1 
-  -temp                      8.6230801617
-  -total_h                   nan
-  -total_o                   nan
-  -cb                        nan
+  -temp                      11.0639456857
+  -total_h                   111.05295265841
+  -total_o                   55.532482506672
+  -cb                        -0.00029437229999981
   -density                   1
   -totals
-    H(0)                     nan
-    O(0)                     nan
-    -pH                        7.8000001907
-  -pe                        8.4510002136
-  -mu                        nan
-  -ah2o                      1
-  -mass_water                0
-  -total_alkalinity          nan
+    C(4)                     0.0023844093838704
+    Ca                       0.00058416030000009
+    Cl(-1)                   0.0002999243
+    H(0)                     5.9047968630123e-20
+    K                        0.0001018954
+    Mg                       3.1643000000003e-05
+    Na                       0.001000201
+    Si                       3.66416e-05
+    -pH                        7.9505234825
+  -pe                        0.1180331738
+  -mu                        0.0030608356710399
+  -ah2o                      0.99992489816904
+  -mass_water                1
+  -total_alkalinity          0.002328151
   -activities
-    E                        -8.4510002136
-    H(0)                     nan
-    O(0)                     nan
+    Alkalinity               -2.666796269593
+    C(4)                     -2.666796269593
+    Ca                       -3.3461586267749
+    Cl(-1)                   -3.5493045167719
+    Cl(1)                    -48.158751386464
+    Cl(3)                    -85.499379423627
+    Cl(5)                    -108.31165798702
+    Cl(7)                    -135.53295771538
+    E                        -0.1180331738
+    H(0)                     -19.529499283362
+    K                        -4.018054181158
+    Mg                       -4.6074232114715
+    Na                       -3.0273586958479
+    O(0)                     -57.853016332424
+    Si                       -4.43906067066
   -gammas
 KINETICS_RAW                 1 
   # KINETICS_MODIFY candidate identifiers #
@@ -29,8 +47,8 @@ KINETICS_RAW                 1
   -component                 Plagioclase
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     0
-      -m0                    0
+      -m                     12.9600000381
+      -m0                    12.9600000381
       -namecoef
         Plagioclase          1
       -d_params
@@ -41,8 +59,8 @@ KINETICS_RAW                 1
   -component                 Augite
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     0
-      -m0                    0
+      -m                     6.9600000381
+      -m0                    6.9600000381
       -namecoef
         Augite               1
       -d_params
@@ -53,8 +71,8 @@ KINETICS_RAW                 1
   -component                 Pigeonite
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     0
-      -m0                    0
+      -m                     1.2599999905
+      -m0                    1.2599999905
       -namecoef
         Pigeonite            1
       -d_params
@@ -65,8 +83,8 @@ KINETICS_RAW                 1
   -component                 Magnetite
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     0
-      -m0                    0
+      -m                     0.4000000059
+      -m0                    0.4000000059
       -namecoef
         Magnetite            1
       -d_params
@@ -77,8 +95,8 @@ KINETICS_RAW                 1
   -component                 BGlass
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     0
-      -m0                    0
+      -m                     96.7698055216
+      -m0                    96.7698055216
       -namecoef
         Al2O3                0.034999
         CaO                  0.025

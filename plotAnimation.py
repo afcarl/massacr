@@ -34,8 +34,8 @@ perm0 = np.loadtxt('permeability.txt')
 
 
     
-i=96
-cell = 55
+i=19
+cell = 10
 print h0.shape
 
 
@@ -71,8 +71,8 @@ feldspar = feldspar0[i*len(y0)/cell:i*len(y0)/cell+len(y0)/cell,:]
 
 glass = glass0[i*len(y)/cell-i:((i)*len(y)/cell+len(x)/cell)-i-1,:]
 #glassmin = glass0[3*len(y)/cell-3:((3)*len(y)/cell+len(x)/cell)-3-1,:]
-glass = np.append(glass, glass[-1:,:], axis=0)
-glass = np.append(glass, glass[:,-1:], axis=1)
+#glass = np.append(glass, glass[-1:,:], axis=0)
+#glass = np.append(glass, glass[:,-1:], axis=1)
 
 
 
@@ -82,24 +82,23 @@ glass = np.append(glass, glass[:,-1:], axis=1)
 
 fig=plt.figure()
 
-ax1=fig.add_subplot(1,1,1, aspect='equal')
+ax1=fig.add_subplot(2,1,1, aspect='equal')
 levels00 = np.linspace(.0001, np.max(psi), 15)
 levels0 = np.linspace(np.min(psi), -.0001, 15)
 levels = np.append(levels0,levels00,axis=1)
 
 # permeability plot
-permC = plt.contourf(xg, yg, np.log10(perm), 20, cmap=cm.summer)
+#permC = plt.contourf(xg, yg, np.log10(perm), 20, cmap=cm.summer)
 
 # stream function plot
 # levels[::2],
 CS = plt.contour(xg, yg, psi, levels[::2], colors='k',linewidths=np.array([1.0]))
 plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
 
-#p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,150.0,5.0), cmap=cm.jet)
-#plt.clim(0.0,150.0)
-#cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,150.0,10.0))
-#cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
-
+p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,150.0,5.0), cmap=cm.jet)
+plt.clim(0.0,150.0)
+cbar = plt.colorbar(p, orientation='vertical', ticks=np.arange(0.0,150.0,10.0))
+cbar.ax.set_ylabel('FLUID TEMPERATURE [$^{\circ}$C]')
 
 
 #np.putmask(u, np.abs(u) <= 1.0e-9, 0)
@@ -114,7 +113,19 @@ plt.xticks([0.0, 1500.0, 3000.0], [0, 1500, 3000])
 
 plt.xlim(np.min(x), np.max(x))
 
+
+
+ax1=fig.add_subplot(2,1,2, aspect='equal')
+
+# glass plot
+pGlass = plt.contourf(glass, 20, cmap=cm.jet)
+
+cbar = plt.colorbar(pGlass, orientation='vertical')
+cbar.ax.set_ylabel('MOL BASALT [$^{\circ}$C]')
+
+
 #plt.savefig('expCapNextNext0'+str(i)+'.png')
+
 plt.savefig('j3.png')
 
 

@@ -188,17 +188,17 @@ secondary(:,:,:) = 0.0
 
 solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
-solute(:,:,3) = 6.0e-4 ! Ca
-solute(:,:,4) = 2.0e-5 ! Mg
-solute(:,:,5) = 1.0e-3 ! Na
-solute(:,:,6) = 1.0e-4 ! K
-solute(:,:,7) = 1.2e-6 ! Fe
-solute(:,:,8) = 1.0e-4 ! S(6)
-solute(:,:,9) = 2.0e-4 ! Si
-solute(:,:,10) = 3.0e-4 ! Cl
-solute(:,:,11) = 1.0e-6 ! Al
-solute(:,:,12) = 2.3e-3 ! Alk 1.6e-3 
-solute(:,:,13) = 2.200e-3 !1.2e-2 ! H2CO3
+solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
+solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
+solute(:,:,5) = 6.0e-4 ! Ca
+solute(:,:,6) = 2.0e-5 ! Mg
+solute(:,:,7) = 1.0e-3 ! Na
+solute(:,:,8) = 1.0e-4 ! K
+solute(:,:,9) = 1.2e-6 ! Fe
+solute(:,:,10) = 0.0 ! 1.0e-4 ! S(6)
+solute(:,:,11) = 2.0e-4 ! Si
+solute(:,:,12) = 3.0e-4 ! Cl
+solute(:,:,13) = 1.0e-6 ! Al
 solute(:,:,14) = 0.0 ! HCO3-
 solute(:,:,15) = 0.0 ! CO3-2
 
@@ -266,7 +266,7 @@ write(*,*) j
 	! top
 	flux(:,2) = 300.0
 	do i = 1,xn/2
-	flux(i,2) = 273.0 !+ .01*x(i)
+	flux(i,2) = 274.0 !+ .01*x(i)
 	end do
 
   
@@ -354,7 +354,12 @@ if (mod(j,mstep) .eq. 0) then
 	end do
 
 	write(*,*) "BEFORE"
-	write(*,*) priLong(:,5)
+	write(*,*) "primary"
+	write(*,*) priLong(3,:)
+	write(*,*) "secondary"
+	write(*,*) secLong(3,:)
+	write(*,*) "solutes"
+	write(*,*) solLong(3,:)
 	
 	!--------------MESSAGE RECEIVING BACK TO MASTER--------------!
 	do an_id = 1, num_procs - 1
@@ -407,7 +412,12 @@ if (mod(j,mstep) .eq. 0) then
 	
 	! LOOK AT PRIMARY SEE IF IT WORKS
 	write(*,*) "AFTER"
-	write(*,*) priLong(:,5)
+	write(*,*) "primary"
+	write(*,*) priLong(3,:)
+	write(*,*) "secondary"
+	write(*,*) secLong(3,:)
+	write(*,*) "solutes"
+	write(*,*) solLong(3,:)
 
 	! ADD EACH TIMESTEP TO MATRICES
 	 hmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = h
@@ -543,9 +553,9 @@ else
 			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
 
 			!PARSING
-			solLocal(m,:) = (/ alt0(1,1), alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
 			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
-			alt0(1,13), alt0(1,14), alt0(1,15) /)
+			alt0(1,13), alt0(1,14), alt0(1,15), 0.0D+00/)
 
 			secLocal(m,:) = (/ alt0(1,16), alt0(1,18), alt0(1,20), &
 			alt0(1,22), alt0(1,24), alt0(1,26), alt0(1,28), alt0(1,30), alt0(1,32), alt0(1,34), &
