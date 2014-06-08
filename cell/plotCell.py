@@ -28,7 +28,7 @@ flush = np.loadtxt(infile)
 # 15 hco3-
 ###### 14 co32-
 ######### nothing al (NOW ALKALINITY)
-# 16 stilbite
+# 16 stilbite (17)
 # 17
 # 18 sio2am
 # 19
@@ -82,9 +82,9 @@ flush = np.loadtxt(infile)
 # 67
 # 68 hematite
 # 69
-# 70 diaspore
+# 70 diaspore (71)
 # 71 
-# 72 plagioclase
+# 72 plagioclase (73)
 # 73
 # 74 augite
 # 75
@@ -92,7 +92,7 @@ flush = np.loadtxt(infile)
 # 77
 # 78 magnetite
 # 79
-# 80 basaltic glass
+# 80 basaltic glass (81)
 # 81
 # 82 phi
 # 83 ssp

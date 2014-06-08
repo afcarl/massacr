@@ -73,7 +73,7 @@ do j=1,xn
 	sedx = 400.0-1000.0*( ( (x(j)/(x_max/2.0)) - 1.0) **2.0)
 	
 	if (y(i) .gt. -500.0) then
-	permeability(j,i) = (0.5+0.5*tanh((y(i)+sedx)/50.0))*4e-16 &
+	permeability(j,i) = (0.5+0.5*tanh((y(i)+sedx)/50.0))*4e-15 &
 	&+ (1.0 - (0.5+0.5*tanh((y(i)+sedx)/50.0)))*1e-13
 	end if
 	

@@ -28,7 +28,7 @@ u0= np.loadtxt('uMat.txt')
 v0= np.loadtxt('vMat.txt')
 psi0 = np.loadtxt('psiMat.txt') # no 1
 feldspar0 = np.loadtxt('feldsparMat.txt') 
-glass0 = np.loadtxt('glassMat.txt')
+glass0 = np.loadtxt('calciteMat.txt')
 perm0 = np.loadtxt('permeability.txt')
 
 
@@ -71,9 +71,8 @@ feldspar = feldspar0[i*len(y0)/cell:i*len(y0)/cell+len(y0)/cell,:]
 
 glass = glass0[i*len(y)/cell-i:((i)*len(y)/cell+len(x)/cell)-i-1,:]
 #glassmin = glass0[3*len(y)/cell-3:((3)*len(y)/cell+len(x)/cell)-3-1,:]
-#glass = np.append(glass, glass[-1:,:], axis=0)
-#glass = np.append(glass, glass[:,-1:], axis=1)
-
+glass = np.append(glass, glass[-1:,:], axis=0)
+glass = np.append(glass, glass[:,-1:], axis=1)
 
 
 ####################
@@ -118,10 +117,24 @@ plt.xlim(np.min(x), np.max(x))
 ax1=fig.add_subplot(2,1,2, aspect='equal')
 
 # glass plot
-pGlass = plt.contourf(glass, 20, cmap=cm.jet)
+xCell = x0
+yCell = y0
+xCell = xCell[::cell]
+yCell= yCell[::cell]
+
+print xCell
+xCell = np.append(xCell, np.max(xCell)+.001)
+print xCell
+yCell = np.append(yCell, np.max(yCell)+.001)
+print yCell
+
+
+
+pGlass = plt.contourf(xCell, yCell[:-1],
+                      glass, 20, cmap=cm.jet)
 
 cbar = plt.colorbar(pGlass, orientation='vertical')
-cbar.ax.set_ylabel('MOL BASALT [$^{\circ}$C]')
+cbar.ax.set_ylabel('PRECIPITATED CALCITE [mol]')
 
 
 #plt.savefig('expCapNextNext0'+str(i)+'.png')

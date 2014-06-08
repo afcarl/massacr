@@ -5,7 +5,7 @@
 # macros go here
 #FC=gfortran 
 FC=mpif90
-FCFLAGS = -O3
+FCFLAGS = -O3 -g
 #FCFLAGS += -I/usr/include
 FCFLAGS += -I/usr/local/include 
 

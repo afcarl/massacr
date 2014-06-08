@@ -550,7 +550,7 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	! HEADER BITS YOU MAY WANT
 	if (i .eq. 1) then
  	   !write(12,*) trim(line)
-	   write(*,*) "cell"
+	   !write(*,*) "cell"
 	   !write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
 	end if
 	! MEAT

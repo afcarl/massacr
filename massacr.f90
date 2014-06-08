@@ -202,6 +202,7 @@ solute(:,:,13) = 1.0e-6 ! Al
 solute(:,:,14) = 0.0 ! HCO3-
 solute(:,:,15) = 0.0 ! CO3-2
 
+write(*,*) "testing debugger"
 
 ! solute(:,:,:) = 0.0
 ! solute(:,:,1) = 7.8 ! ph
@@ -454,7 +455,7 @@ yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat.txt' )
 
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,1),kind=4), 'feldsparMat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'glassMat.txt' )
-
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,16),kind=4), 'calciteMat.txt' )
 
 ! WRITE TO FILE FOR LAST TIMESTEP CASE
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
@@ -918,7 +919,6 @@ end do
 aBand0 = band(aBand0,m,(xn-2)*(yn-2))
 psi_nextRow = solve(aBand0,uVec,m,(xn-2)*(yn-2))
 psi_next(2:xn-1,2:yn-1) = reshape(psi_nextRow, (/xn-2, yn-2/))
-
 
 ! ENTIRELY JACOBIFIED !
 
