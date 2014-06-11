@@ -7,15 +7,15 @@
 ! gfortran -I/usr/local/include -L/usr/local/lib -liphreeqc cell.o -o c10
 
 
-program batchControl
+program cell
 !use globals
 INCLUDE "IPhreeqc.f90.inc"
 
 !implicit none
 INTEGER(KIND=4) :: id, all=85, its=50, its0=1
 INTEGER(KIND=4) :: i, j, jj
-CHARACTER(LEN=52000) :: line
-character(len=51200) :: inputz0
+CHARACTER(LEN=72000) :: line
+character(len=71200) :: inputz0
 character(len=4) :: fake_in
 real(8) :: alter(1,59), mix1= .9, mix2=0.1
 real(8), allocatable :: outmat(:,:)
@@ -43,10 +43,11 @@ character(len=100) :: intemp
 character(len=100) :: infile
 integer :: in
 
-in = iargc()
-call getarg(1,intemp)
-call getarg(2,infile)
-
+!in = iargc()
+!call getarg(1,intemp)
+!call getarg(2,infile)
+intemp = "10.0"
+infile = "cellOut.txt"
 
 glass = 2.0
 siderite = 0.0
@@ -148,7 +149,7 @@ write(s_diaspore,'(F25.10)') secondary(28)
 write(s_temp,'(F25.10)') temp
 write(s_timestep,'(F25.10)') timestep
 
-
+write(*,*) timestep
 
 
 
@@ -161,76 +162,76 @@ do j = 1,its
 ! INITIAL AQUEOUS PHASE CONSITUENTS
 ! ----------------------------------%%
  
-inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
-&"    pH " // trim(s_pH) //NEW_LINE('')// &
-&"    pe " // trim(s_pe) //NEW_LINE('')// &
-&"    units   mol/kgw" //NEW_LINE('')// &
-&"    temp " // intemp //NEW_LINE('')// &
-&"    Ca " // trim(s_ca) //NEW_LINE('')// &
-&"    Mg " // trim(s_mg) //NEW_LINE('')// &
-&"    Na " // trim(s_na) //NEW_LINE('')// &
-&"    K " // trim(s_k) //NEW_LINE('')// &
-&"    Fe " // trim(s_fe) //NEW_LINE('')// &
-&"    S(6) "// trim(s_s) // " as SO4" //NEW_LINE('')// &
-&"    Si " // trim(s_si) //NEW_LINE('')// &
-&"    Cl " // trim(s_cl) //NEW_LINE('')// &
-&"    Al " // trim(s_al) //NEW_LINE('')// &
-!&"    C " // trim(s_co2) //NEW_LINE('')// &
-&"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
-!&"    -water		5.0	# kg" //NEW_LINE('')// &
-&"    -water "// trim(s_water) //NEW_LINE('')// &
-&"END" //NEW_LINE('')// &
+inputz0 = "SOLUTION 1 " //CHAR(13)//CHAR(10)// &
+&"    pH " // trim(s_pH) //CHAR(13)//CHAR(10)// &
+&"    pe " // trim(s_pe) //CHAR(13)//CHAR(10)// &
+&"    units   mol/kgw" //CHAR(13)//CHAR(10)// &
+&"    temp " // intemp //CHAR(13)//CHAR(10)// &
+&"    Ca " // trim(s_ca) //CHAR(13)//CHAR(10)// &
+&"    Mg " // trim(s_mg) //CHAR(13)//CHAR(10)// &
+&"    Na " // trim(s_na) //CHAR(13)//CHAR(10)// &
+&"    K " // trim(s_k) //CHAR(13)//CHAR(10)// &
+&"    Fe " // trim(s_fe) //CHAR(13)//CHAR(10)// &
+&"    S(6) "// trim(s_s) // " as SO4" //CHAR(13)//CHAR(10)// &
+&"    Si " // trim(s_si) //CHAR(13)//CHAR(10)// &
+&"    Cl " // trim(s_cl) //CHAR(13)//CHAR(10)// &
+&"    Al " // trim(s_al) //CHAR(13)//CHAR(10)// &
+!&"    C " // trim(s_co2) //CHAR(13)//CHAR(10)// &
+&"    Alkalinity " // trim(s_alk) // " as HCO3" //CHAR(13)//CHAR(10)// &
+!&"    -water		5.0	# kg" //CHAR(13)//CHAR(10)// &
+&"    -water "// trim(s_water) //CHAR(13)//CHAR(10)// &
+&"END" //CHAR(13)//CHAR(10)// &
 
 ! ----------------------------------%%
 ! HYDROTHERMAL MINERAL CHOICES
 ! ----------------------------------%%
   
-&"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-!&"    CO2(g) -3.25 100" //NEW_LINE('')// &
-&"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
-&"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
-&"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
-&"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
-&"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
-&"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
-&"    Montmor-Na 0.0 " // trim(s_mont_na) //NEW_LINE('')// &
-&"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
-&"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
-&"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //NEW_LINE('')// &
-&"    Pyrite 0.0 " // trim(s_pyrite) //NEW_LINE('')// &
-&"    Quartz 0.0 " // trim(s_quartz) //NEW_LINE('')// &
-&"    K-Feldspar 0.0 " // trim(s_kspar) //NEW_LINE('')// &
+&"EQUILIBRIUM_PHASES 1" //CHAR(13)//CHAR(10)// &
+!&"    CO2(g) -3.25 100" //CHAR(13)//CHAR(10)// &
+&"    Kaolinite 0.0 " // trim(s_kaolinite) //CHAR(13)//CHAR(10)// &
+&"    Goethite 0.0 " // trim(s_goethite) //CHAR(13)//CHAR(10)// &
+&"    Celadonite 0.0 " // trim(s_celadonite) //CHAR(13)//CHAR(10)// &
+&"    SiO2(am) 0.0 " // trim(s_sio2) //CHAR(13)//CHAR(10)// &
+&"    Albite 0.0 " // trim(s_albite) //CHAR(13)//CHAR(10)// &
+&"    Calcite 0.0 " // trim(s_calcite) //CHAR(13)//CHAR(10)// &
+&"    Montmor-Na 0.0 " // trim(s_mont_na) //CHAR(13)//CHAR(10)// &
+&"    Saponite-Mg 0.0 " // trim(s_saponite) //CHAR(13)//CHAR(10)// &
+&"    Stilbite 0.0 " // trim(s_stilbite) //CHAR(13)//CHAR(10)// &
+&"    Clinoptilolite-Ca 0.0 " // trim(s_clinoptilolite) //CHAR(13)//CHAR(10)// &
+&"    Pyrite 0.0 " // trim(s_pyrite) //CHAR(13)//CHAR(10)// &
+&"    Quartz 0.0 " // trim(s_quartz) //CHAR(13)//CHAR(10)// &
+&"    K-Feldspar 0.0 " // trim(s_kspar) //CHAR(13)//CHAR(10)// &
 
 ! NEW MINS
 
-! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
- &"    Saponite-Na 0.0 " // trim(s_saponite_na) //NEW_LINE('')// &
- &"    Nontronite-Na 0.0 " // trim(s_nont_na) //NEW_LINE('')// &
- &"    Nontronite-Mg 0.0 " // trim(s_nont_mg) //NEW_LINE('')// &
- &"    Nontronite-K 0.0 " // trim(s_nont_k) //NEW_LINE('')// &
- &"    Nontronite-H 0.0 " // trim(s_nont_h) //NEW_LINE('')// &
- &"    Nontronite-Ca 0.0 " // trim(s_nont_ca) //NEW_LINE('')// &
- &"    Muscovite 0.0 " // trim(s_muscovite) //NEW_LINE('')// &
- &"    Mesolite 0.0 " // trim(s_mesolite) //NEW_LINE('')// &
- &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
- &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
+! &"    Dolomite 0.0 " // trim(s_dolomite) //CHAR(13)//CHAR(10)// &
+ &"    Saponite-Na 0.0 " // trim(s_saponite_na) //CHAR(13)//CHAR(10)// &
+ &"    Nontronite-Na 0.0 " // trim(s_nont_na) //CHAR(13)//CHAR(10)// &
+ &"    Nontronite-Mg 0.0 " // trim(s_nont_mg) //CHAR(13)//CHAR(10)// &
+ &"    Nontronite-K 0.0 " // trim(s_nont_k) //CHAR(13)//CHAR(10)// &
+ &"    Nontronite-H 0.0 " // trim(s_nont_h) //CHAR(13)//CHAR(10)// &
+ &"    Nontronite-Ca 0.0 " // trim(s_nont_ca) //CHAR(13)//CHAR(10)// &
+ &"    Muscovite 0.0 " // trim(s_muscovite) //CHAR(13)//CHAR(10)// &
+ &"    Mesolite 0.0 " // trim(s_mesolite) //CHAR(13)//CHAR(10)// &
+ &"    Hematite 0.0 " // trim(s_hematite) //CHAR(13)//CHAR(10)// &
+ &"    Diaspore 0.0 " // trim(s_diaspore) //CHAR(13)//CHAR(10)// &
 
 
-!  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
-!  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
-!  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
-!  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
-!  &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
-!&"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
+!  &"    Dawsonite 0.0 " // trim(s_dawsonite) //CHAR(13)//CHAR(10)// &
+!  &"    Magnesite 0.0 " // trim(s_magnesite) //CHAR(13)//CHAR(10)// &
+!  &"    Quartz 0.0 0.0" //CHAR(13)//CHAR(10)// &
+!  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //CHAR(13)//CHAR(10)// &
+!  &"    Dolomite 0.0 " // trim(s_dolomite) //CHAR(13)//CHAR(10)// &
+!&"    Siderite 0.0 " // trim(s_siderite) //CHAR(13)//CHAR(10)// &
 
 ! ----------------------------------%%
 ! CALCULATE POROSITY AND STUFF
 ! ----------------------------------%%
 
-&"CALCULATE_VALUES" //NEW_LINE('')// &
+&"CALCULATE_VALUES" //CHAR(13)//CHAR(10)// &
 
-&"R(sum)" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"R(sum)" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 &"10 sum = EQUI('Stilbite')*832.2/2.15 + EQUI('SiO2(am)')*60.0/2.62" //&
 &"+ EQUI('Kaolinite')*258.2/2.6 + EQUI('Albite')*262.3/2.62" // &
 &"+ EQUI('Saponite-Mg')*385.537/2.4 + EQUI('Celadonite')*396.8/3.0" // &
@@ -243,29 +244,29 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ KIN('Plagioclase')*270.0/2.68 + KIN('Augite')*230.0/3.4" // &
 &"+ KIN('Pigeonite')*239.6/3.38 + KIN('Magnetite')*231.0/5.15" // &
 &"+ KIN('BGlass')*46.5/2.92" // &
-&"" //NEW_LINE('')// &
-&"100 SAVE sum" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"" //CHAR(13)//CHAR(10)// &
+&"100 SAVE sum" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
   
-&"R(phi)" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"R(phi)" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 &"10 phi = 1.0-(CALC_VALUE('R(sum)')/(CALC_VALUE('R(sum)')+(TOT('water')*1000.0)))" //&
 !&"10 phi = 0.1" //&
-&"" //NEW_LINE('')// &
-&"100 SAVE phi" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"" //CHAR(13)//CHAR(10)// &
+&"100 SAVE phi" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
 
-&"R(water_volume)" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"R(water_volume)" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 &"10 water_volume = TOT('water')" //&
-&"" //NEW_LINE('')// &
-&"100 SAVE water_volume" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"" //CHAR(13)//CHAR(10)// &
+&"100 SAVE water_volume" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
   
 
-&"R(rho_s)" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
-!&"10 rho_s = CALC_VALUE('R(sum)')" //NEW_LINE('')// &
+&"R(rho_s)" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
+!&"10 rho_s = CALC_VALUE('R(sum)')" //CHAR(13)//CHAR(10)// &
 &"10 rho_s = EQUI('Stilbite')*2.15 + EQUI('SiO2(am)')*2.62" //&
 &"+ EQUI('Kaolinite')*2.6 + EQUI('Albite')*2.62" // &
 &"+ EQUI('Saponite-Mg')*2.4 + EQUI('Celadonite')*3.0" // &
@@ -277,7 +278,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ EQUI('Quartz')*2.62 + EQUI('k-Feldspar')*2.56" // &
 &"+ KIN('Plagioclase')*2.68 + KIN('Augite')*3.4" // &
 &"+ KIN('Pigeonite')*3.38 + KIN('Magnetite')*5.15" // &
-&"+ KIN('BGlass')*2.92" //NEW_LINE('')// &
+&"+ KIN('BGlass')*2.92" //CHAR(13)//CHAR(10)// &
 &"20 rho_s = rho_s/ (EQUI('Stilbite') + EQUI('SiO2(am)')" //&
 &"+ EQUI('Kaolinite') + EQUI('Albite')" // &
 &"+ EQUI('Saponite-Mg') + EQUI('Celadonite')" // &
@@ -289,117 +290,117 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ EQUI('Quartz') + EQUI('K-Feldspar')" // &
 &"+ KIN('Plagioclase') + KIN('Augite')" // &
 &"+ KIN('Pigeonite') + KIN('Magnetite')" // &
-&"+ KIN('BGlass'))" //NEW_LINE('')// &
-&"30 rho_s = rho_s * 1000000.0" //NEW_LINE('')// &
-&"100 SAVE rho_s" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"+ KIN('BGlass'))" //CHAR(13)//CHAR(10)// &
+&"30 rho_s = rho_s * 1000000.0" //CHAR(13)//CHAR(10)// &
+&"100 SAVE rho_s" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
   
   
-&"R(s_sp)" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"R(s_sp)" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 !&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
 &"10 s_sp = 1.53e-5" //&
-&"" //NEW_LINE('')// &
-&"100 SAVE s_sp" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"" //CHAR(13)//CHAR(10)// &
+&"100 SAVE s_sp" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
 
 ! ----------------------------------%%
 ! PRIMARY (KINETIC) CONSTITUENTS
 ! ----------------------------------%%
 
-&"KINETICS" //NEW_LINE('')// &
-&"Plagioclase" //NEW_LINE('')// &
-&"-m0 " // trim(s_feldspar) //NEW_LINE('')// &
-&"Augite" //NEW_LINE('')// &
-&"-m0 " // trim(s_augite) //NEW_LINE('')// &
-&"Pigeonite" //NEW_LINE('')// &
-&"-m0 " // trim(s_pigeonite) //NEW_LINE('')// &
-&"Magnetite" //NEW_LINE('')// &
-&"-m0 " // trim(s_magnetite) //NEW_LINE('')// &
-&"BGlass" //NEW_LINE('')// &
+&"KINETICS" //CHAR(13)//CHAR(10)// &
+&"Plagioclase" //CHAR(13)//CHAR(10)// &
+&"-m0 " // trim(s_feldspar) //CHAR(13)//CHAR(10)// &
+&"Augite" //CHAR(13)//CHAR(10)// &
+&"-m0 " // trim(s_augite) //CHAR(13)//CHAR(10)// &
+&"Pigeonite" //CHAR(13)//CHAR(10)// &
+&"-m0 " // trim(s_pigeonite) //CHAR(13)//CHAR(10)// &
+&"Magnetite" //CHAR(13)//CHAR(10)// &
+&"-m0 " // trim(s_magnetite) //CHAR(13)//CHAR(10)// &
+&"BGlass" //CHAR(13)//CHAR(10)// &
 &"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
-& "Na2O 0.0125 K2O 0.005 Al2O3 0.034999 SiO2 0.5" //NEW_LINE('')// &
-&"-m0 " // trim(s_glass) //NEW_LINE('')// &
-!&"-m0 0.0"  //NEW_LINE('')// &
+& "Na2O 0.0125 K2O 0.005 Al2O3 0.034999 SiO2 0.5" //CHAR(13)//CHAR(10)// &
+&"-m0 " // trim(s_glass) //CHAR(13)//CHAR(10)// &
+!&"-m0 0.0"  //CHAR(13)//CHAR(10)// &
 
 ! SO2 0.003
 
-&"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
-!&"    -step 3.14e11 in 1" //NEW_LINE('')// &
+&"    -step " // trim(s_timestep) // " in 1" //CHAR(13)//CHAR(10)// &
+!&"    -step 3.14e11 in 1" //CHAR(13)//CHAR(10)// &
 
-&"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
+&"INCREMENTAL_REACTIONS true" //CHAR(13)//CHAR(10)// &
 
-&"Use solution 1" //NEW_LINE('')// &
+&"Use solution 1" //CHAR(13)//CHAR(10)// &
 
     
 ! ----------------------------------%%
 ! KINETIC DISSOLUTION RATE LAWS
 ! ----------------------------------%%
 	
-&"RATES" //NEW_LINE('')// &
+&"RATES" //CHAR(13)//CHAR(10)// &
 
-&"BGlass" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"BGlass" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 &"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.1*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
-&"*(((ACT('H+')^3)/(ACT('Al+3')))^.333)" //NEW_LINE('')// &
-&"    20 save rate0 * time" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"*(((ACT('H+')^3)/(ACT('Al+3')))^.333)" //CHAR(13)//CHAR(10)// &
+&"    20 save rate0 * time" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
 
-&"Plagioclase" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"Plagioclase" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 &"    10 rate = (1-SR('Plagioclase'))*M*270.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-9)"//&
 &"*exp(-53.5/(.008314*TK))*(ACT('H+')^0.541) +(3.39e-12)*exp(-57.4/(.008314*TK)) +"//&
-&"(4.78e-15)*exp(-59.0/(.008314*TK))*(ACT('H+'))^-0.57))"//NEW_LINE('')//&
-&"    20 save rate * time"//NEW_LINE('')//&
-&"-end" //NEW_LINE('')// &
+&"(4.78e-15)*exp(-59.0/(.008314*TK))*(ACT('H+'))^-0.57))"//CHAR(13)//CHAR(10)//&
+&"    20 save rate * time"//CHAR(13)//CHAR(10)//&
+&"-end" //CHAR(13)//CHAR(10)// &
 
-&"Augite" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"Augite" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 &"    10 rate0 = (1-SR('Augite'))*M*230.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
-&"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))" //NEW_LINE('')// & 
-&"    20 save rate0 * time" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))" //CHAR(13)//CHAR(10)// & 
+&"    20 save rate0 * time" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
 
-&"Pigeonite" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"Pigeonite" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 &"    10 rate0 = (1-SR('Pigeonite'))*M*236.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
-&"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))"//NEW_LINE('')// &
-&"    20 save rate0 * time" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))"//CHAR(13)//CHAR(10)// &
+&"    20 save rate0 * time" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
 
-&"Magnetite" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
+&"Magnetite" //CHAR(13)//CHAR(10)// &
+&"-start" //CHAR(13)//CHAR(10)// &
 &"    10 rate0 = (1-SR('Magnetite'))*M*231.0*CALC_VALUE('R(s_sp)')*0.1*(((2.57e-9)" // &
-&"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-11)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
-&"    20 save rate0 * time" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
+&"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-11)*exp(-18.6/(.008314*TK))))" //CHAR(13)//CHAR(10)// &
+&"    20 save rate0 * time" //CHAR(13)//CHAR(10)// &
+&"-end" //CHAR(13)//CHAR(10)// &
 
 
 ! ----------------------------------%%
 ! DEFINE THE KIND OF OUTPUT
 ! ----------------------------------%%
 
-&"DUMP" //NEW_LINE('')// &
-&"    -solution 1" //NEW_LINE('')// &
-&"    -equilibrium_phases" //NEW_LINE('')// &
+&"DUMP" //CHAR(13)//CHAR(10)// &
+&"    -solution 1" //CHAR(13)//CHAR(10)// &
+&"    -equilibrium_phases" //CHAR(13)//CHAR(10)// &
 
-  &"SELECTED_OUTPUT" //NEW_LINE('')// &
-  &"    -reset false" //NEW_LINE('')// &
-  &"    -high_precision true" //NEW_LINE('')// &
-  &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
-  &"    -ph" //NEW_LINE('')// &
-  &"    -pe" //NEW_LINE('')// &
-  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3 HCO3-" //NEW_LINE('')// &
-  &"    -totals C" //NEW_LINE('')// &
-  &"    -alkalinity" //NEW_LINE('')// &
-!  &"    -molalities HCO3-" //NEW_LINE('')// &
-  &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
-  &"    -p pyrite Montmor-Na goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
-  &"    -p magnesite siderite calcite quartz k-feldspar" //NEW_LINE('')// &
-  &"    -p saponite-na Nontronite-Na Nontronite-Mg Nontronite-K Nontronite-H " //NEW_LINE('')// &
-  &"    -p Nontronite-Ca muscovite mesolite hematite diaspore" //NEW_LINE('')// &
-  &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &
-  &"    -time" //NEW_LINE('')// &
+  &"SELECTED_OUTPUT" //CHAR(13)//CHAR(10)// &
+  &"    -reset false" //CHAR(13)//CHAR(10)// &
+  &"    -high_precision true" //CHAR(13)//CHAR(10)// &
+  &"    -k plagioclase augite pigeonite magnetite bglass" //CHAR(13)//CHAR(10)// &
+  &"    -ph" //CHAR(13)//CHAR(10)// &
+  &"    -pe" //CHAR(13)//CHAR(10)// &
+  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3 HCO3-" //CHAR(13)//CHAR(10)// &
+  &"    -totals C" //CHAR(13)//CHAR(10)// &
+  &"    -alkalinity" //CHAR(13)//CHAR(10)// &
+!  &"    -molalities HCO3-" //CHAR(13)//CHAR(10)// &
+  &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //CHAR(13)//CHAR(10)// &
+  &"    -p pyrite Montmor-Na goethite dolomite Smectite-high-Fe-Mg Dawsonite" //CHAR(13)//CHAR(10)// &
+  &"    -p magnesite siderite calcite quartz k-feldspar" //CHAR(13)//CHAR(10)// &
+  &"    -p saponite-na Nontronite-Na Nontronite-Mg Nontronite-K Nontronite-H " //CHAR(13)//CHAR(10)// &
+  &"    -p Nontronite-Ca muscovite mesolite hematite diaspore" //CHAR(13)//CHAR(10)// &
+  &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //CHAR(13)//CHAR(10)// &
+  &"    -time" //CHAR(13)//CHAR(10)// &
   &"END"
   
   
@@ -597,4 +598,4 @@ write(*,*) "this is phreeqing me out"
 
 
 
-end program batchControl
+end program cell

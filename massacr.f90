@@ -456,6 +456,9 @@ yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,1),kind=4), 'feldsparMat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'glassMat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,16),kind=4), 'calciteMat.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'caMat.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,14),kind=4), 'hco3Mat.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,15),kind=4), 'co3Mat.txt' )
 
 ! WRITE TO FILE FOR LAST TIMESTEP CASE
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
