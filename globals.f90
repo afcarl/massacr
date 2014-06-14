@@ -7,6 +7,10 @@ real(8) :: x_min = 0.0D+00, x_max = 2000.0D+00, y_min = -1300.0D+00, y_max = 0.0
 real(8) :: t_min = 0.0D+00, t_max = 4000000000.0 
 real(8) :: dt, dx, dy, dt0 = 0.001
 
+! tn = 20000
+! t_max = 4000000000.0
+! mstep = 1000
+
 !real(8) :: topo(xn), s(xn,yn), ds(xn)
 real(8) :: ki = .56, ra = 100.0, viscosity = 4.3e-4, cp = 4186.0, alpha =4.0e-4, k
 real(8) :: lambda = 2.6

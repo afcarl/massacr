@@ -28,7 +28,7 @@ u0= np.loadtxt('uMat.txt')
 v0= np.loadtxt('vMat.txt')
 psi0 = np.loadtxt('psiMat.txt') # no 1
 feldspar0 = np.loadtxt('feldsparMat.txt') 
-glass0 = np.loadtxt('calciteMat.txt')
+glass0 = np.loadtxt('glassMat.txt')
 perm0 = np.loadtxt('permeability.txt')
 
 
@@ -139,7 +139,7 @@ cbar.ax.set_ylabel('PRECIPITATED CALCITE [mol]')
 
 #plt.savefig('expCapNextNext0'+str(i)+'.png')
 
-plt.savefig('j3.png')
+plt.savefig('j14.png')
 
 
 

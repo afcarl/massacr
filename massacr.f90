@@ -202,7 +202,7 @@ solute(:,:,13) = 1.0e-6 ! Al
 solute(:,:,14) = 0.0 ! HCO3-
 solute(:,:,15) = 0.0 ! CO3-2
 
-write(*,*) "testing debugger"
+write(*,*) "testing..."
 
 ! solute(:,:,:) = 0.0
 ! solute(:,:,1) = 7.8 ! ph
@@ -222,7 +222,6 @@ call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
 
 write(*,*) "my_id:", my_id
 write(*,*) " "
-
 
 if (my_id .eq. root_process) then ! BEGIN LOOP THROUGH PROCESSORS
 
@@ -566,10 +565,15 @@ else
 			alt0(1,36), alt0(1,38), alt0(1,40), alt0(1,42), alt0(1,44), alt0(1,46), alt0(1,48), &
 			alt0(1,50), alt0(1,52), alt0(1,54), alt0(1,56), alt0(1,58), alt0(1,60), alt0(1,62), &
 			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70)/)
-
+			
+			! print glass 
+			write(*,*) alt0(1,80)
+			
 			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
+			
+			
 		end do
-	
+		yep = write_matrix ( num_rows_to_receive, 5, real(priLocal, kind = 4), 'realTime.txt' )
 	
 	!--------------SLAVE SENDS ALTERED MESSAGE TO MASTER--------------!
 	
