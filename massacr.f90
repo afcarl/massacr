@@ -294,8 +294,8 @@ write(*,*) j
 
 	! GET VELOCITIES
 	velocities0 = velocities(psi)
-	u = velocities0(1:xn,1:yn)/rho
-	v = velocities0(1:xn,yn+1:2*yn)/rho
+	u = velocities0(1:xn,1:yn)
+	v = velocities0(1:xn,yn+1:2*yn)
 	
 ! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
 if (mod(j,mstep) .eq. 0) then
@@ -553,7 +553,7 @@ else
 	
 		! slave processor goes through phreeqc loop here
 		do m=1,num_rows_to_receive
-			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+			!alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
 
 			!PARSING
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
@@ -672,8 +672,8 @@ write(*,*) maxval(abs(v))
 
 write(*,*) " "
 write(*,*) "velocity check"
-write(*,"(F10.5)") (dt*maxval(abs(u)))/(dx)
-write(*,"(F10.5)") (dt*maxval(abs(v)))/(dy)
+write(*,"(F10.5)") (dt*maxval(abs(u)))*rho_fluid/(dx)
+write(*,"(F10.5)") (dt*maxval(abs(v)))*rho_fluid/(dy)
 write(*,*) "conduction check"
 write(*,"(F10.5)") (2.0*dt*maxval(lambdaMat))/(4186.0*dy*dy)
 write(*,*) " "
@@ -682,8 +682,8 @@ write(*,*) " "
 
 h0 = h
 
-qx = dt/(dx)
-qy = dt/(dy)
+qx = dt*rho_fluid/(dx)
+qy = dt*rho_fluid/(dy)
 sx = (2.0*dt*lambda)/(4186.0*dx*dx)
 sy = (2.0*dt*lambda)/(4186.0*dy*dy)
 sxMat = (2.0*dt*lambdaMat)/(4186.0*dx*dx)
@@ -870,8 +870,8 @@ real(8) :: aBand0((xn-2)*(yn-2),2*(xn-2) + 1)
 
 mn = psi
 
-permx = partial((1/(permeability*rho_in)),xn,yn,dx,dy,1)
-permy = partial((1/(permeability*rho_in)),xn,yn,dx,dy,2)
+permx = partial((1/(permeability)),xn,yn,dx,dy,1)
+permy = partial((1/(permeability)),xn,yn,dx,dy,2)
 
 
 rhoLong = reshape(rho_in(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
@@ -887,7 +887,7 @@ rhs1(xn-1,:) = rhs1(xn-1,:)
 rhs1(:,2) = rhs1(:,2) 
 rhs1(:,yn-1) = rhs1(:,yn-1)
 rhs1(:,yn-1) = rhs1(:,yn-1) +&
-& top_in(:,1)*(1.0/(dy*dy*(permeability(:,yn)*rho_in(:,yn))))
+& top_in(:,1)*(1.0/(dy*dy*(permeability(:,yn))))
 
 uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
@@ -899,20 +899,20 @@ aBand0 = 0.0
 m = 2*(xn-2) + 1
 do i = 1,(xn-2)*(yn-2)
 	! DIAGONAL
-	aBand0(i,(m+1)/2) = (2.0)/(permLong(i)*rhoLong(i)*dx*dx) + (2.0)/(permLong(i)*rhoLong(i)*dy*dy)
+	aBand0(i,(m+1)/2) = (2.0)/(permLong(i)*dx*dx) + (2.0)/(permLong(i)*dy*dy)
 	! OFF-DIAGONALS
 	if (i .gt. 1) then
-	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) + (permxLong(i))/(2.0*dx)
+	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*dx*dx) + (permxLong(i))/(2.0*dx)
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*rhoLong(i)*dx*dx) - (permxLong(i))/(2.0*dx)
+	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*dx*dx) - (permxLong(i))/(2.0*dx)
 	end if
-	! MORE OFF-DIAGONALS
+	! FURTHER OFF-DIAGONALS
 	if (i .le. (xn-2)*(yn-2)-(xn-2)) then
-	aBand0(i,m) = (-1.0)/(permLong(i)*rhoLong(i)*dy*dy) - (permyLong(i))/(2.0*dy)
+	aBand0(i,m) = (-1.0)/(permLong(i)*dy*dy) - (permyLong(i))/(2.0*dy)
 	end if
 	if (i .ge. (xn-2)) then
-	aBand0(i,1) = (-1.0)/(permLong(i)*rhoLong(i)*dy*dy) + (permyLong(i))/(2.0*dy)
+	aBand0(i,1) = (-1.0)/(permLong(i)*dy*dy) + (permyLong(i))/(2.0*dy)
 	end if
 end do
   

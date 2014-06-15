@@ -35,7 +35,7 @@ perm0 = np.loadtxt('permeability.txt')
 
     
 i=19
-cell = 10
+cell = 4
 print h0.shape
 
 
@@ -65,12 +65,11 @@ u = u0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
 u = np.append(u, u[-1:,:], axis=0)
 u = np.append(u, u[:,-1:], axis=1)
 
-feldspar = feldspar0[i*len(y0)/cell:i*len(y0)/cell+len(y0)/cell,:]
-#feldspar = np.append(feldspar, feldspar[-1:,:], axis=0)
-#feldspar = np.append(feldspar, feldspar[:,-1:], axis=1)
+feldspar = feldspar0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell)-1,:]
+feldspar = np.append(feldspar, feldspar[-1:,:], axis=0)
+feldspar = np.append(feldspar, feldspar[:,-1:], axis=1)
 
-glass = glass0[i*len(y)/cell-i:((i)*len(y)/cell+len(x)/cell)-i-1,:]
-#glassmin = glass0[3*len(y)/cell-3:((3)*len(y)/cell+len(x)/cell)-3-1,:]
+glass = glass0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell)-1,:]
 glass = np.append(glass, glass[-1:,:], axis=0)
 glass = np.append(glass, glass[:,-1:], axis=1)
 
@@ -81,28 +80,28 @@ glass = np.append(glass, glass[:,-1:], axis=1)
 
 fig=plt.figure()
 
-ax1=fig.add_subplot(2,1,1, aspect='equal')
+ax1=fig.add_subplot(1,2,1, aspect='equal')
 levels00 = np.linspace(.0001, np.max(psi), 15)
 levels0 = np.linspace(np.min(psi), -.0001, 15)
 levels = np.append(levels0,levels00,axis=1)
 
 # permeability plot
-#permC = plt.contourf(xg, yg, np.log10(perm), 20, cmap=cm.summer)
+permC = plt.contour(xg, yg, np.log10(perm), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
 
 # stream function plot
 # levels[::2],
-CS = plt.contour(xg, yg, psi, levels[::2], colors='k',linewidths=np.array([1.0]))
-plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
+#CS = plt.contour(xg, yg, psi, 20, colors='k',linewidths=np.array([1.0]))
+#plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
 
-p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,150.0,5.0), cmap=cm.jet)
+p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,150.0,5.0), cmap=cm.rainbow)
 plt.clim(0.0,150.0)
-cbar = plt.colorbar(p, orientation='vertical', ticks=np.arange(0.0,150.0,10.0))
-cbar.ax.set_ylabel('FLUID TEMPERATURE [$^{\circ}$C]')
+cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,150.0,25.0))
+cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
 
 
 #np.putmask(u, np.abs(u) <= 1.0e-9, 0)
 #np.putmask(v, np.abs(v) <= 1.0e-9, 0)
-#CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
+CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
 
 #plt.quiver(xg,yg,u,v)
 plt.yticks([0.0, -500.0, -1000.0], [0, -500, -1000.0])
@@ -114,7 +113,7 @@ plt.xlim(np.min(x), np.max(x))
 
 
 
-ax1=fig.add_subplot(2,1,2, aspect='equal')
+ax1=fig.add_subplot(1,2,2, aspect='equal')
 
 # glass plot
 xCell = x0
@@ -129,12 +128,10 @@ yCell = np.append(yCell, np.max(yCell)+.001)
 print yCell
 
 
+pGlass = plt.contourf(xCell, yCell[:-1],glass, 20, cmap=cm.rainbow)
 
-pGlass = plt.contourf(xCell, yCell[:-1],
-                      glass, 20, cmap=cm.jet)
-
-cbar = plt.colorbar(pGlass, orientation='vertical')
-cbar.ax.set_ylabel('PRECIPITATED CALCITE [mol]')
+cbar = plt.colorbar(pGlass, orientation='horizontal')
+cbar.ax.set_xlabel('AMOUNT OF BASALTIC GLASS [mol]')
 
 
 #plt.savefig('expCapNextNext0'+str(i)+'.png')
