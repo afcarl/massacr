@@ -264,10 +264,11 @@ write(*,*) j
 	flux(i,1) = h(i,2) +((.27))*dy/(2.6)
 	end do
 	! top
-	flux(:,2) = 300.0
+	!flux(:,2) = 300.0
 	do i = 1,xn/2
-	flux(i,2) = 274.0 !+ .01*x(i)
+	!flux(i,2) = 274.0 !+ .01*x(i)
 	end do
+	flux(:,2) = 274.0
 
   
 	! SOLVE THERMAL NRG EQUATION
@@ -300,6 +301,7 @@ write(*,*) j
 ! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
 if (mod(j,mstep) .eq. 0) then
 	
+	!-TRANSPOSE 1
 	! stretch everything out
 	hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/))
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
@@ -409,6 +411,7 @@ if (mod(j,mstep) .eq. 0) then
 	primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
 	secondary = reshape(secLong,(/(xn/cell), (yn/cell), 28/))
 	solute = reshape(solLong,(/(xn/cell), (yn/cell), 15/))
+	!-TRANSPOSE 2
 	
 	! LOOK AT PRIMARY SEE IF IT WORKS
 	write(*,*) "AFTER"

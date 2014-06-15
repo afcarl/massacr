@@ -65,20 +65,34 @@ lambdaMat = 2.6
 do i=1,yn
 do j=1,xn
 	
+	
+	
+	
 	if (y(i) .ge. y_min) then
 	permeability(j,i) = (0.5+0.5*tanh((y(i)+((800.0)))/50.0))*1e-13 &
 	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/50.0)))*1e-21
 	end if
 	
-	sedx = 400.0-1000.0*( ( (x(j)/(x_max/2.0)) - 1.0) **2.0)
+	sedx = 400.0-600.0*( ( (x(j)/(x_max/2.0)) - 1.0) **2.0)
+	sedx = 200.0
 	
 	if (y(i) .gt. -500.0) then
 	permeability(j,i) = (0.5+0.5*tanh((y(i)+sedx)/50.0))*4e-15 &
 	&+ (1.0 - (0.5+0.5*tanh((y(i)+sedx)/50.0)))*1e-13
 	end if
 	
+	if ((y(i) .gt. -150.0) .and. (x(j) .le. x_max/2)) then
+	permeability(j,i) = (0.5+0.5*tanh((x(j)-500.0)/50.0))*4e-15 &
+	&+ (1.0 - (0.5+0.5*tanh((x(j)-500.0)/50.0)))*1e-13
+	end if
+	
+	if ((y(i) .gt. -150.0) .and. (x(j) .gt. x_max/2)) then
+	permeability(j,i) = (0.5+0.5*tanh((x(j)-1500.0)/50.0))*1e-13 &
+	&+ (1.0 - (0.5+0.5*tanh((x(j)-1500.0)/50.0)))*4e-15
+	end if
+	
 	if (y(i) .ge. -200.0) then
-		lambdaMat(:,i) = 1.6
+		lambdaMat(:,i) = 2.6
 	end if
 	
 end do

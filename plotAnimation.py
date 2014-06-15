@@ -87,11 +87,12 @@ levels = np.append(levels0,levels00,axis=1)
 
 # permeability plot
 permC = plt.contour(xg, yg, np.log10(perm), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
+#permC = plt.contourf(xg, yg, np.log10(perm), 10, cmap=cm.summer)
 
 # stream function plot
 # levels[::2],
-#CS = plt.contour(xg, yg, psi, 20, colors='k',linewidths=np.array([1.0]))
-#plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
+CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
+plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
 
 p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,150.0,5.0), cmap=cm.rainbow)
 plt.clim(0.0,150.0)
@@ -101,7 +102,7 @@ cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
 
 #np.putmask(u, np.abs(u) <= 1.0e-9, 0)
 #np.putmask(v, np.abs(v) <= 1.0e-9, 0)
-CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
+#CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
 
 #plt.quiver(xg,yg,u,v)
 plt.yticks([0.0, -500.0, -1000.0], [0, -500, -1000.0])
