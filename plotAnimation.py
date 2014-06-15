@@ -34,7 +34,7 @@ perm0 = np.loadtxt('permeability.txt')
 
 
     
-i=19
+i=10
 cell = 4
 print h0.shape
 
@@ -80,7 +80,7 @@ glass = np.append(glass, glass[:,-1:], axis=1)
 
 fig=plt.figure()
 
-ax1=fig.add_subplot(1,2,1, aspect='equal')
+ax1=fig.add_subplot(1,1,1, aspect='equal')
 levels00 = np.linspace(.0001, np.max(psi), 15)
 levels0 = np.linspace(np.min(psi), -.0001, 15)
 levels = np.append(levels0,levels00,axis=1)
@@ -91,8 +91,10 @@ permC = plt.contour(xg, yg, np.log10(perm), [-14.0,-14.1], colors='w',linewidths
 
 # stream function plot
 # levels[::2],
-CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
-plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
+#plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
+
+#CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
+
 
 p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,150.0,5.0), cmap=cm.rainbow)
 plt.clim(0.0,150.0)
@@ -100,9 +102,9 @@ cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,150.0,25.0)
 cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
 
 
-#np.putmask(u, np.abs(u) <= 1.0e-9, 0)
-#np.putmask(v, np.abs(v) <= 1.0e-9, 0)
-#CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
+np.putmask(u, np.abs(u) <= 1.0e-9, 0)
+np.putmask(v, np.abs(v) <= 1.0e-9, 0)
+CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
 
 #plt.quiver(xg,yg,u,v)
 plt.yticks([0.0, -500.0, -1000.0], [0, -500, -1000.0])
@@ -112,9 +114,16 @@ plt.xticks([0.0, 1500.0, 3000.0], [0, 1500, 3000])
 
 plt.xlim(np.min(x), np.max(x))
 
+plt.savefig('j14.png')
 
 
-ax1=fig.add_subplot(1,2,2, aspect='equal')
+####################
+# GEOCHEM CONTOURS #
+####################
+
+fig=plt.figure()
+
+ax1=fig.add_subplot(1,1,1, aspect='equal')
 
 # glass plot
 xCell = x0
@@ -137,8 +146,7 @@ cbar.ax.set_xlabel('AMOUNT OF BASALTIC GLASS [mol]')
 
 #plt.savefig('expCapNextNext0'+str(i)+'.png')
 
-plt.savefig('j14.png')
-
+plt.savefig('j15.png')
 
 
 print "flow field plots"

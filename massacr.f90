@@ -264,11 +264,11 @@ write(*,*) j
 	flux(i,1) = h(i,2) +((.27))*dy/(2.6)
 	end do
 	! top
-	!flux(:,2) = 300.0
+	flux(:,2) = 300.0
 	do i = 1,xn/2
-	!flux(i,2) = 274.0 !+ .01*x(i)
+	flux(i,2) = 274.0 !+ .01*x(i)
 	end do
-	flux(:,2) = 274.0
+	!flux(:,2) = 274.0
 
   
 	! SOLVE THERMAL NRG EQUATION

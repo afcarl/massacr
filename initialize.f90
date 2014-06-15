@@ -86,9 +86,9 @@ do j=1,xn
 	&+ (1.0 - (0.5+0.5*tanh((x(j)-500.0)/50.0)))*1e-13
 	end if
 	
-	if ((y(i) .gt. -150.0) .and. (x(j) .gt. x_max/2)) then
-	permeability(j,i) = (0.5+0.5*tanh((x(j)-1500.0)/50.0))*1e-13 &
-	&+ (1.0 - (0.5+0.5*tanh((x(j)-1500.0)/50.0)))*4e-15
+	if ((y(i) .gt. -150.0) .and. (x(j) .gt. (x_max/2)-3.0)) then
+	permeability(j,i) = (0.5+0.5*tanh((x(j)-2500.0)/50.0))*1e-13 &
+	&+ (1.0 - (0.5+0.5*tanh((x(j)-2500.0)/50.0)))*4e-15
 	end if
 	
 	if (y(i) .ge. -200.0) then
