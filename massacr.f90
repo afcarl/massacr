@@ -139,27 +139,26 @@ interface
 	
 end interface
 
-! DECLARE EVERYTHING
+! DECLARE DEPENDENT VARIABLE ARRAYS
 real(8) :: h(xn,yn), psi(xn,yn) ! xn ROWS DEEP & yn COLUMNS WIDE 
-! real(8) :: hmat(xn,(yn*tn)), psimat(xn,(yn*tn)) 
-! real(8) :: umat(xn,(yn*tn)), vmat(xn,(yn*tn))
-! real(8) :: umat(xn,(yn)), vmat(xn,(yn))
-! hmat(xn,(yn)), psimat(xn,(yn)),
 real(8) :: hmat(xn,(yn*tn/mstep)), psimat(xn,(yn*tn/mstep))
 real(8) :: umat(xn,(yn*tn/mstep)), vmat(xn,(yn*tn/mstep))
-real(8) :: rhs0(xn,yn), velocities0(xn,2*yn)
 real(8) :: u(xn,yn), uLong(xn*yn), v(xn,yn), vLong(xn*yn)
-real(8) :: rho(xn,yn), flux(xn,2)
 
+! OTHER PROPERTIES
+real(8) :: rho(xn,yn), flux(xn,2)
+real(8) :: rhs0(xn,yn), velocities0(xn,2*yn)
 integer :: unit
 real(8) :: yep
 
+! NETCDF STUFF
 integer :: xInt, yInt, tInt, hInt, uInt, vInt
 integer :: ncid
 integer :: x_dimid, y_dimid, t_dimid, h_dimid, u_dimid, v_dimid
 integer :: x_varid, y_varid, t_varid, h_varid, u_varid, v_varid
 integer :: i, j, ii, m, n, jj
 
+! BENCHMARK STUFF
 real(8) :: nusseltLocalv(xn,1), nuBar
 real(8) :: alt0(1,altnum)
 
@@ -168,12 +167,12 @@ real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,28), solute(xn/
 real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
 real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),15)
 
-! REACTIVE TRANSPORT ARRAYS
+! SOLUTE TRANSPORT ARRAYS
 real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
 real(8) :: uCoarse(xn/cell,yn/cell), vCoarse(xn/cell,yn/cell)
 real(8) :: solTemp(xn/cell,yn/cell)
 
-! DECLARE MPI STUFF
+! DECLARE STUFF FOR MESSAGE PASSING
 !integer :: ierr
 integer, parameter :: max_rows = 10000000
 integer, parameter :: send_data_tag = 2001, return_data_tag = 2002
@@ -185,16 +184,16 @@ real(8) :: vector(max_rows), vector2(max_rows), partial_sum, sum
 real(8) :: local_mean, global_mean
 real(8) :: hLocal((xn/cell)*(yn/cell)), dt_local
 
-
-! MPI STRETCHED OUT ARRAYS
+! MPI ARRAYS ALL STRETCH OUT
 real(8) :: hLong((xn/cell)*(yn/cell))
-real(8) :: priLong((xn/cell)*(yn/cell),5), secLong((xn/cell)*(yn/cell),28), solLong((xn/cell)*(yn/cell),15)
-real(8) :: priLocal((xn/cell)*(yn/cell),5), secLocal((xn/cell)*(yn/cell),28), solLocal((xn/cell)*(yn/cell),15)
+real(8) :: priLong((xn/cell)*(yn/cell),5), priLocal((xn/cell)*(yn/cell),5)
+real(8) :: secLong((xn/cell)*(yn/cell),28), secLocal((xn/cell)*(yn/cell),28)
+real(8) :: solLong((xn/cell)*(yn/cell),15), solLocal((xn/cell)*(yn/cell),15)
 real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
 real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
 
-! INITIALIZE CHEMISTRY
+! INITIAL AMOUNTS OF PRIMARY MINERALS [mol]
 primary(:,:,1) = 12.96 ! feldspar
 primary(:,:,2) = 6.96 ! augite
 primary(:,:,3) = 1.26 ! pigeonite
@@ -203,19 +202,16 @@ primary(:,:,5) = 96.77 ! basaltic glass
 
 !primary(:,:,:) = 0.0
 
+! INITIAL AMOUNTS OF SECONDARY MINERALS [mol]
 secondary(:,:,:) = 0.0
 
+! INITIAL SOLUTE CONCENTRATIONS [mol/kgw]
 solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
 solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
 solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
-
-! testing...
 solute(1:xn/(cell*2),:,5) = 6.0e-4 ! Ca
 solute(xn/(cell*2):,:,5) = 0.0 ! Ca
-
-write(*,*) solute(:,:,5)
-
 solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
 solute(:,:,8) = 1.0e-4 ! K
@@ -229,11 +225,6 @@ solute(:,:,15) = 0.0 ! CO3-2
 
 write(*,*) "testing..."
 
-! solute(:,:,:) = 0.0
-! solute(:,:,1) = 7.8 ! ph
-! solute(:,:,15) = 8.451 ! pe
-! solute(:,:,11) = 2.3e-3 ! Alk 1.6e-3 
-
 !--------------INITIALIZE ALL PROCESSORS--------------!
 ! process #0 is the root process
 root_process = 0
@@ -245,23 +236,24 @@ call MPI_INIT ( ierr )
 call MPI_COMM_RANK (MPI_COMM_WORLD, my_id, ierr)
 call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
 
+! PRINT CURRENT PROCESSOR
 write(*,*) "my_id:", my_id
 write(*,*) " "
 
 if (my_id .eq. root_process) then ! BEGIN LOOP THROUGH PROCESSORS
 
-!--------------DO STUFF WITH THE MASTER--------------!
+!--------------DO STUFF WITH THE MASTER PROCESSOR--------------!
 ! what to do if the process is the root process
 
-! INITIALIZE
+! INITIALIZE DOMAIN GEOMETRY
 call init()
 
-! PUT BOUNDARY CONDITIONS IN
+! PUT IN BOUNDARY & INITIAL CONDITIONS
+psi=0.0
 psi(1,1:yn) = bcyPsi(1,1:yn)
 psi(xn,1:yn) = bcyPsi(2,1:yn)
 psi(1:xn,1) = bcxPsi(1:xn,1)
 psi(1:xn,yn) = bcxPsi(1:xn,2)
-psi=0.0
 
 h(1:xn,1:yn) = ic0
 h(1,1:yn) = bcy0(1,1:yn)
@@ -276,10 +268,7 @@ umat(1:xn,1:yn) = u
 vmat(1:xn,1:yn) = v
 
 
-
-
-
-! THIS IS THE MAIN LOOP
+! THIS IS THE MAIN LOOP THAT DOES ALL THE SOLVING
 do j = 2, tn
 write(*,*) j
 
@@ -295,12 +284,11 @@ write(*,*) j
 	end do
 	!flux(:,2) = 274.0
 
-  
 	! SOLVE THERMAL NRG EQUATION
 	rho = rho_next(h)
 	h = h_next(h, psi,rho, flux)
   
-	! PUT HEAT FLUX BOUNDARY CONDITIONS IN ARRAY
+	! PUT HEAT FLUX BOUNDARY CONDITIONS IN FOR NEXT TIMESTEP
 	h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
 	h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
 	h(:,1) = flux(:,1)
@@ -310,7 +298,7 @@ write(*,*) j
 	rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 	psi = psi_next(h, rhs0, psi, permeable, rho)
 
-	! PUT IN STREAMFUNCTION BOUNDARY CONDITIONS BETWEEN STEPS
+	! PUT IN STREAMFUNCTION BOUNDARY CONDITIONS FOR NEXT TIMESTEP
 	psi(1,1:yn) = bcyPsi(1,1:yn) ! left
 	psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
 	psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
@@ -318,16 +306,18 @@ write(*,*) j
 	psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2))/1.0
 	permeable = psi(:,yn)
 
-	! GET VELOCITIES
+	! GET VELOCITIES FROM STREAMFUNCTION ARRAY
 	velocities0 = velocities(psi)
 	u = velocities0(1:xn,1:yn)
 	v = velocities0(1:xn,yn+1:2*yn)
 	
-	! AVERAGE AND SUM VELOCITIES
+	! AVERAGE AND SUM VELOCITIES FOR COARSE GRID
 	do i = 1,xn/cell
 	do ii = 1,yn/cell
-		uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell)+u(i*cell,ii*cell-1)+u(i*cell-1,ii*cell-1))/4
-		vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell-1,ii*cell)+v(i*cell,ii*cell-1)+v(i*cell-1,ii*cell-1))/4
+		uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell)+ &
+						& u(i*cell,ii*cell-1)+u(i*cell-1,ii*cell-1))/4
+		vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell-1,ii*cell)+ &
+						& v(i*cell,ii*cell-1)+v(i*cell-1,ii*cell-1))/4
 	end do
 	end do
 	uTransport = uTransport + uCoarse
@@ -336,20 +326,18 @@ write(*,*) j
 ! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
 if (mod(j,mstep) .eq. 0) then
 	
+	uTransport = uTransport/mstep
+	vTransport = vTransport/mstep
+	
 	! OCEAN VALUES OF SOLUTES
 	solute(:,yn/cell,5) = 6.0e-4
 	
 	! ADVECT SOLUTES AROUND
-	write(*,*) "uTransport"
-	write(*,*) uTransport
-	write(*,*) "vTransport"
-	write(*,*) vTransport
-	
 	solTemp = solute(:,:,5)
 	solute(:,:,5) = solute_next(solTemp,uTransport,vTransport)
 	write(*,*) solute(:,:,5)
 	
-	! RESET uTransport, vTransport
+	! RESET COARSE GRID VELOCITIES FOR NEXT TIMESTEP
 	uTransport = 0.0
 	vTransport = 0.0
 	
@@ -1059,12 +1047,12 @@ sol0 = sol
 ! qx = dt/(cell*dx)
 ! qy = dt/(cell*dy)
 
-qx = dt/(dx*cell)
-qy = dt/(dy*cell)
+qx = dt*mstep/(dx*cell)
+qy = dt*mstep/(dy*cell)
 
 write(*,*) "SOLUTE COURANT NUMBERS"
-write(*,"(F30.20)") qx*maxval(abs(uTransport))
-write(*,"(F30.20)") qy*maxval(abs(vTransport))
+write(*,*) qx*maxval(abs(uTransport))
+write(*,*) qy*maxval(abs(vTransport))
 
 uLong = reshape(uTransport(2:xn/cell-1,2:yn/cell-1), (/(xn/cell-2)*(yn/cell-2)/))
 vLong = reshape(transpose(vTransport(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(yn/cell-2)/))
