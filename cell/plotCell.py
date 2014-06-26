@@ -16,7 +16,7 @@ flush = np.loadtxt(infile)
 # 3 pe (4)
 # 4 alkalinity (5)
 # 5 total C (6)
-# 6 ca 
+# 6 ca (7)
 # 7 mg
 # 8 na
 # 9 k

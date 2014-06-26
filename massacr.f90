@@ -70,6 +70,21 @@ interface
 	real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
 	end function psi_next
 	
+	function solute_next(sol, uTransport, vTransport)
+	use globals
+	use initialize
+	! integers
+	integer :: i, j, ii, n, m
+	! inputs
+	real(8) :: sol(xn/cell,yn/cell), sol0(xn/cell,yn/cell)
+	real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
+	! solver stuff
+	real(8) :: uLong((xn/cell-2)*(yn/cell-2)), vLong((xn/cell-2)*(yn/cell-2))
+	real(8) :: aBand((xn/cell-2)*(yn/cell-2),5), bBand((xn/cell-2)*(yn/cell-2),5)
+	real(8) :: qx, qy, solute_next(xn/cell,yn/cell), vec((xn/cell-2)*(yn/cell-2))
+	real(8) :: sol_nextRow((xn/cell-2)*(yn/cell-2))
+	end function solute_next
+	
 	function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
 	use globals
 	use initialize
@@ -153,6 +168,11 @@ real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,28), solute(xn/
 real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
 real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),15)
 
+! REACTIVE TRANSPORT ARRAYS
+real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
+real(8) :: uCoarse(xn/cell,yn/cell), vCoarse(xn/cell,yn/cell)
+real(8) :: solTemp(xn/cell,yn/cell)
+
 ! DECLARE MPI STUFF
 !integer :: ierr
 integer, parameter :: max_rows = 10000000
@@ -174,7 +194,6 @@ real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
 real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
 
-
 ! INITIALIZE CHEMISTRY
 primary(:,:,1) = 12.96 ! feldspar
 primary(:,:,2) = 6.96 ! augite
@@ -190,7 +209,13 @@ solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
 solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
 solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
-solute(:,:,5) = 6.0e-4 ! Ca
+
+! testing...
+solute(1:xn/(cell*2),:,5) = 6.0e-4 ! Ca
+solute(xn/(cell*2):,:,5) = 0.0 ! Ca
+
+write(*,*) solute(:,:,5)
+
 solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
 solute(:,:,8) = 1.0e-4 ! K
@@ -298,8 +323,35 @@ write(*,*) j
 	u = velocities0(1:xn,1:yn)
 	v = velocities0(1:xn,yn+1:2*yn)
 	
+	! AVERAGE AND SUM VELOCITIES
+	do i = 1,xn/cell
+	do ii = 1,yn/cell
+		uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell)+u(i*cell,ii*cell-1)+u(i*cell-1,ii*cell-1))/4
+		vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell-1,ii*cell)+v(i*cell,ii*cell-1)+v(i*cell-1,ii*cell-1))/4
+	end do
+	end do
+	uTransport = uTransport + uCoarse
+	vTransport = vTransport + vCoarse
+	
 ! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
 if (mod(j,mstep) .eq. 0) then
+	
+	! OCEAN VALUES OF SOLUTES
+	solute(:,yn/cell,5) = 6.0e-4
+	
+	! ADVECT SOLUTES AROUND
+	write(*,*) "uTransport"
+	write(*,*) uTransport
+	write(*,*) "vTransport"
+	write(*,*) vTransport
+	
+	solTemp = solute(:,:,5)
+	solute(:,:,5) = solute_next(solTemp,uTransport,vTransport)
+	write(*,*) solute(:,:,5)
+	
+	! RESET uTransport, vTransport
+	uTransport = 0.0
+	vTransport = 0.0
 	
 	!-TRANSPOSE 1
 	! stretch everything out
@@ -356,12 +408,12 @@ if (mod(j,mstep) .eq. 0) then
 	end do
 
 	write(*,*) "BEFORE"
-	write(*,*) "primary"
-	write(*,*) priLong(3,:)
-	write(*,*) "secondary"
-	write(*,*) secLong(3,:)
-	write(*,*) "solutes"
-	write(*,*) solLong(3,:)
+	!write(*,*) "primary"
+	!write(*,*) priLong(3,:)
+	!write(*,*) "secondary"
+	!write(*,*) secLong(3,:)
+	!write(*,*) "solutes"
+	!write(*,*) solLong(3,:)
 	
 	!--------------MESSAGE RECEIVING BACK TO MASTER--------------!
 	do an_id = 1, num_procs - 1
@@ -415,12 +467,12 @@ if (mod(j,mstep) .eq. 0) then
 	
 	! LOOK AT PRIMARY SEE IF IT WORKS
 	write(*,*) "AFTER"
-	write(*,*) "primary"
-	write(*,*) priLong(3,:)
-	write(*,*) "secondary"
-	write(*,*) secLong(3,:)
-	write(*,*) "solutes"
-	write(*,*) solLong(3,:)
+	!write(*,*) "primary"
+	!write(*,*) priLong(3,:)
+	!write(*,*) "secondary"
+	!write(*,*) secLong(3,:)
+	!write(*,*) "solutes"
+	!write(*,*) solLong(3,:)
 
 	! ADD EACH TIMESTEP TO MATRICES
 	 hmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = h
@@ -460,7 +512,7 @@ yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4)
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,16),kind=4), 'calciteMat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'caMat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,14),kind=4), 'hco3Mat.txt' )
-yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,15),kind=4), 'co3Mat.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'caMat.txt' )
 
 ! WRITE TO FILE FOR LAST TIMESTEP CASE
 !yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
@@ -967,6 +1019,173 @@ write(*,*) maxval(abs((mn(2:xn-1,2:yn-1)-psi_next(2:xn-1,2:yn-1))/psi_next(2:xn-
 return
 
 end function psi_next
+
+
+! ----------------------------------------------------------------------------------%%
+!
+! SOLUTE_NEXT
+!
+! SUMMARY: transports solutes on coarse mesh
+!
+! INPUTS: sol(xn/cell,yn/cell) : 2D array of initial solute concentrations
+!         uTransport(xn/cell,yn/cell) : lateral velocities (coarse mesh)
+!         vTransport(xn/cell,yn/cell) : vertical velocities (coarse mesh)
+!
+! RETURNS: solute_next(xn/cell,yn/cell): 2D array of solute concentrations
+!
+! ----------------------------------------------------------------------------------%%
+
+function solute_next (sol, uTransport, vTransport)
+use globals
+use initialize
+implicit none
+
+! integers
+integer :: i, j, ii, n, m
+! inputs
+real(8) :: sol(xn/cell,yn/cell), sol0(xn/cell,yn/cell)
+real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
+! solver stuff
+real(8) :: uLong((xn/cell-2)*(yn/cell-2)), vLong((xn/cell-2)*(yn/cell-2))
+real(8) :: aBand((xn/cell-2)*(yn/cell-2),5), bBand((xn/cell-2)*(yn/cell-2),5)
+real(8) :: qx, qy, solute_next(xn/cell,yn/cell), vec((xn/cell-2)*(yn/cell-2))
+real(8) :: sol_nextRow((xn/cell-2)*(yn/cell-2))
+
+
+
+sol0 = sol
+
+! for implicit method
+! qx = dt/(cell*dx)
+! qy = dt/(cell*dy)
+
+qx = dt/(dx*cell)
+qy = dt/(dy*cell)
+
+write(*,*) "SOLUTE COURANT NUMBERS"
+write(*,"(F30.20)") qx*maxval(abs(uTransport))
+write(*,"(F30.20)") qy*maxval(abs(vTransport))
+
+uLong = reshape(uTransport(2:xn/cell-1,2:yn/cell-1), (/(xn/cell-2)*(yn/cell-2)/))
+vLong = reshape(transpose(vTransport(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(yn/cell-2)/))
+
+do i=2,(xn/cell)-1
+do ii=2,(yn/cell)-1
+	solute_next(i,ii) = sol(i,ii) - uTransport(i,ii)*qx*(sol(i+1,ii)-sol(i-1,ii)) &
+	& - vTransport(i,ii)*qy*(sol(i,ii+1)-sol(i,ii-1))
+	write(*,*) "checking..."
+	write(*,*) solute_next(i,ii)
+end do
+end do
+
+! ! not using this implicit method
+! ! VERTICAL BOUNDARY CONDITIONS
+! sol(2,:) = sol(2,:) ! left
+! sol(xn/cell-1,:) = sol(xn/cell-1,:) ! right
+!
+! vec = reshape(sol(2:xn/cell-1,2:yn/cell-1), (/(xn/cell-2)*(yn/cell-2)/))
+!
+! ! MAKE THE BAND
+! aBand = 0.0
+! do i = 1,(xn/cell-2)*(yn/cell-2)
+!
+! 	aBand(i,2) = 1.0
+! 	if (i-1 .gt. 0) then
+! 	aBand(i,1) = - uLong(i)*qx/2.0
+! 	end if
+! 	if (i+1 .le. (xn/cell-2)*(yn/cell-2)) then
+! 	aBand(i,3) = uLong(i)*qx/2.0
+! 	end if
+!
+! 	! first edge
+! 	if (any(mod((/i-1/),xn/cell-2) .eq. 0.0)) then
+! 	aBand(i,2) = 1.0 - uLong(i)*qx
+! 	if (i .gt. 1) then
+! 	aBand(i,1) =  0.0
+! 	end if
+! 	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
+! 	aBand(i,3) = uLong(i)*qx
+! 	end if
+! 	end if
+!
+! 	! last edge
+! 	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
+! 	aBand(i,2) = 1.0 - uLong(i)*qx
+! 	if (i .gt. 1) then
+! 	aBand(i,3) =  0.0
+! 	end if
+! 	if (i .le. (xn/cell-2)*(yn/cell-2)) then
+! 	aBand(i,1) = uLong(i)*qx
+! 	end if
+! 	end if
+!
+! end do
+!
+! do i=1,((xn/cell-2)-1)
+! 	ii = i*(xn/cell-2)
+! 	aBand(ii,3) = 0.0
+! 	aBand(ii+1,1) = 0.0
+! end do
+!
+! !!!!!!!!!!!! THIS !!!!!!!!!!!
+! sol_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),vec,(xn/cell-2)*(yn/cell-2))
+! sol(2:xn/cell-1,2:yn/cell-1) = reshape(sol_nextRow, (/xn/cell-2, yn/cell-2/))
+!
+! ! HORIZONTAL BOUNDARY CONDITIONS
+! sol(:,2) = sol(:,2) ! bottom
+! sol(:,xn/cell-1) = sol(:,xn/cell-1) ! top
+!
+! sol_nextRow = reshape(transpose(sol(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(yn/cell-2)/))
+!
+!
+!
+! ! MAKE THE BAND
+! bBand = 0.0
+! do i = 1,(xn/cell-2)*(yn/cell-2)
+! 	bBand(i,2) = 1.0
+! 	if (i-1 .gt. 0) then
+! 	bBand(i,1) = - vLong(i)*qy/2.0
+! 	end if
+! 	if (i+1 .le. (xn/cell-2)*(yn/cell-2)) then
+! 	bBand(i,3) = vLong(i)*qy/2.0
+! 	end if
+!
+! 	! first edge
+! 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
+! 	bBand(i,2) = 1.0 - vLong(i)*qy
+! 	if (i .gt. 1) then
+! 	bBand(i,1) =  0.0
+! 	end if
+! 	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
+! 	bBand(i,3) = vLong(i)*qy
+! 	end if
+! 	end if
+!
+! 	! last edge
+! 	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
+! 	bBand(i,2) = 1.0 + vLong(i)*qy
+! 	if (i .gt. 1) then
+! 	bBand(i,3) =  0.0
+! 	end if
+! 	if (i .le. (xn/cell-2)*(yn/cell-2)) then
+! 	bBand(i,1) = - vLong(i)*qy
+! 	end if
+! 	end if
+! end do
+!
+! do i=1,((xn/cell-2)-1)
+! 	ii = i*(xn/cell-2)
+! 	bBand(ii,3) = 0.0
+! 	bBand(ii+1,1) = 0.0
+! end do
+!
+! sol_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),sol_nextRow,(xn/cell-2)*(yn/cell-2))
+! solute_next(2:xn/cell-1,2:yn/cell-1) = transpose(reshape(sol_nextRow, (/xn/cell-2, yn/cell-2/)))
+
+
+return
+
+end function solute_next
 
 ! ----------------------------------------------------------------------------------%%
 !
