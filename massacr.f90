@@ -173,7 +173,6 @@ real(8) :: uCoarse(xn/cell,yn/cell), vCoarse(xn/cell,yn/cell)
 real(8) :: solTemp(xn/cell,yn/cell)
 
 ! DECLARE STUFF FOR MESSAGE PASSING
-!integer :: ierr
 integer, parameter :: max_rows = 10000000
 integer, parameter :: send_data_tag = 2001, return_data_tag = 2002
 integer :: my_id, root_process, ierr, status(MPI_STATUS_SIZE)
@@ -193,7 +192,7 @@ real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
 real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
 
-! INITIAL AMOUNTS OF PRIMARY MINERALS [mol]
+! INITIAL AMOUNTS OF PRIMARY MINERALS IN A CELL [mol]
 primary(:,:,1) = 12.96 ! feldspar
 primary(:,:,2) = 6.96 ! augite
 primary(:,:,3) = 1.26 ! pigeonite
@@ -210,7 +209,7 @@ solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
 solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
 solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
-solute(1:xn/(cell*2),:,5) = 6.0e-4 ! Ca
+solute(1:xn/(cell*2),:,5) = 6.0e-3 ! Ca
 solute(xn/(cell*2):,:,5) = 0.0 ! Ca
 solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
@@ -267,6 +266,10 @@ psimat(1:xn,1:yn) = psi
 umat(1:xn,1:yn) = u
 vmat(1:xn,1:yn) = v
 
+uTransport = 0.0
+vTransport = 0.0
+uCoarse = 0.0
+vCoarse = 0.0
 
 ! THIS IS THE MAIN LOOP THAT DOES ALL THE SOLVING
 do j = 2, tn
@@ -314,10 +317,12 @@ write(*,*) j
 	! AVERAGE AND SUM VELOCITIES FOR COARSE GRID
 	do i = 1,xn/cell
 	do ii = 1,yn/cell
-		uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell)+ &
-						& u(i*cell,ii*cell-1)+u(i*cell-1,ii*cell-1))/4
-		vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell-1,ii*cell)+ &
-						& v(i*cell,ii*cell-1)+v(i*cell-1,ii*cell-1))/4
+		!uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell)+ &
+		!				& u(i*cell,ii*cell-1)+u(i*cell-1,ii*cell-1))/4
+		!vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell-1,ii*cell)+ &
+		!				& v(i*cell,ii*cell-1)+v(i*cell-1,ii*cell-1))/4
+		uCoarse(i,ii) = u(i*cell,ii*cell)
+		vCoarse(i,ii) = v(i*cell,ii*cell)
 	end do
 	end do
 	uTransport = uTransport + uCoarse
@@ -330,12 +335,13 @@ if (mod(j,mstep) .eq. 0) then
 	vTransport = vTransport/mstep
 	
 	! OCEAN VALUES OF SOLUTES
-	solute(:,yn/cell,5) = 6.0e-4
+	solute(:,yn/cell,5) = 6.0e-3 ! top
+	solute(1,:,5) = 6.0e-3 ! left
+	solute(xn/cell,:,5) = 0.0 ! right
 	
 	! ADVECT SOLUTES AROUND
 	solTemp = solute(:,:,5)
 	solute(:,:,5) = solute_next(solTemp,uTransport,vTransport)
-	write(*,*) solute(:,:,5)
 	
 	! RESET COARSE GRID VELOCITIES FOR NEXT TIMESTEP
 	uTransport = 0.0
@@ -502,14 +508,6 @@ yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4),
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,14),kind=4), 'hco3Mat.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'caMat.txt' )
 
-! WRITE TO FILE FOR LAST TIMESTEP CASE
-!yep = write_matrix ( xn, yn*tn, real(umat,kind=4), 'uMat.txt' )
-!yep = write_matrix ( xn, yn*tn, real(vmat,kind=4), 'vMat.txt' )
-!yep = write_matrix ( xn, yn, real(hmat, kind = 4), 'h3.txt' )
-!yep = write_matrix ( xn, yn, real(psimat,kind=4), 'psiMat3.txt' )
-!yep = write_matrix ( xn, yn, real(umat,kind=4), 'uMat1.txt' )
-!yep = write_matrix ( xn, yn, real(vmat,kind=4), 'vMat1.txt' )
-
 yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho.txt' )
 yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 
@@ -523,9 +521,9 @@ yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 ! call check(nf90_def_var(ncid, "v", NF90_FLOAT, (/ x_dimid, y_dimid /), v_varid) )
 ! call check(nf90_enddef(ncid))
 
-!call check( nf90_put_var(ncid, h_varid, h) )
-!call check( nf90_put_var(ncid, u_varid, u) )
-!call check( nf90_put_var(ncid, v_varid, v) )
+! call check( nf90_put_var(ncid, h_varid, h) )
+! call check( nf90_put_var(ncid, u_varid, u) )
+! call check( nf90_put_var(ncid, v_varid, v) )
 
 !  
 ! CALL check(nf90_put_att(ncid, x_varid, "units", "meter")) 
@@ -546,11 +544,7 @@ write(*,*) " "
 write(*,*) "ALL DONE!"
 
 
-
-
-
-
-!--------------SLAVE RECEIVES MESSAGE--------------!
+!--------------SLAVE PROCESSOR RECEIVES MESSAGE--------------!
 else
 	do jj = 1, tn/mstep
 		! here is a slave process, each process must receive a chunk of the h array and 
@@ -590,7 +584,7 @@ else
 			solLocal(:,ii) = solLocalBit
 		end do
 	
-	!--------------SLAVE RUNS GEOCHEMICAL MODEL--------------!
+	!--------------SLAVE PROCESSOR RUNS GEOCHEMICAL MODEL--------------!
 
 		!  DO ALL THE SLAVEWORK HERE
 	
@@ -618,7 +612,7 @@ else
 		end do
 		yep = write_matrix ( num_rows_to_receive, 5, real(priLocal, kind = 4), 'realTime.txt' )
 	
-	!--------------SLAVE SENDS ALTERED MESSAGE TO MASTER--------------!
+	!--------------SLAVE PROCESSOR SENDS ALTERED MESSAGE TO MASTER PROCESSOR--------------!
 	
 		! send primary chunk back to root process
 		do ii = 1,5
@@ -638,7 +632,7 @@ else
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
-		write(*,*) "SLAVE PROCESS IS DONE WITH WORK"
+		write(*,*) "SLAVE PROCESSOR IS DONE WITH WORK"
 	
 	end do
 	
@@ -1061,8 +1055,6 @@ do i=2,(xn/cell)-1
 do ii=2,(yn/cell)-1
 	solute_next(i,ii) = sol(i,ii) - uTransport(i,ii)*qx*(sol(i+1,ii)-sol(i-1,ii)) &
 	& - vTransport(i,ii)*qy*(sol(i,ii+1)-sol(i,ii-1))
-	write(*,*) "checking..."
-	write(*,*) solute_next(i,ii)
 end do
 end do
 

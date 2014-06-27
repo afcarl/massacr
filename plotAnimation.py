@@ -34,8 +34,8 @@ perm0 = np.loadtxt('permeability.txt')
 
 
     
-i=9
-cell = 10
+i=499
+cell = 2
 print h0.shape
 
 
@@ -138,7 +138,9 @@ yCell = np.append(yCell, np.max(yCell)+.001)
 print yCell
 
 
-pGlass = plt.contourf(xCell, yCell[:-1],glass, cmap=cm.rainbow)
+pGlass = plt.contourf(xCell, yCell[:-1],glass, 4, cmap=cm.rainbow)
+#pGlass = plt.pcolor(xCell, yCell[:-1],glass, cmap=cm.rainbow)
+
 
 #pGlass = plt.contourf(xg, yg, v, 20, cmap=cm.rainbow)
 
