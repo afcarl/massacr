@@ -6,6 +6,9 @@ import streamplot as sp
 plt.rcParams['contour.negative_linestyle'] = 'solid'
 plt.rc('xtick', labelsize=8)
 plt.rc('ytick', labelsize=8)
+#plt.rcParams['font.sans-serif'] = 'Helvetica'
+
+print "doing something..."
 
 #####################
 # LOAD MODEL OUTPUT #
@@ -33,8 +36,8 @@ perm0 = np.loadtxt('permeability.txt')
 
 
 
-    
-i=499
+#for i in range(0, 749, 50): 
+i=749
 cell = 2
 print h0.shape
 
@@ -81,9 +84,9 @@ glass = np.append(glass, glass[:,-1:], axis=1)
 fig=plt.figure()
 
 ax1=fig.add_subplot(1,1,1, aspect='equal')
-levels00 = np.linspace(.000002, np.max(psi), 15)
-levels0 = np.linspace(np.min(psi), -.000002, 15)
-levels = np.append(levels0,levels00,axis=1)
+#levels00 = np.linspace(.000002, np.max(psi), 15)
+#levels0 = np.linspace(np.min(psi), -.000002, 15)
+#levels = np.append(levels0,levels00,axis=1)
 
 # permeability plot
 permC = plt.contour(xg, yg, np.log10(perm), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
@@ -131,26 +134,25 @@ yCell = y0
 xCell = xCell[::cell]
 yCell= yCell[::cell]
 
-print xCell
 xCell = np.append(xCell, np.max(xCell)+.001)
-print xCell
 yCell = np.append(yCell, np.max(yCell)+.001)
-print yCell
 
 
-pGlass = plt.contourf(xCell, yCell[:-1],glass, 4, cmap=cm.rainbow)
+
+pGlass = plt.contourf(xCell, yCell[:-1],glass, 20, cmap=cm.Blues)
+plt.clim(0.0,.006)
 #pGlass = plt.pcolor(xCell, yCell[:-1],glass, cmap=cm.rainbow)
-
 
 #pGlass = plt.contourf(xg, yg, v, 20, cmap=cm.rainbow)
 
 cbar= plt.colorbar(pGlass, orientation='horizontal')
-cbar.ax.set_xlabel('AMOUNT OF BASALTIC GLASS [mol]')
+cbar.ax.set_xlabel('u [m/s]')
+#ticks=np.arange(0.000,0.006,0.001)
 
-
+plt.title('t = ' + str(i*25) + ' years')
 #plt.savefig('expCapNextNext0'+str(i)+'.png')
 
-plt.savefig('j15.png')
+plt.savefig('caEdge' + str(i) + '.png')
 
 
 print "flow field plots"

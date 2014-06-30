@@ -317,10 +317,8 @@ write(*,*) j
 	! AVERAGE AND SUM VELOCITIES FOR COARSE GRID
 	do i = 1,xn/cell
 	do ii = 1,yn/cell
-		!uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell)+ &
-		!				& u(i*cell,ii*cell-1)+u(i*cell-1,ii*cell-1))/4
-		!vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell-1,ii*cell)+ &
-		!				& v(i*cell,ii*cell-1)+v(i*cell-1,ii*cell-1))/4
+		!uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell))/2
+		!vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell,ii*cell-1))/2
 		uCoarse(i,ii) = u(i*cell,ii*cell)
 		vCoarse(i,ii) = v(i*cell,ii*cell)
 	end do
@@ -335,9 +333,9 @@ if (mod(j,mstep) .eq. 0) then
 	vTransport = vTransport/mstep
 	
 	! OCEAN VALUES OF SOLUTES
-	solute(:,yn/cell,5) = 6.0e-3 ! top
-	solute(1,:,5) = 6.0e-3 ! left
-	solute(xn/cell,:,5) = 0.0 ! right
+	!solute(:,yn/cell,5) = 6.0e-3 ! top
+	!solute(1,:,5) = 6.0e-3 ! left
+	!solute(xn/cell,:,5) = 0.0 ! right
 	
 	! ADVECT SOLUTES AROUND
 	solTemp = solute(:,:,5)
@@ -349,7 +347,8 @@ if (mod(j,mstep) .eq. 0) then
 	
 	!-TRANSPOSE 1
 	! stretch everything out
-	hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/))
+	!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! cell = 1
+	hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! cell > 1
 	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
 	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 28/))
 	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 15/))
@@ -1051,11 +1050,41 @@ write(*,*) qy*maxval(abs(vTransport))
 uLong = reshape(uTransport(2:xn/cell-1,2:yn/cell-1), (/(xn/cell-2)*(yn/cell-2)/))
 vLong = reshape(transpose(vTransport(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(yn/cell-2)/))
 
+! ! kinda lame finite difference advection scheme (order dx**2)
+! do i=2,(xn/cell)-1
+! do ii=2,(yn/cell)-1
+! 	solute_next(i,ii) = sol(i,ii) - uTransport(i,ii)*qx*(sol(i+1,ii)-sol(i-1,ii)) &
+! 	& - vTransport(i,ii)*qy*(sol(i,ii+1)-sol(i,ii-1))
+! end do
+! end do
+
+! fully 2d lax-wendroff advection scheme test (order dx**3?)
 do i=2,(xn/cell)-1
 do ii=2,(yn/cell)-1
-	solute_next(i,ii) = sol(i,ii) - uTransport(i,ii)*qx*(sol(i+1,ii)-sol(i-1,ii)) &
-	& - vTransport(i,ii)*qy*(sol(i,ii+1)-sol(i,ii-1))
+	solute_next(i,ii) = sol(i,ii) &
+	& - uTransport(i,ii) * qx * (sol(i+1,ii)-sol(i-1,ii)) &
+	& - vTransport(i,ii) * qy * (sol(i,ii+1)-sol(i,ii-1)) &
+	& - ((uTransport(i,ii)*qx)**2) * 0.5 * (sol(i+1,ii) - 2.0*sol(i,ii) + sol(i-1,ii)) &
+	& - ((vTransport(i,ii)*qy)**2) * 0.5 * (sol(i,ii+1) - 2.0*sol(i,ii) + sol(i,ii-1)) &
+	& + uTransport(i,ii) * vTransport(i,ii) * qx * qy * .25 * &
+	& (sol(i+1,ii+1) - sol(i-1,ii+1) - sol(i+1,ii-1) + sol(i-1,ii-1))
+	
+	if (solute_next(i,ii) .gt. maxval(sol0)) then
+		solute_next(i,ii) = maxval(sol0)
+	end if
 end do
+end do
+
+do i=2,(xn/cell)-1
+	! top edge
+	solute_next(i,yn/cell) = sol(i,yn/cell) &
+	& - uTransport(i,yn/cell) * qx * (sol(i,yn/cell)-sol(i-1,yn/cell)) &
+	& - vTransport(i,yn/cell) * qy * (sol(i,yn/cell)-sol(i,yn/cell-1)) 
+	
+	! bottom edge
+	solute_next(i,1) = sol(i,1) &
+	& - uTransport(i,1) * qx * (sol(i+1,1)-sol(i,1)) &
+	& - vTransport(i,1) * qy * (sol(i,1+1)-sol(i,1)) 
 end do
 
 ! ! not using this implicit method
