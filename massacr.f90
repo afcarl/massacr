@@ -209,7 +209,7 @@ solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
 solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
 solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
-solute(1:xn/(cell*2),:,5) = 6.0e-3 ! Ca
+solute(:,:,5) = 6.0e-3 ! Ca
 solute(xn/(cell*2):,:,5) = 0.0 ! Ca
 solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
@@ -1086,6 +1086,18 @@ do i=2,(xn/cell)-1
 	& - uTransport(i,1) * qx * (sol(i+1,1)-sol(i,1)) &
 	& - vTransport(i,1) * qy * (sol(i,1+1)-sol(i,1)) 
 end do
+
+! do ii=2,(yn/cell)-1
+! 	! right edge
+! 	solute_next(xn/cell,ii) = sol(xn/cell,ii) &
+! 	& - uTransport(xn/cell,ii) * qx * (sol(xn/cell,ii)-sol(xn/cell,ii-1)) &
+! 	& - vTransport(xn/cell,ii) * qy * (sol(xn/cell,ii)-sol(xn/cell-1,ii))
+!
+! 	! left edge
+! 	solute_next(1,ii) = sol(1,ii) &
+! 	& - uTransport(1,ii) * qx * (sol(1,ii+1)-sol(1,ii)) &
+! 	& - vTransport(1,ii) * qy * (sol(1+1,ii)-sol(1,ii))
+! end do
 
 ! ! not using this implicit method
 ! ! VERTICAL BOUNDARY CONDITIONS

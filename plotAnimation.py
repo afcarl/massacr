@@ -36,123 +36,130 @@ perm0 = np.loadtxt('permeability.txt')
 
 
 
-#for i in range(0, 749, 50): 
-i=749
-cell = 2
-print h0.shape
+for i in range(0, 750, 50): 
+    #i=749
+    cell = 2
+    print h0.shape
 
 
-#######################
-# MAKE DATA PLOTTABLE #
-#######################
+    #######################
+    # MAKE DATA PLOTTABLE #
+    #######################
 
-h = h0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
-h = np.append(h, h[-1:,:], axis=0)
-h = np.append(h, h[:,-1:], axis=1)
-
-
-psi = psi0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
-psi = np.append(psi, psi[-1:,:], axis=0)
-psi = np.append(psi, psi[:,-1:], axis=1)
+    h = h0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
+    h = np.append(h, h[-1:,:], axis=0)
+    h = np.append(h, h[:,-1:], axis=1)
 
 
-perm = np.append(perm0, perm0[-1:,:], axis=0)
-perm = np.append(perm, perm[:,-1:], axis=1)
+    psi = psi0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
+    psi = np.append(psi, psi[-1:,:], axis=0)
+    psi = np.append(psi, psi[:,-1:], axis=1)
 
-v = v0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
-v = np.append(v, v[-1:,:], axis=0)
-v = np.append(v, v[:,-1:], axis=1)
-
-
-u = u0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
-u = np.append(u, u[-1:,:], axis=0)
-u = np.append(u, u[:,-1:], axis=1)
-
-feldspar = feldspar0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell)-1,:]
-feldspar = np.append(feldspar, feldspar[-1:,:], axis=0)
-feldspar = np.append(feldspar, feldspar[:,-1:], axis=1)
-
-glass = glass0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell)-1,:]
-glass = np.append(glass, glass[-1:,:], axis=0)
-glass = np.append(glass, glass[:,-1:], axis=1)
+    ##n = 300
+    ##psi = psi0[n*len(y)-n:((n)*len(y)+len(x))-n-1,:]
+    ##psi = np.append(psi, psi[-1:,:], axis=0)
+    ##psi = np.append(psi, psi[:,-1:], axis=1)
 
 
-####################
-# STREAM FUNCTIONS #
-####################
+    perm = np.append(perm0, perm0[-1:,:], axis=0)
+    perm = np.append(perm, perm[:,-1:], axis=1)
 
-fig=plt.figure()
-
-ax1=fig.add_subplot(1,1,1, aspect='equal')
-#levels00 = np.linspace(.000002, np.max(psi), 15)
-#levels0 = np.linspace(np.min(psi), -.000002, 15)
-#levels = np.append(levels0,levels00,axis=1)
-
-# permeability plot
-permC = plt.contour(xg, yg, np.log10(perm), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
-#permC = plt.contourf(xg, yg, np.log10(perm), 10, cmap=cm.summer)
-
-# stream function plot
-# levels[::2],
-#plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
-
-CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
+    v = v0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
+    v = np.append(v, v[-1:,:], axis=0)
+    v = np.append(v, v[:,-1:], axis=1)
 
 
-p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,126.0,5.0), cmap=cm.rainbow)
-plt.clim(0.0,126.0)
-cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,126.0,25.0))
-cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
+    u = u0[i*len(y)-i:((i)*len(y)+len(x))-i-1,:]
+    u = np.append(u, u[-1:,:], axis=0)
+    u = np.append(u, u[:,-1:], axis=1)
+
+    feldspar = feldspar0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell)-1,:]
+    feldspar = np.append(feldspar, feldspar[-1:,:], axis=0)
+    feldspar = np.append(feldspar, feldspar[:,-1:], axis=1)
+
+    glass = glass0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell)-1,:]
+    glass = np.append(glass, glass[-1:,:], axis=0)
+    glass = np.append(glass, glass[:,-1:], axis=1)
 
 
-#np.putmask(u, np.abs(u) <= 1.0e-9, 0)
-#np.putmask(v, np.abs(v) <= 1.0e-9, 0)
-#CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
+    ####################
+    # STREAM FUNCTIONS #
+    ####################
 
-#plt.quiver(xg,yg,u,v)
-plt.yticks([0.0, -500.0, -1000.0], [0, -500, -1000.0])
-plt.xticks([0.0, 1500.0, 3000.0], [0, 1500, 3000])
+    fig=plt.figure()
 
-#plt.title("STREAMFUNCTIONS",fontsize=8)
+    ax1=fig.add_subplot(1,1,1, aspect='equal')
+    #levels00 = np.linspace(.000002, np.max(psi), 15)
+    #levels0 = np.linspace(np.min(psi), -.000002, 15)
+    #levels = np.append(levels0,levels00,axis=1)
 
-plt.xlim(np.min(x), np.max(x))
+    # permeability plot
+    permC = plt.contour(xg, yg, np.log10(perm), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
+    #permC = plt.contourf(xg, yg, np.log10(perm), 10, cmap=cm.summer)
 
-plt.savefig('j14.png')
+    # stream function plot
+    # levels[::2],
+    #plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
 
-
-####################
-# GEOCHEM CONTOURS #
-####################
-
-fig=plt.figure()
-
-ax1=fig.add_subplot(1,1,1, aspect='equal')
-
-# glass plot
-xCell = x0
-yCell = y0
-xCell = xCell[::cell]
-yCell= yCell[::cell]
-
-xCell = np.append(xCell, np.max(xCell)+.001)
-yCell = np.append(yCell, np.max(yCell)+.001)
+    CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
 
 
+    p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,126.0,5.0), cmap=cm.rainbow)
+    plt.clim(0.0,126.0)
+    cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,126.0,25.0))
+    cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
 
-pGlass = plt.contourf(xCell, yCell[:-1],glass, 20, cmap=cm.Blues)
-plt.clim(0.0,.006)
-#pGlass = plt.pcolor(xCell, yCell[:-1],glass, cmap=cm.rainbow)
 
-#pGlass = plt.contourf(xg, yg, v, 20, cmap=cm.rainbow)
+    #np.putmask(u, np.abs(u) <= 1.0e-9, 0)
+    #np.putmask(v, np.abs(v) <= 1.0e-9, 0)
+    #CS = sp.streamplot(ax1, x, y, u, v, color='k', linewidth=1.0)
 
-cbar= plt.colorbar(pGlass, orientation='horizontal')
-cbar.ax.set_xlabel('u [m/s]')
-#ticks=np.arange(0.000,0.006,0.001)
+    #plt.quiver(xg,yg,u,v)
+    plt.yticks([0.0, -500.0, -1000.0], [0, -500, -1000.0])
+    plt.xticks([0.0, 1500.0, 3000.0], [0, 1500, 3000])
 
-plt.title('t = ' + str(i*25) + ' years')
-#plt.savefig('expCapNextNext0'+str(i)+'.png')
+    #plt.title("STREAMFUNCTIONS",fontsize=8)
 
-plt.savefig('caEdge' + str(i) + '.png')
+    plt.xlim(np.min(x), np.max(x))
+
+    plt.savefig('j14.png')
+
+
+    ####################
+    # GEOCHEM CONTOURS #
+    ####################
+
+    fig=plt.figure()
+
+    ax1=fig.add_subplot(1,1,1, aspect='equal')
+
+    # glass plot
+    xCell = x0
+    yCell = y0
+    xCell = xCell[::cell]
+    yCell= yCell[::cell]
+
+    xCell = np.append(xCell, np.max(xCell)+.001)
+    yCell = np.append(yCell, np.max(yCell)+.001)
+
+
+
+    pGlass = plt.contourf(xCell, yCell[:-1],glass, 20, cmap=cm.Blues)
+    plt.clim(0.0,.006)
+    #pGlass = plt.pcolor(xCell, yCell[:-1],glass, cmap=cm.rainbow)
+
+    #pGlass = plt.contourf(xg, yg, v, 20, cmap=cm.rainbow)
+    CS = plt.contour(xg, yg, psi, 10, colors='#FF6600',linewidths=np.array([1.5]))
+
+
+    cbar= plt.colorbar(pGlass, orientation='horizontal')
+    cbar.ax.set_xlabel('ca concentration [mol/kgw]')
+    #ticks=np.arange(0.000,0.006,0.001)
+
+    plt.title('t = ' + str(i*25) + ' years')
+    #plt.savefig('expCapNextNext0'+str(i)+'.png')
+
+    plt.savefig('ca2Edge' + str(i) + '.png')
 
 
 print "flow field plots"
