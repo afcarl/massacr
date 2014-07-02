@@ -193,7 +193,7 @@ write(s_hco3,'(F25.10)') solute(14)
 write(s_co3,'(F25.10)') solute(15)
 
 
-water = 1.0
+water = .386
 write(s_water,'(F25.10)') water
 
 ! PRIMARIES TO STRINGS

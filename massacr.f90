@@ -204,13 +204,12 @@ primary(:,:,5) = 96.77 ! basaltic glass
 ! INITIAL AMOUNTS OF SECONDARY MINERALS [mol]
 secondary(:,:,:) = 0.0
 
-! INITIAL SOLUTE CONCENTRATIONS [mol/kgw]
+! INITIAL SOLUTE CONCENTRATIONS [mol/kgw] (hydrothermal system initial)
 solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
 solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
 solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
 solute(:,:,5) = 6.0e-3 ! Ca
-solute(xn/(cell*2):,:,5) = 0.0 ! Ca
 solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
 solute(:,:,8) = 1.0e-4 ! K
@@ -332,10 +331,17 @@ if (mod(j,mstep) .eq. 0) then
 	uTransport = uTransport/mstep
 	vTransport = vTransport/mstep
 	
-	! OCEAN VALUES OF SOLUTES
-	!solute(:,yn/cell,5) = 6.0e-3 ! top
+	! MIXED BOUNDARY CONDITION
+	do i=1,yn/cell
+		if (vTransport(i,yn/cell) .le. 0.0) then
+			solute(i,yn/cell,5) = 6.0e-3 ! top
+		end if
+	end do 
+	
+	! OTHER BOUNDARY CONDITION OPTIONS
 	!solute(1,:,5) = 6.0e-3 ! left
 	!solute(xn/cell,:,5) = 0.0 ! right
+
 	
 	! ADVECT SOLUTES AROUND
 	solTemp = solute(:,:,5)
@@ -1069,17 +1075,24 @@ do ii=2,(yn/cell)-1
 	& + uTransport(i,ii) * vTransport(i,ii) * qx * qy * .25 * &
 	& (sol(i+1,ii+1) - sol(i-1,ii+1) - sol(i+1,ii-1) + sol(i-1,ii-1))
 	
+	! get rid of out-of-bounds truncation errors
 	if (solute_next(i,ii) .gt. maxval(sol0)) then
 		solute_next(i,ii) = maxval(sol0)
 	end if
+	if (solute_next(i,ii) .lt. minval(sol0)) then
+		solute_next(i,ii) = minval(sol0)
+	end if
+	
 end do
 end do
 
 do i=2,(xn/cell)-1
 	! top edge
-	solute_next(i,yn/cell) = sol(i,yn/cell) &
-	& - uTransport(i,yn/cell) * qx * (sol(i,yn/cell)-sol(i-1,yn/cell)) &
-	& - vTransport(i,yn/cell) * qy * (sol(i,yn/cell)-sol(i,yn/cell-1)) 
+	if (vTransport(i,yn/cell) .ge. 0.0) then
+		solute_next(i,yn/cell) = sol(i,yn/cell) &
+		& - uTransport(i,yn/cell) * qx * (sol(i,yn/cell)-sol(i-1,yn/cell)) &
+		& - vTransport(i,yn/cell) * qy * (sol(i,yn/cell)-sol(i,yn/cell-1)) 
+	end if 
 	
 	! bottom edge
 	solute_next(i,1) = sol(i,1) &
