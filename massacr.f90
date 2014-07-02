@@ -166,6 +166,7 @@ real(8) :: alt0(1,altnum)
 real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,28), solute(xn/cell,yn/cell,15)
 real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
 real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),15)
+real(8) :: soluteOcean(15)
 
 ! SOLUTE TRANSPORT ARRAYS
 real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
@@ -199,12 +200,11 @@ primary(:,:,3) = 1.26 ! pigeonite
 primary(:,:,4) = .4 ! magnetite
 primary(:,:,5) = 96.77 ! basaltic glass
 
-!primary(:,:,:) = 0.0
-
 ! INITIAL AMOUNTS OF SECONDARY MINERALS [mol]
 secondary(:,:,:) = 0.0
 
 ! INITIAL SOLUTE CONCENTRATIONS [mol/kgw] (hydrothermal system initial)
+!solute(:,:,1) = 7.8 ! ph
 solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
 solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
@@ -218,8 +218,12 @@ solute(:,:,10) = 0.0 ! 1.0e-4 ! S(6)
 solute(:,:,11) = 2.0e-4 ! Si
 solute(:,:,12) = 3.0e-4 ! Cl
 solute(:,:,13) = 1.0e-6 ! Al
-solute(:,:,14) = 0.0 ! HCO3-
+solute(:,:,14) = 2.200e-3 ! HCO3-
 solute(:,:,15) = 0.0 ! CO3-2
+
+soluteOcean = (/ solute(1,1,1), solute(1,1,2), solute(1,1,3), solute(1,1,4), solute(1,1,5), & 
+			  & solute(1,1,6), solute(1,1,7), solute(1,1,8), solute(1,1,9), solute(1,1,10), &
+			  & solute(1,1,11), solute(1,1,12), solute(1,1,13), solute(1,1,14), solute(1,1,15) /)
 
 write(*,*) "testing..."
 
@@ -331,11 +335,14 @@ if (mod(j,mstep) .eq. 0) then
 	uTransport = uTransport/mstep
 	vTransport = vTransport/mstep
 	
-	! MIXED BOUNDARY CONDITION
+	! MIXED TOP BOUNDARY CONDITION
 	do i=1,yn/cell
 		if (vTransport(i,yn/cell) .le. 0.0) then
-			solute(i,yn/cell,5) = 6.0e-3 ! top
+			do n=1,15
+				solute(i,yn/cell,n) = soluteOcean(n)
+			end do
 		end if
+		
 	end do 
 	
 	! OTHER BOUNDARY CONDITION OPTIONS
@@ -344,8 +351,10 @@ if (mod(j,mstep) .eq. 0) then
 
 	
 	! ADVECT SOLUTES AROUND
-	solTemp = solute(:,:,5)
-	solute(:,:,5) = solute_next(solTemp,uTransport,vTransport)
+	do n=3,15
+		solTemp = solute(:,:,n)
+		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+	end do
 	
 	! RESET COARSE GRID VELOCITIES FOR NEXT TIMESTEP
 	uTransport = 0.0
@@ -506,12 +515,58 @@ yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat.txt' )
 yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat.txt' )
 yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat.txt' )
 
-yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,1),kind=4), 'feldsparMat.txt' )
-yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'glassMat.txt' )
-yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,16),kind=4), 'calciteMat.txt' )
-yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'caMat.txt' )
-yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,14),kind=4), 'hco3Mat.txt' )
-yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'caMat.txt' )
+! WRITE SECONDARIES TO FILE
+yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,1),kind=4), 'sec_stilbite.txt')
+yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,2),kind=4), 'sec_sio2.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,3),kind=4), 'sec_kaolinite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,4),kind=4), 'sec_albite.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,5),kind=4), 'sec_saponite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,6),kind=4), 'sec_celadonite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,7),kind=4), 'sec_clinoptilolite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,8),kind=4), 'sec_pyrite.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,9),kind=4), 'sec_mont_na.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,10),kind=4), 'sec_goethite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,11),kind=4), 'sec_dolomite.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,12),kind=4), 'sec_smectite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,13),kind=4), 'sec_dawsonite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,14),kind=4), 'sec_magnesite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,15),kind=4), 'sec_siderite.txt')
+yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,16),kind=4), 'sec_calcite.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,17),kind=4), 'sec_quartz.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,18),kind=4), 'sec_kspar.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,19),kind=4), 'sec_saponite_na.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,20),kind=4), 'sec_nont_na.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,21),kind=4), 'sec_nont_mg.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,22),kind=4), 'sec_nont_k.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,23),kind=4), 'sec_nont_h.txt')
+ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,24),kind=4), 'sec_nont_ca.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,25),kind=4), 'sec_muscovite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,26),kind=4), 'sec_mesolite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,27),kind=4), 'sec_hematite.txt')
+! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,28),kind=4), 'sec_diaspore.txt')
+
+! WRITE SOLUTES TO FILE
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,1),kind=4), 'sol_ph.txt' )
+!yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,2),kind=4), 'sol_pe.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,3),kind=4), 'sol_alk.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'sol_ca.txt' )
+! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,6),kind=4), 'sol_mg.txt' )
+! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,7),kind=4), 'sol_na.txt' )
+! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,8),kind=4), 'sol_k.txt' )
+! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,9),kind=4), 'sol_fe.txt' )
+! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,10),kind=4), 'sol_s.txt' )
+! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,11),kind=4), 'sol_si.txt' )
+! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,12),kind=4), 'sol_cl.txt' )
+! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,13),kind=4), 'sol_al.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,14),kind=4), 'sol_hco3.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,15),kind=4), 'sol_co3.txt' )
+
+! WRITE PRIMARIES TO FILE
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,1),kind=4), 'pri_feldspar.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,2),kind=4), 'pri_augite.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,3),kind=4), 'pri_pigeonite.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,4),kind=4), 'pri_magnetite.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'pri_glass.txt' )
 
 yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho.txt' )
 yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
@@ -595,7 +650,7 @@ else
 	
 		! slave processor goes through phreeqc loop here
 		do m=1,num_rows_to_receive
-			!alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
 
 			!PARSING
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
@@ -608,12 +663,11 @@ else
 			alt0(1,50), alt0(1,52), alt0(1,54), alt0(1,56), alt0(1,58), alt0(1,60), alt0(1,62), &
 			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70)/)
 			
-			! print glass 
-			write(*,*) alt0(1,80)
-			
 			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 			
-			
+			! print something interesting
+			write(*,*) solLocal(m,14)
+
 		end do
 		yep = write_matrix ( num_rows_to_receive, 5, real(priLocal, kind = 4), 'realTime.txt' )
 	

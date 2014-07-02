@@ -13,7 +13,7 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 2
+cell = 4
 
 t = np.loadtxt('t.txt',delimiter='\n')
 x0 = np.loadtxt('x.txt',delimiter='\n')
@@ -40,14 +40,14 @@ h0 = np.loadtxt('hMat.txt')
 u0= np.loadtxt('uMat.txt')
 v0= np.loadtxt('vMat.txt')
 psi0 = np.loadtxt('psiMat.txt')
-feldspar0 = np.loadtxt('feldsparMat.txt') 
-glass0 = np.loadtxt('glassMat.txt')
+feldspar0 = np.loadtxt('pri_feldspar.txt') 
+glass0 = np.loadtxt('pri_glass.txt')
 perm0 = np.loadtxt('permeability.txt')
-ca0 = np.loadtxt('caMat.txt')
+ca0 = np.loadtxt('sol_ph.txt')
 
 
 #for i in range(0, 750, 50): 
-i=99
+i=9
 print h0.shape
 
 
@@ -130,7 +130,7 @@ fig=plt.figure()
 ax1=fig.add_subplot(1,1,1, aspect='equal')
 
 pGlass = plt.contourf(xCell, yCell[:-1], ca, 20, cmap=cm.Blues)
-plt.clim(0.0,.006)
+#plt.clim(0.0,.006)
 #pGlass = plt.pcolor(xCell, yCell[:-1],glass, cmap=cm.rainbow)
 
 #pGlass = plt.contourf(xg, yg, v, 20, cmap=cm.rainbow)

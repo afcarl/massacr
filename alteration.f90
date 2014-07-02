@@ -233,6 +233,7 @@ write(s_mesolite,'(F25.10)') secondary(26)
 write(s_hematite,'(F25.10)') secondary(27)
 write(s_diaspore,'(F25.10)') secondary(28)
 
+
 ! OTHER INFORMATION TO STRINGS
 write(s_temp,'(F25.10)') temp
 write(s_timestep,'(F25.10)') timestep
@@ -260,7 +261,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
 !&"    C " // trim(s_co2) //NEW_LINE('')// &
-&"    Alkalinity " // trim(s_alk) // " as HCO3" //NEW_LINE('')// &
+!&"    C " // trim(s_hco3) // "as HCO3-" //NEW_LINE('')// &
+&"    Alkalinity " // trim(s_alk) // " as CaCO3" //NEW_LINE('')// &
 !&"    -water		5.0	# kg" //NEW_LINE('')// &
 &"    -water "// trim(s_water) //NEW_LINE('')// &
 &"END" //NEW_LINE('')// &
@@ -295,7 +297,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
 &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
 &"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
-&"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
+!&"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
 &"    Montmor-Na 0.0 " // trim(s_mont_na) //NEW_LINE('')// &
 &"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
 &"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
@@ -438,7 +440,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 &"BGlass" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-&"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.1*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
+&"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.01*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
 &"*(((ACT('H+')^3)/(ACT('Al+3')))^.333)" //NEW_LINE('')// &
 &"    20 save rate0 * time" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
