@@ -351,9 +351,23 @@ if (mod(j,mstep) .eq. 0) then
 
 	
 	! ADVECT SOLUTES AROUND
-	do n=3,15
+	do i=1,xn/cell
+		do ii=1,yn/cell
+			solute(i,ii,1) = 10**(-solute(i,ii,1))
+			solute(i,ii,2) = 10**(-solute(i,ii,2))
+		end do
+	end do
+	
+	do n=1,15
 		solTemp = solute(:,:,n)
 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+	end do
+	
+	do i=1,xn/cell
+		do ii=1,yn/cell
+			solute(i,ii,1) = -log10(solute(i,ii,1))
+			solute(i,ii,2) = -log10(solute(i,ii,2))
+		end do
 	end do
 	
 	! RESET COARSE GRID VELOCITIES FOR NEXT TIMESTEP

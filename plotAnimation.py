@@ -31,8 +31,8 @@ yCell = y0
 xCell = xCell[::cell]
 yCell= yCell[::cell]
 
-xCell = np.append(xCell, np.max(xCell)+.001)
-yCell = np.append(yCell, np.max(yCell)+.001)
+xCell = np.append(xCell, np.max(xCell)+xCell[0])
+yCell = np.append(yCell, np.max(yCell)-yCell[-1])
 
 xg, yg = np.meshgrid(x[:],y[:])
 
@@ -43,7 +43,7 @@ psi0 = np.loadtxt('psiMat.txt')
 feldspar0 = np.loadtxt('pri_feldspar.txt') 
 glass0 = np.loadtxt('pri_glass.txt')
 perm0 = np.loadtxt('permeability.txt')
-ca0 = np.loadtxt('sol_ph.txt')
+ca0 = np.loadtxt('sol_alk.txt')
 
 
 #for i in range(0, 750, 50): 
@@ -130,7 +130,7 @@ fig=plt.figure()
 ax1=fig.add_subplot(1,1,1, aspect='equal')
 
 pGlass = plt.contourf(xCell, yCell[:-1], ca, 20, cmap=cm.Blues)
-#plt.clim(0.0,.006)
+#plt.clim(8.5,10.5)
 #pGlass = plt.pcolor(xCell, yCell[:-1],glass, cmap=cm.rainbow)
 
 #pGlass = plt.contourf(xg, yg, v, 20, cmap=cm.rainbow)
@@ -138,8 +138,8 @@ CS = plt.contour(xg, yg, psi, 10, colors='#FF6600',linewidths=np.array([1.5]))
 
 
 cbar= plt.colorbar(pGlass, orientation='horizontal')
-cbar.ax.set_xlabel('ca concentration [mol/kgw]')
-#ticks=np.arange(0.000,0.006,0.001)
+cbar.ax.set_xlabel('alkalinity')
+#ticks=np.arange(8.5,10.5,0.5)
 
 #plt.title('t = ' + str(i*25) + ' years')
 
