@@ -47,7 +47,7 @@ ca0 = np.loadtxt('sol_alk.txt')
 
 
 #for i in range(0, 750, 50): 
-i=9
+i=5
 print h0.shape
 
 
@@ -129,21 +129,20 @@ fig=plt.figure()
 
 ax1=fig.add_subplot(1,1,1, aspect='equal')
 
-pGlass = plt.contourf(xCell, yCell[:-1], ca, 20, cmap=cm.Blues)
-#plt.clim(8.5,10.5)
-#pGlass = plt.pcolor(xCell, yCell[:-1],glass, cmap=cm.rainbow)
+contours = np.round(np.arange(0.0,np.max(ca0),np.max(ca0)/10.0),3)
+pGlass = plt.contourf(xCell, yCell[:-1], ca, contours, cmap=cm.rainbow)
 
-#pGlass = plt.contourf(xg, yg, v, 20, cmap=cm.rainbow)
 CS = plt.contour(xg, yg, psi, 10, colors='#FF6600',linewidths=np.array([1.5]))
 
+theTicks = contours
+cbar= plt.colorbar(pGlass, orientation='horizontal', ticks=theTicks)
+cbar.ax.set_xlabel('Ca concentration [mol/kgw]')
+#ticks=np.arange(0.0,0.0045,0.0009)
+#cbar.set_clim(vmin=0.0,vmax=.012)
 
-cbar= plt.colorbar(pGlass, orientation='horizontal')
-cbar.ax.set_xlabel('alkalinity')
-#ticks=np.arange(8.5,10.5,0.5)
+plt.title('t = ' + str(i*64) + ' years')
 
-#plt.title('t = ' + str(i*25) + ' years')
-
-plt.savefig('baseline' + str(i) + '.png')
+plt.savefig('kbase' + str(i) + '.png')
 
 
 print "ALL DONE!"

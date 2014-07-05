@@ -158,6 +158,7 @@ real(8) :: glass ! primary
 real(8) :: siderite ! secondary
 real(8) :: temp, timestep, primary(5), secondary(28), solute(15) ! important information
 
+
 ! STRINGS
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
@@ -204,6 +205,7 @@ write(s_magnetite,'(F25.10)') primary(4)
 write(s_glass,'(F25.10)') primary(5)
 
 ! SECONDARIES TO STRINGS
+!secondary = 0.0
 write(s_stilbite,'(F25.10)') secondary(1)
 write(s_sio2,'(F25.10)') secondary(2)
 write(s_kaolinite,'(F25.10)') secondary(3)
@@ -255,14 +257,13 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Na " // trim(s_na) //NEW_LINE('')// &
 &"    K " // trim(s_k) //NEW_LINE('')// &
 &"    Fe " // trim(s_fe) //NEW_LINE('')// &
-&"    S(6) "// trim(s_s)  //NEW_LINE('')// &
-!&"    S "// trim(s_s)  //NEW_LINE('')// &
+&"    S "// trim(s_s)  //NEW_LINE('')// &
 &"    Si " // trim(s_si) //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
-!&"    C " // trim(s_co2) //NEW_LINE('')// &
+&"    C " // trim(s_co2) //NEW_LINE('')// &
 !&"    C " // trim(s_hco3) // "as HCO3-" //NEW_LINE('')// &
-&"    Alkalinity " // trim(s_alk) // " as CaCO3" //NEW_LINE('')// &
+!&"    Alkalinity " // trim(s_alk) // " as CaCO3" //NEW_LINE('')// &
 !&"    -water		5.0	# kg" //NEW_LINE('')// &
 &"    -water "// trim(s_water) //NEW_LINE('')// &
 &"END" //NEW_LINE('')// &
@@ -297,7 +298,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
 &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
 &"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
-!&"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
+&"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
 &"    Montmor-Na 0.0 " // trim(s_mont_na) //NEW_LINE('')// &
 &"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
 &"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
@@ -421,8 +422,10 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"Magnetite" //NEW_LINE('')// &
 &"-m0 " // trim(s_magnetite) //NEW_LINE('')// &
 &"BGlass" //NEW_LINE('')// &
-&"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
-& "Na2O 0.0125 K2O 0.005 Al2O3 0.034999 SiO2 0.5" //NEW_LINE('')// &
+! &"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
+! & "Na2O 0.0125 K2O 0.005 Al2O3 0.0525 SiO2 0.5" //NEW_LINE('')// &
+&"-f Ca 0.025 Fe 0.0095 Mg 0.065 " //&
+& "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.35" //NEW_LINE('')// &
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
@@ -490,10 +493,11 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
   &"    -pe" //NEW_LINE('')// &
-  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3 HCO3-" //NEW_LINE('')// &
+!  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3 HCO3-" //NEW_LINE('')// &
   &"    -totals C" //NEW_LINE('')// &
+  &"    -totals Ca Mg Na K Fe S Si Cl Al " //NEW_LINE('')// &
+  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -alkalinity" //NEW_LINE('')// &
-!  &"    -molalities HCO3-" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite Montmor-Na goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
   &"    -p magnesite siderite calcite quartz k-feldspar" //NEW_LINE('')// &

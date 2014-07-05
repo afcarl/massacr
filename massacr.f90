@@ -214,7 +214,7 @@ solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
 solute(:,:,8) = 1.0e-4 ! K
 solute(:,:,9) = 1.2e-6 ! Fe
-solute(:,:,10) = 0.0 ! 1.0e-4 ! S(6)
+solute(:,:,10) = 1.0e-4 ! 1.0e-4 ! S(6)
 solute(:,:,11) = 2.0e-4 ! Si
 solute(:,:,12) = 3.0e-4 ! Cl
 solute(:,:,13) = 1.0e-6 ! Al
@@ -342,7 +342,6 @@ if (mod(j,mstep) .eq. 0) then
 				solute(i,yn/cell,n) = soluteOcean(n)
 			end do
 		end if
-		
 	end do 
 	
 	! OTHER BOUNDARY CONDITION OPTIONS
@@ -618,8 +617,11 @@ write(*,*) " "
 write(*,*) "ALL DONE!"
 
 
-!--------------SLAVE PROCESSOR RECEIVES MESSAGE--------------!
+
 else
+	
+	!--------------SLAVE PROCESSOR RECEIVES MESSAGE--------------! 
+	
 	do jj = 1, tn/mstep
 		! here is a slave process, each process must receive a chunk of the h array and 
 		! take the local mean, print it, send it back.
@@ -658,7 +660,7 @@ else
 			solLocal(:,ii) = solLocalBit
 		end do
 	
-	!--------------SLAVE PROCESSOR RUNS GEOCHEMICAL MODEL--------------!
+		!--------------SLAVE PROCESSOR RUNS GEOCHEMICAL MODEL--------------!
 
 		!  DO ALL THE SLAVEWORK HERE
 	
@@ -681,11 +683,10 @@ else
 			
 			! print something interesting
 			write(*,*) solLocal(m,14)
-
 		end do
 		yep = write_matrix ( num_rows_to_receive, 5, real(priLocal, kind = 4), 'realTime.txt' )
 	
-	!--------------SLAVE PROCESSOR SENDS ALTERED MESSAGE TO MASTER PROCESSOR--------------!
+		!--------------SLAVE PROCESSOR SENDS ALTERED MESSAGE TO MASTER PROCESSOR--------------!
 	
 		! send primary chunk back to root process
 		do ii = 1,5
