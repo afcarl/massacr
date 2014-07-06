@@ -1,180 +1,180 @@
 
 ! ----------------------------------------------------------------------------------%%
 !
-! MAIN MASSACR METHOD
+! MASSACR 
 ! 
 ! SUMMARY: main method runs fluid dynamic simulation coupled to geochemical
-!          simulation, writes errthing to file
+!          simulation and writes selected model output to file
 ! 
-! gfortran -c -O3 -I/usr/local/include -L/usr/local/lib -lnetcdff -liphreeqc 
-! globals.f90 initialize.f90 alteration.f90 massacr.f90
-!
-! gfortran -I/usr/local/include -L/usr/local/lib -lnetcdff -liphreeqc 
-! globals.o initialize.o alteration.o massacr.o
-!
-! I HAVE A MAKEFILE NOW
-!
-!
-! MOST BASIC PARALLELIZING
-! make -f theMakeFile
-! mpirun -np 1 ./massacr
+! TO RUN: make -f theMakeFile
+!		  mpirun -np 4 ./massacr
 !
 ! ----------------------------------------------------------------------------------%%
 
 PROGRAM main
-!use netcdf
 
 use globals
 use initialize
 use alteration
+!use netcdf
 
 implicit none
 
 include 'mpif.h'
 
-
-
+! functions within massacr.f90
 interface
 	
+	! solves thermal energy equation
 	function h_next (h, psi, rho_in, flux)
-	use globals
-	use initialize
-	! integers
-	integer :: i, j, n, ii, c1, c2, c3, c4, m=5
-	! inputs 
-	real(8) :: sx, sy, qx, qy, rho_in(xn,yn), flux(xn,2)
-	! velocity stuff
-	real(8) :: u(xn,yn), v(xn,yn), uLong((xn-2)*(yn-2)), vLong((xn-2)*(yn-2))
-	real(8) ::  velocities0(xn,2*yn)
-	! matrix stuff
-	real(8) :: h(xn,yn), h_next(xn,yn), psi(xn,yn)
-	real(8) :: aBand((xn-2)*(yn-2),5), bBand((xn-2)*(yn-2),5)
-	real(8) :: h0(xn,yn), uVec((xn-2)*(yn-2)), h_nextRow((xn-2)*(yn-2))
-	real(8) :: kMatLong((xn-2)*(yn-2))
+		use globals
+		use initialize
+		! integers
+		integer :: i, j, n, ii, c1, c2, c3, c4, m=5
+		! inputs 
+		real(8) :: sx, sy, qx, qy, rho_in(xn,yn), flux(xn,2)
+		! velocity stuff
+		real(8) :: u(xn,yn), v(xn,yn), uLong((xn-2)*(yn-2)), vLong((xn-2)*(yn-2))
+		real(8) ::  velocities0(xn,2*yn)
+		! matrix stuff
+		real(8) :: h(xn,yn), h_next(xn,yn), psi(xn,yn)
+		real(8) :: aBand((xn-2)*(yn-2),5), bBand((xn-2)*(yn-2),5)
+		real(8) :: h0(xn,yn), uVec((xn-2)*(yn-2)), h_nextRow((xn-2)*(yn-2))
+		real(8) :: kMatLong((xn-2)*(yn-2))
 	end function h_next
 
+	! solves streamfunction vorticity equation
 	function psi_next (h, rhs0, psi,top_in,rho_in)
-	use globals
-	use initialize
-	! integers
-	integer :: i, j, n, m=5
-	! inputs
-	real(8) :: rhs0(xn,yn), rhs1(xn,yn), rhsLong((xn-2)*(yn-2))
-	real(8) :: h(xn,yn), psi(xn,yn), rho_in(xn,yn)
-	! matrix stuff
-	real(8) :: uVec((xn-2)*(yn-2)), psiLong((xn)*(yn)), psi_nextRow((xn-2)*(yn-2))
-	real(8) :: psi_next(xn,yn)
-	real(8) :: top_in(xn,1)
-	! tridiag
-	real(8) :: aa((xn-2)*(yn-2),(xn-2)*(yn-2)), a((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
-	real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
+		use globals
+		use initialize
+		! integers
+		integer :: i, j, n, m=5
+		! inputs
+		real(8) :: rhs0(xn,yn), rhs1(xn,yn), rhsLong((xn-2)*(yn-2))
+		real(8) :: h(xn,yn), psi(xn,yn), rho_in(xn,yn)
+		! matrix stuff
+		real(8) :: uVec((xn-2)*(yn-2)), psiLong((xn)*(yn)), psi_nextRow((xn-2)*(yn-2))
+		real(8) :: psi_next(xn,yn)
+		real(8) :: top_in(xn,1)
+		! tridiag
+		real(8) :: aa((xn-2)*(yn-2),(xn-2)*(yn-2)), a((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
+		real(8) :: bb((xn-2)*(yn-2),(xn-2)*(yn-2)), b((xn-2)*(yn-2),(xn-2)*(yn-2)+1)
 	end function psi_next
 	
+	! transports solutes
 	function solute_next(sol, uTransport, vTransport)
-	use globals
-	use initialize
-	! integers
-	integer :: i, j, ii, n, m
-	! inputs
-	real(8) :: sol(xn/cell,yn/cell), sol0(xn/cell,yn/cell)
-	real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
-	! solver stuff
-	real(8) :: uLong((xn/cell-2)*(yn/cell-2)), vLong((xn/cell-2)*(yn/cell-2))
-	real(8) :: aBand((xn/cell-2)*(yn/cell-2),5), bBand((xn/cell-2)*(yn/cell-2),5)
-	real(8) :: qx, qy, solute_next(xn/cell,yn/cell), vec((xn/cell-2)*(yn/cell-2))
-	real(8) :: sol_nextRow((xn/cell-2)*(yn/cell-2))
+		use globals
+		use initialize
+		! integers
+		integer :: i, j, ii, n, m
+		! inputs
+		real(8) :: sol(xn/cell,yn/cell), sol0(xn/cell,yn/cell)
+		real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
+		! solver stuff
+		real(8) :: uLong((xn/cell-2)*(yn/cell-2)), vLong((xn/cell-2)*(yn/cell-2))
+		real(8) :: aBand((xn/cell-2)*(yn/cell-2),5), bBand((xn/cell-2)*(yn/cell-2),5)
+		real(8) :: qx, qy, solute_next(xn/cell,yn/cell), vec((xn/cell-2)*(yn/cell-2))
+		real(8) :: sol_nextRow((xn/cell-2)*(yn/cell-2))
 	end function solute_next
 	
-	function alt_next (temp, timestep, primaryList, secondaryList, soluteList, order)
-	use globals
-	use initialize
-	use alteration
-	! declare yo shit
-	integer :: order
-	real(8) :: temp, timestep
-	real(8) :: alt_next(1,85)
-	real(8) :: alter0(1,85)
-	real(8) :: primaryList(5), secondaryList(28), soluteList(15)
+	! runs geochemical alteration model for a single (coarse) cell
+	function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
+		use globals
+		use initialize
+		use alteration
+		! declare yo shit
+		integer :: order
+		real(8) :: temp, timestep
+		real(8) :: alt_next(1,85)
+		real(8) :: alter0(1,85)
+		real(8) :: primaryList(5), secondaryList(28), soluteList(15)
 	end function alt_next
 
+	! calculates fluid density
 	function rho_next (h_in)
-	use globals
-	use initialize
-	integer :: i,j
-	real(8) :: h_in(xn,yn), rho_next(xn,yn)
+		use globals
+		use initialize
+		integer :: i,j
+		real(8) :: h_in(xn,yn), rho_next(xn,yn)
 	end function rho_next
 
+	! calculates velocities from streamfunction values
 	function velocities(psi)
-	use globals
-	use initialize
-	implicit none
-	real(8) :: velocities(xn,2*yn), psi(xn,yn)
-	real(8) :: u0(xn,yn), v0(xn,yn)
+		use globals
+		use initialize
+		implicit none
+		real(8) :: velocities(xn,2*yn), psi(xn,yn)
+		real(8) :: u0(xn,yn), v0(xn,yn)
 	end function velocities
 
+	! calculates partial derivative of any 1D or 2D array
 	function partial(array,rows,cols,d1,d2,dim)
-	use globals
-	use initialize
-	implicit none
-	integer :: rows, cols, dim, i, j, ii, jj
-	real(8) :: array(rows,cols), d1, d2, d
-	real(8) :: partial(rows,cols)
+		use globals
+		use initialize
+		implicit none
+		integer :: rows, cols, dim, i, j, ii, jj
+		real(8) :: array(rows,cols), d1, d2, d
+		real(8) :: partial(rows,cols)
 	end function partial
 
+	! writes 2D array to file
 	function write_matrix ( m, n, table, filename )
-	use globals
-	implicit none
-	integer :: m, n, j, output_status, unit0
-	character ( len = * ) filename
-	character ( len = 30 ) string
-	real(4)  :: table(m,n) , write_matrix
+		use globals
+		implicit none
+		integer :: m, n, j, output_status, unit0
+		character ( len = * ) filename
+		character ( len = 30 ) string
+		real(4)  :: table(m,n) , write_matrix
 	end function write_matrix
 
+	! writes 1D array to file
 	function write_vec ( n, vector, filename )
-	use globals
-	implicit none
-	integer :: n, j, output_status, unit0
-	character ( len = * ) filename 
-	real(4)  :: vector(n), write_vec
+		use globals
+		implicit none
+		integer :: n, j, output_status, unit0
+		character ( len = * ) filename 
+		real(4)  :: vector(n), write_vec
 	end function write_vec
 	
 end interface
 
-! DECLARE DEPENDENT VARIABLE ARRAYS
-real(8) :: h(xn,yn), psi(xn,yn) ! xn ROWS DEEP & yn COLUMNS WIDE 
+!--------------DECLARE EVERYTHING 
+
+! dependent variable arrays
+real(8) :: h(xn,yn), psi(xn,yn) ! xn rows deep & yn columns wide
 real(8) :: hmat(xn,(yn*tn/mstep)), psimat(xn,(yn*tn/mstep))
+real(8) :: velocities0(xn,2*yn)
 real(8) :: umat(xn,(yn*tn/mstep)), vmat(xn,(yn*tn/mstep))
 real(8) :: u(xn,yn), uLong(xn*yn), v(xn,yn), vLong(xn*yn)
 
-! OTHER PROPERTIES
+! material properties
 real(8) :: rho(xn,yn), flux(xn,2)
-real(8) :: rhs0(xn,yn), velocities0(xn,2*yn)
+real(8) :: rhs0(xn,yn)
 integer :: unit
-real(8) :: yep
 
-! NETCDF STUFF
+! netCDF & output stuff
 integer :: xInt, yInt, tInt, hInt, uInt, vInt
 integer :: ncid
 integer :: x_dimid, y_dimid, t_dimid, h_dimid, u_dimid, v_dimid
 integer :: x_varid, y_varid, t_varid, h_varid, u_varid, v_varid
 integer :: i, j, ii, m, n, jj
+real(8) :: yep
 
-! BENCHMARK STUFF
+! benchmark stuff
 real(8) :: nusseltLocalv(xn,1), nuBar
+
+! geochemical alteration stuff
 real(8) :: alt0(1,altnum)
+real(8) :: primary(xn/cell,yn/cell,5), primaryMat(xn/cell,yn*tn/(cell*mstep),5)
+real(8) :: secondary(xn/cell,yn/cell,28), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
+real(8) :: solute(xn/cell,yn/cell,15), soluteMat(xn/cell,yn*tn/(cell*mstep),15)
 
-! ALTERATION ARRAYS
-real(8) :: primary(xn/cell,yn/cell,5), secondary(xn/cell,yn/cell,28), solute(xn/cell,yn/cell,15)
-real(8) :: primaryMat(xn/cell,yn*tn/(cell*mstep),5), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
-real(8) :: soluteMat(xn/cell,yn*tn/(cell*mstep),15)
-real(8) :: soluteOcean(15)
-
-! SOLUTE TRANSPORT ARRAYS
+! solute transport stuff
 real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
 real(8) :: uCoarse(xn/cell,yn/cell), vCoarse(xn/cell,yn/cell)
-real(8) :: solTemp(xn/cell,yn/cell)
+real(8) :: solTemp(xn/cell,yn/cell), soluteOcean(15)
 
-! DECLARE STUFF FOR MESSAGE PASSING
+! message passing stuff
 integer, parameter :: max_rows = 10000000
 integer, parameter :: send_data_tag = 2001, return_data_tag = 2002
 integer :: my_id, root_process, ierr, status(MPI_STATUS_SIZE)
@@ -186,7 +186,7 @@ real(8) :: local_mean, global_mean
 real(8) :: hLocal((xn/cell)*(yn/cell)), dt_local
 integer :: order
 
-! MPI ARRAYS ALL STRETCH OUT
+! formatted message passing arrays
 real(8) :: hLong((xn/cell)*(yn/cell))
 real(8) :: priLong((xn/cell)*(yn/cell),5), priLocal((xn/cell)*(yn/cell),5)
 real(8) :: secLong((xn/cell)*(yn/cell),28), secLocal((xn/cell)*(yn/cell),28)
@@ -195,18 +195,19 @@ real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
 real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
 
-! INITIAL AMOUNTS OF PRIMARY MINERALS IN A CELL [mol]
+!--------------GEOCHEMICAL INITIAL CONDITIONS
+
+! primary minerals [mol]
 primary(:,:,1) = 12.96 ! feldspar
 primary(:,:,2) = 6.96 ! augite
 primary(:,:,3) = 1.26 ! pigeonite
 primary(:,:,4) = .4 ! magnetite
 primary(:,:,5) = 96.77 ! basaltic glass
 
-! INITIAL AMOUNTS OF SECONDARY MINERALS [mol]
+! secondary minerals [mol]
 secondary(:,:,:) = 0.0
 
-! INITIAL SOLUTE CONCENTRATIONS [mol/kgw] (hydrothermal system initial)
-!solute(:,:,1) = 7.8 ! ph
+! hydrothermal solute concentrations [mol/kgw]
 solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
 solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
@@ -216,20 +217,22 @@ solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
 solute(:,:,8) = 1.0e-4 ! K
 solute(:,:,9) = 1.2e-6 ! Fe
-solute(:,:,10) = 1.0e-4 ! 1.0e-4 ! S(6)
+solute(:,:,10) = 0.0 ! 1.0e-4 ! S(6)
 solute(:,:,11) = 2.0e-4 ! Si
 solute(:,:,12) = 3.0e-4 ! Cl
 solute(:,:,13) = 1.0e-6 ! Al
 solute(:,:,14) = 2.200e-3 ! HCO3-
 solute(:,:,15) = 0.0 ! CO3-2
 
+! seawater solute concentrations [mol/kgw]
 soluteOcean = (/ solute(1,1,1), solute(1,1,2), solute(1,1,3), solute(1,1,4), solute(1,1,5), & 
 			  & solute(1,1,6), solute(1,1,7), solute(1,1,8), solute(1,1,9), solute(1,1,10), &
 			  & solute(1,1,11), solute(1,1,12), solute(1,1,13), solute(1,1,14), solute(1,1,15) /)
 
 write(*,*) "testing..."
 
-!--------------INITIALIZE ALL PROCESSORS--------------!
+!--------------INITIALIZE ALL PROCESSORS
+
 ! process #0 is the root process
 root_process = 0
 
@@ -240,19 +243,20 @@ call MPI_INIT ( ierr )
 call MPI_COMM_RANK (MPI_COMM_WORLD, my_id, ierr)
 call MPI_COMM_SIZE (MPI_COMM_WORLD, num_procs, ierr)
 
-! PRINT CURRENT PROCESSOR
+! print out current processor id
 write(*,*) "my_id:", my_id
 write(*,*) " "
 
-if (my_id .eq. root_process) then ! BEGIN LOOP THROUGH PROCESSORS
+! what to do if you are the master processor
+if (my_id .eq. root_process) then 
 
-!--------------DO STUFF WITH THE MASTER PROCESSOR--------------!
-! what to do if the process is the root process
+!--------------DO STUFF WITH THE MASTER PROCESSOR
 
-! INITIALIZE DOMAIN GEOMETRY
+! initialize domain geometry
 call init()
 
-! PUT IN BOUNDARY & INITIAL CONDITIONS
+
+! boundary & initial condtions for flow equations
 psi=0.0
 psi(1,1:yn) = bcyPsi(1,1:yn)
 psi(xn,1:yn) = bcyPsi(2,1:yn)
@@ -265,7 +269,7 @@ h(xn,1:yn) = bcy0(2,1:yn)
 h(1:xn,1) = bcx0(1:xn,1)
 h(1:xn,yn) = bcx0(1:xn,2)
 
-! PUT INITIAL VALUES INTO MATRIX FOR FILE
+! put initial values into array for file
 hmat(1:xn,1:yn) = h
 psimat(1:xn,1:yn) = psi
 umat(1:xn,1:yn) = u
@@ -276,38 +280,40 @@ vTransport = 0.0
 uCoarse = 0.0
 vCoarse = 0.0
 
-order = -1
-! THIS IS THE MAIN LOOP THAT DOES ALL THE SOLVING
+! this is the main loop that does all the solving for tn timesteps
 do j = 2, tn
-write(*,*) j
+	
+	! print current timestep
+	write(*,*) j
 
 	! HEAT FLUX BOUNDARY CONDITIONS
+	
 	! bottom
 	do i = 1,xn
-	flux(i,1) = h(i,2) +((.27))*dy/(2.6)
+		flux(i,1) = h(i,2) +((.27))*dy/(2.6)
 	end do
+	
 	! top
 	flux(:,2) = 300.0
 	do i = 1,xn/2
-	flux(i,2) = 274.0 !+ .01*x(i)
+		flux(i,2) = 274.0
 	end do
-	!flux(:,2) = 274.0
-
-	! SOLVE THERMAL NRG EQUATION
+	
+	! solve thermal energy equation
 	rho = rho_next(h)
 	h = h_next(h, psi,rho, flux)
   
-	! PUT HEAT FLUX BOUNDARY CONDITIONS IN FOR NEXT TIMESTEP
+	! put thermal energy boundary conditions in for next timestep
 	h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
 	h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
 	h(:,1) = flux(:,1)
 	h(:,yn) = flux(:,2)
   
-	! SOLVE STREAMFUNCTION-VORTICITY EQUATION
+	! solve streamfunction-vorticity equation
 	rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 	psi = psi_next(h, rhs0, psi, permeable, rho)
 
-	! PUT IN STREAMFUNCTION BOUNDARY CONDITIONS FOR NEXT TIMESTEP
+	! put in streamfunction boundary conditions for next timestep
 	psi(1,1:yn) = bcyPsi(1,1:yn) ! left
 	psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
 	psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
@@ -315,12 +321,12 @@ write(*,*) j
 	psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2))/1.0
 	permeable = psi(:,yn)
 
-	! GET VELOCITIES FROM STREAMFUNCTION ARRAY
+	! get velocities from streamfunction
 	velocities0 = velocities(psi)
 	u = velocities0(1:xn,1:yn)
 	v = velocities0(1:xn,yn+1:2*yn)
 	
-	! AVERAGE AND SUM VELOCITIES FOR COARSE GRID
+	! interpolate fine grid onto coarse grid
 	do i = 1,xn/cell
 	do ii = 1,yn/cell
 		!uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell))/2
@@ -332,199 +338,178 @@ write(*,*) j
 	uTransport = uTransport + uCoarse
 	vTransport = vTransport + vCoarse
 	
-! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
-if (mod(j,mstep) .eq. 0) then
+	! things only done every mth timestep go here
+	if (mod(j,mstep) .eq. 0) then
 	
-	order = order + 1
+		! make coarse grid average velocities
+		uTransport = uTransport/mstep ! ??? why is this an average???
+		vTransport = vTransport/mstep
 	
-	uTransport = uTransport/mstep
-	vTransport = vTransport/mstep
+		! mixed top boundary condition
+		do i=1,yn/cell
+			if (vTransport(i,yn/cell) .le. 0.0) then
+				do n=1,15
+					solute(i,yn/cell,n) = soluteOcean(n)
+				end do
+			end if
+		end do 
 	
-	! MIXED TOP BOUNDARY CONDITION
-	do i=1,yn/cell
-		if (vTransport(i,yn/cell) .le. 0.0) then
-			do n=1,15
-				solute(i,yn/cell,n) = soluteOcean(n)
+		! other boundary condition examples
+		!solute(1,:,5) = 6.0e-3 ! left
+		!solute(xn/cell,:,5) = 0.0 ! right
+
+		! convert pH, pe to concentrations
+		do i=1,xn/cell
+			do ii=1,yn/cell
+				solute(i,ii,1) = 10**(-solute(i,ii,1))
+				solute(i,ii,2) = 10**(-solute(i,ii,2))
 			end do
-		end if
-	end do 
-	
-	! OTHER BOUNDARY CONDITION OPTIONS
-	!solute(1,:,5) = 6.0e-3 ! left
-	!solute(xn/cell,:,5) = 0.0 ! right
-
-	
-	! ADVECT SOLUTES AROUND
-	do i=1,xn/cell
-		do ii=1,yn/cell
-			solute(i,ii,1) = 10**(-solute(i,ii,1))
-			solute(i,ii,2) = 10**(-solute(i,ii,2))
 		end do
-	end do
 	
-	do n=1,15
-		solTemp = solute(:,:,n)
-		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-	end do
-	
-	do i=1,xn/cell
-		do ii=1,yn/cell
-			solute(i,ii,1) = -log10(solute(i,ii,1))
-			solute(i,ii,2) = -log10(solute(i,ii,2))
+		! transport each solute
+		do n=1,15
+			solTemp = solute(:,:,n)
+			!solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 		end do
-	end do
+		
+		! convert [H+], [e-] to pH, pe
+		do i=1,xn/cell
+			do ii=1,yn/cell
+				solute(i,ii,1) = -log10(solute(i,ii,1))
+				solute(i,ii,2) = -log10(solute(i,ii,2))
+			end do
+		end do
 	
-	! RESET COARSE GRID VELOCITIES FOR NEXT TIMESTEP
-	uTransport = 0.0
-	vTransport = 0.0
+		! reset coarse grid velocities for next timestep
+		uTransport = 0.0
+		vTransport = 0.0
 	
-	!-TRANSPOSE 1
-	! stretch everything out
-	!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! cell = 1
-	hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! cell > 1
-	priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
-	secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 28/))
-	solLong = reshape(solute, (/(xn/cell)*(yn/cell), 15/))
+		!-TRANSPOSE 1
+		! stretch everything out
+		hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
+		!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
+		priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
+		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 28/))
+		solLong = reshape(solute, (/(xn/cell)*(yn/cell), 15/))
 	
-	!--------------MESSAGE DISTRIBUTING FROM MASTER TO SLAVES--------------!
-	do an_id = 1, num_procs - 1
+		!--------------MESSAGE DISTRIBUTING FROM MASTER TO SLAVES
+		do an_id = 1, num_procs - 1
 		
-		! put number of rows in vector here for hLong
-		num_rows = (xn/cell)*(yn/cell)
-		avg_rows_per_process = num_rows / (num_procs-1)
-        start_row = ( (an_id-1) * avg_rows_per_process) + 1
-        end_row = start_row + avg_rows_per_process - 1
-        if (an_id .eq. (num_procs - 1)) end_row = num_rows
-        num_rows_to_send = (end_row - start_row + 1)
+			! put number of rows in vector here for hLong
+			num_rows = (xn/cell)*(yn/cell)
+			avg_rows_per_process = num_rows / (num_procs-1)
+	        start_row = ( (an_id-1) * avg_rows_per_process) + 1
+	        end_row = start_row + avg_rows_per_process - 1
+	        if (an_id .eq. (num_procs - 1)) end_row = num_rows
+	        num_rows_to_send = (end_row - start_row + 1)
 		
-		! send size of h chunk
-        call MPI_SEND( num_rows_to_send, 1, MPI_INTEGER, &
-		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-		
-		! send timestep size
-        call MPI_SEND( dt, 1, MPI_DOUBLE_PRECISION, &
-		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-		
-		! send h chunk to the an_id
-        call MPI_SEND( hLong(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
-		an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-		
-		! send primary chunk to the an_id
-		do ii = 1,5
-			priLongBit = priLong(:,ii)
-        	call MPI_SEND( priLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			! send size of temperature array chunk to processor an_id
+	        call MPI_SEND( num_rows_to_send, 1, MPI_INTEGER, &
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-		end do
 		
-		! send secondary chunk to the an_id
-		do ii = 1,28
-			secLongBit = secLong(:,ii)
-        	call MPI_SEND( secLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			! send timestep size to processor an_id
+	        call MPI_SEND( dt, 1, MPI_DOUBLE_PRECISION, &
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-		end do
 		
-		! send solute chunk to the an_id
-		do ii = 1,15
-			solLongBit = solLong(:,ii)
-        	call MPI_SEND( solLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+			! send temperature array chunk to processor an_id
+	        call MPI_SEND( hLong(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
-		end do
-		write(*,*) "DONE SENDING TO PROCESSOR", an_id
+		
+			! send primary array chunk to processor an_id
+			do ii = 1,5
+				priLongBit = priLong(:,ii)
+	        	call MPI_SEND( priLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+			end do
+		
+			! send secondary array chunk to processor an_id
+			do ii = 1,28
+				secLongBit = secLong(:,ii)
+	        	call MPI_SEND( secLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+			end do
+		
+			! send solute array chunk to processor an_id
+			do ii = 1,15
+				solLongBit = solLong(:,ii)
+	        	call MPI_SEND( solLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+			end do
+			
+			write(*,*) "DONE SENDING TO PROCESSOR", an_id
 
-	end do
-
-	write(*,*) "BEFORE"
-	!write(*,*) "primary"
-	!write(*,*) priLong(3,:)
-	!write(*,*) "secondary"
-	!write(*,*) secLong(3,:)
-	!write(*,*) "solutes"
-	!write(*,*) solLong(3,:)
-	
-	!--------------MESSAGE RECEIVING BACK TO MASTER--------------!
-	do an_id = 1, num_procs - 1
-		
-		! get the size of each chunk again
-		num_rows = (xn/cell)*(yn/cell)
-		avg_rows_per_process = num_rows / (num_procs-1)
-        start_row = ( (an_id-1) * avg_rows_per_process) + 1
-        end_row = start_row + avg_rows_per_process - 1
-        if (an_id .eq. (num_procs - 1)) end_row = num_rows
-        num_rows_to_send = (end_row - start_row + 1)
-		
-		! primary chunk
-		do ii = 1,5
-			! receive it
-			call MPI_RECV( priLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
-			an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-			! fill it
-			priLong(start_row:end_row,ii) = priLocal(1:num_rows_to_send,ii)
-		end do
-		
-		! secondary chunk
-		do ii = 1,28
-			! receive it
-			call MPI_RECV( secLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
-			an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-			! fill it
-			secLong(start_row:end_row,ii) = secLocal(1:num_rows_to_send,ii)
-		end do
-		
-		! solute chunk
-		do ii = 1,15
-			! receive it
-			call MPI_RECV( solLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
-			an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
-			! fill it
-			solLong(start_row:end_row,ii) = solLocal(1:num_rows_to_send,ii)
 		end do
 
-		write(*,*) "DONE RECEIVING FROM PROCESSOR", an_id
+		!--------------MESSAGE RECEIVING FROM SLAVE PROCESSORS
+		do an_id = 1, num_procs - 1
 		
-	end do
-	
-	!--------------MASTER WRITES MESSAGES FROM SLAVE--------------!
-	
-	! put stretched vectors back into 2d arrays
-	primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
-	secondary = reshape(secLong,(/(xn/cell), (yn/cell), 28/))
-	solute = reshape(solLong,(/(xn/cell), (yn/cell), 15/))
-	!-TRANSPOSE 2
-	
-	! LOOK AT PRIMARY SEE IF IT WORKS
-	write(*,*) "AFTER"
-	!write(*,*) "primary"
-	!write(*,*) priLong(3,:)
-	!write(*,*) "secondary"
-	!write(*,*) secLong(3,:)
-	!write(*,*) "solutes"
-	!write(*,*) solLong(3,:)
+			! get the size of each chunk again
+			num_rows = (xn/cell)*(yn/cell)
+			avg_rows_per_process = num_rows / (num_procs-1)
+	        start_row = ( (an_id-1) * avg_rows_per_process) + 1
+	        end_row = start_row + avg_rows_per_process - 1
+	        if (an_id .eq. (num_procs - 1)) end_row = num_rows
+	        num_rows_to_send = (end_row - start_row + 1)
+		
+			! receive primary chunk
+			do ii = 1,5
+				! receive it
+				call MPI_RECV( priLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+				! fill it
+				priLong(start_row:end_row,ii) = priLocal(1:num_rows_to_send,ii)
+			end do
+		
+			! receive secondary chunk
+			do ii = 1,28
+				! receive it
+				call MPI_RECV( secLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+				! fill it
+				secLong(start_row:end_row,ii) = secLocal(1:num_rows_to_send,ii)
+			end do
+		
+			! receive solute chunk
+			do ii = 1,15
+				! receive it
+				call MPI_RECV( solLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+				! fill it
+				solLong(start_row:end_row,ii) = solLocal(1:num_rows_to_send,ii)
+			end do
 
-	! ADD EACH TIMESTEP TO MATRICES
-	 hmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = h
-	 psimat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = psi
-	 umat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = u
-	 vmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = v
-	 primaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = primary
-	 secondaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = secondary
-	 soluteMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = solute
+			write(*,*) "DONE RECEIVING FROM PROCESSOR", an_id
+		
+		end do
+	
+		!--------------MASTER PROCESSOR SAVES OUTPUT TO BE WRITTEN TO FILE
+	
+		! put stretched vectors back into 2d arrays
+		primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
+		secondary = reshape(secLong,(/(xn/cell), (yn/cell), 28/))
+		solute = reshape(solLong,(/(xn/cell), (yn/cell), 15/))
+		!-TRANSPOSE 2
+
+		! add timestep's output to output arrays
+		 hmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = h
+		 psimat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = psi
+		 umat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = u
+		 vmat(1:xn,1+yn*(j/mstep-1):1+yn*(j/mstep)) = v
+		 primaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = primary
+		 secondaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = secondary
+		 soluteMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = solute
 	 
-end if ! END mTH TIMESTEP LOOP
+	end if 
+	! end mth timestep loop, finally
 
-! umat(1:xn,1+yn*(j-1):1+yn*(j)) = u
-! vmat(1:xn,1+yn*(j-1):1+yn*(j)) = v
-! hmat(1:xn,1:yn) = h
-! psimat(1:xn,1:yn) = psi
-! umat(1:xn,1:yn) = u
-! vmat(1:xn,1:yn) = v
-
-end do ! END ALL TIMESTEP LOOP
+end do 
+! end all timestep loop
 
 
 
 
+!--------------WRITE EVERYTHING TO FILE
 
-! WRITE EVERYTHING TO FILE
 yep = write_vec ( xn, real(x,kind=4), 'x.txt' )
 yep = write_vec ( yn, real(y,kind=4), 'y.txt' )
 yep = write_vec ( tn, real(t, kind=4), 't.txt' )
@@ -532,8 +517,10 @@ yep = write_matrix ( xn, yn*tn/mstep, real(hmat, kind = 4), 'hMat.txt' )
 yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat.txt' )
 yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat.txt' )
 yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat.txt' )
+yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho.txt' )
+yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 
-! WRITE SECONDARIES TO FILE
+! secondary minerals
 yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,1),kind=4), 'sec_stilbite.txt')
 yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,2),kind=4), 'sec_sio2.txt')
 ! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,3),kind=4), 'sec_kaolinite.txt')
@@ -563,7 +550,7 @@ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,16),kind=4
 ! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,27),kind=4), 'sec_hematite.txt')
 ! yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,28),kind=4), 'sec_diaspore.txt')
 
-! WRITE SOLUTES TO FILE
+! solute concentrations
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,1),kind=4), 'sol_ph.txt' )
 !yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,2),kind=4), 'sol_pe.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,3),kind=4), 'sol_alk.txt' )
@@ -579,17 +566,19 @@ yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4),
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,14),kind=4), 'sol_hco3.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,15),kind=4), 'sol_co3.txt' )
 
-! WRITE PRIMARIES TO FILE
+! primary minerals
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,1),kind=4), 'pri_feldspar.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,2),kind=4), 'pri_augite.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,3),kind=4), 'pri_pigeonite.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,4),kind=4), 'pri_magnetite.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'pri_glass.txt' )
 
-yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho.txt' )
-yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 
-! WRITE THINGS TO NETCDF FILES
+
+!--------------WRITE TO NETCDF FILES
+
+! net cdf is on hold for the time being to accomodate the new geochemical output
+
 ! call check( nf90_create('thermalNRG.nc', NF90_CLOBBER, ncid) )
 ! call check( nf90_def_dim(ncid, "x", xn, x_dimid) )
 ! call check( nf90_def_dim(ncid, "y", yn, y_dimid) )
@@ -621,59 +610,59 @@ yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 write(*,*) " "
 write(*,*) "ALL DONE!"
 
-
-
+! what to do if you are a slave processor
 else
 	
-	!--------------SLAVE PROCESSOR RECEIVES MESSAGE--------------! 
+	!--------------SLAVE PROCESSOR RECEIVES MESSAGE
 	
+	! message receiving has to happen every mth step
 	do jj = 1, tn/mstep
 		! here is a slave process, each process must receive a chunk of the h array and 
 		! take the local mean, print it, send it back.
 		
-		! receive size of chunk
+		! receive size of temperature array chunk
 		call MPI_RECV ( num_rows_to_receive, 1 , MPI_INTEGER, &
 		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 		
-		! receive timestep
+		! receive timestep size
 		call MPI_RECV ( dt_local, 1 , MPI_DOUBLE_PRECISION, &
 		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 		
-		! receive h chunk, save in local hLocal
+		! receive temperature array chunk, save in local hLocal
 		call MPI_RECV ( hLocal, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 		root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 		num_rows_received = num_rows_to_receive
 
-		! receive primary chunk, save in local priLocal
+		! receive primary array chunk, save in local priLocal
 		do ii = 1,5
 			call MPI_RECV ( priLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			priLocal(:,ii) = priLocalBit
 		end do
 	
-		! receive secondary chunk, save in local priLocal
+		! receive secondary array chunk, save in local secLocal
 		do ii = 1,28
 			call MPI_RECV ( secLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			secLocal(:,ii) = secLocalBit
 		end do
 	
-		! receive solute chunk, save in local priLocal
+		! receive solute chunk, save in local solLocal
 		do ii = 1,15
 			call MPI_RECV ( solLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			solLocal(:,ii) = solLocalBit
 		end do
 	
-		!--------------SLAVE PROCESSOR RUNS GEOCHEMICAL MODEL--------------!
+		!--------------SLAVE PROCESSOR RUNS GEOCHEMICAL MODEL
 
-		!  DO ALL THE SLAVEWORK HERE
-	
-		! slave processor goes through phreeqc loop here
+		! slave processor loops through each coarse cell
 		do m=1,num_rows_to_receive
-			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:),order)
+			
+			! run the phreeqc alteration model
+			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
 
-			!PARSING
+			! parse the phreeqc output
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
 			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
 			alt0(1,13), alt0(1,14), alt0(1,15), 0.0D+00/)
@@ -686,26 +675,29 @@ else
 			
 			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 			
-			! print something interesting
-			write(*,*) solLocal(m,14)
+			! print something you want to look at
+			write(*,*) solLocal(m,10) ! sulfur
+			
 		end do
+		
+		! write something interesting to a file to look while the model is running
 		yep = write_matrix ( num_rows_to_receive, 5, real(priLocal, kind = 4), 'realTime.txt' )
 	
-		!--------------SLAVE PROCESSOR SENDS ALTERED MESSAGE TO MASTER PROCESSOR--------------!
+		!--------------SLAVE PROCESSOR SENDS ALTERED MESSAGE TO MASTER PROCESSOR
 	
-		! send primary chunk back to root process
+		! send primary array chunk back to root process
 		do ii = 1,5
 			call MPI_SEND( priLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
-		! send secondary chunk back to root process
+		! send secondary array chunk back to root process
 		do ii = 1,28
 			call MPI_SEND( secLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
-		! send solute chunk back to root process
+		! send solute array chunk back to root process
 		do ii = 1,15
 			call MPI_SEND( solLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
@@ -713,9 +705,14 @@ else
 		
 		write(*,*) "SLAVE PROCESSOR IS DONE WITH WORK"
 	
+	! done with looping through coarse timesteps
 	end do
-	
-end if ! END LOOP THROUGH PROCESSORS
+
+! end loop through processors	
+end if 
+
+
+! close up shop
 call MPI_FINALIZE ( ierr )
 
 
@@ -739,19 +736,24 @@ END PROGRAM main
 ! ----------------------------------------------------------------------------------%%
 
 function h_next (h, psi, rho_in, flux)
+	
 use globals
 use initialize
 implicit none
 
 interface
+	
 	function velocities(psi)
-	use globals
-	implicit none
-	integer :: i,ii,j,jj
-	real(8) :: uu(xn+1,yn+1), vv(xn+1,yn+1), velocities(xn,2*yn), psi(xn,yn)
-	real(8) :: u0(xn,yn), v0(xn,yn), dLeft, dRight, dTop, dBottom
+		use globals
+		implicit none
+		integer :: i,ii,j,jj
+		real(8) :: uu(xn+1,yn+1), vv(xn+1,yn+1), velocities(xn,2*yn), psi(xn,yn)
+		real(8) :: u0(xn,yn), v0(xn,yn), dLeft, dRight, dTop, dBottom
 	end function
+	
 end interface
+
+! declare errthing
 
 ! integers
 integer :: i, j, n, ii, m=3
@@ -773,19 +775,21 @@ real(8) :: sxMat(xn,yn), syMat(xn,yn), sxLong((xn-2)*(yn-2)), syLong((xn-2)*(yn-
   
 mn = h
 
+! calculate velocities from streamfunction values
 velocities0 = velocities(psi)
 u = velocities0(1:xn,1:yn)
 v = velocities0(1:xn,yn+1:2*yn)
 uLong = reshape(u(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 vLong = reshape(transpose(v(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
-! PRINT CONVERGENCE CONDITIONS AT EACH TIMESTEP
+! print maximum fluid velocities at each timestep
 write(*,*) " "
 write(*,*) "max u"
 write(*,*) maxval(abs(u))
 write(*,*) "max v"
 write(*,*) maxval(abs(v))
 
+! print stability conditions at each timestep
 write(*,*) " "
 write(*,*) "velocity check"
 write(*,"(F10.5)") (dt*maxval(abs(u)))*rho_fluid/(dx)
@@ -805,7 +809,7 @@ sy = (2.0*dt*lambda)/(4186.0*dy*dy)
 sxMat = (2.0*dt*lambdaMat)/(4186.0*dx*dx)
 syMat = (2.0*dt*lambdaMat)/(4186.0*dy*dy)
 
-! VERTICAL BOUNDARY CONDITIONS
+! vertical boundary conditions
 h(2,:) = h(2,:) + h0(1,:)*sxMat(1,:)/2.0  ! left
 h(xn-1,:) = h(xn-1,:) + h0(xn,:)*sxMat(xn,:)/2.0  ! right
  
@@ -813,48 +817,48 @@ uVec = reshape(h(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 sxLong = reshape(sxMat(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 syLong = reshape(syMat(2:xn-1,2:yn-1), (/(xn-2)*(yn-2)/))
 
-! MAKE THE BAND
+! make the band
 aBand = 0.0
 do i = 1,(xn-2)*(yn-2)
 	  
 	aBand(i,2) = 1.0+sxLong(i)
 	if (i-1 .gt. 0) then
-	aBand(i,1) = -sxLong(i)/2.0 - uLong(i)*qx/2.0
+		aBand(i,1) = -sxLong(i)/2.0 - uLong(i)*qx/2.0
 	end if
 	if (i+1 .le. (xn-2)*(yn-2)) then
-	aBand(i,3) = -sxLong(i)/2.0 + uLong(i)*qx/2.0
+		aBand(i,3) = -sxLong(i)/2.0 + uLong(i)*qx/2.0
 	end if
 
 	! first edge
 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 + sxLong(i) - uLong(i)*qx
-	if (i .gt. 1) then
-	aBand(i,1) =  0.0
-	end if
-	if (i .lt. (xn-2)*(yn-2)) then
-	aBand(i,3) = -sxLong(i)/2.0 + uLong(i)*qx
-	end if
+		aBand(i,2) = 1.0 + sxLong(i) - uLong(i)*qx
+		if (i .gt. 1) then
+			aBand(i,1) =  0.0
+		end if
+		if (i .lt. (xn-2)*(yn-2)) then
+			aBand(i,3) = -sxLong(i)/2.0 + uLong(i)*qx
+		end if
 	end if
 
 	! last edge
 	if (any(mod((/i/),xn-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 + sxLong(i) - uLong(i)*qx
-	if (i .gt. 1) then
-	aBand(i,3) =  0.0
-	end if
-	if (i .le. (xn-2)*(yn-2)) then
-	aBand(i,1) = -sxLong(i)/2.0 + uLong(i)*qx
-	end if
+		aBand(i,2) = 1.0 + sxLong(i) - uLong(i)*qx
+		if (i .gt. 1) then
+			aBand(i,3) =  0.0
+		end if
+		if (i .le. (xn-2)*(yn-2)) then
+			aBand(i,1) = -sxLong(i)/2.0 + uLong(i)*qx
+		end if
 	end if
   
 end do
   
+! make sure solver doesn't go out of bounds
 do i=1,((xn-2)-1)
 	ii = i*(xn-2)
 	aBand(ii,3) = 0.0
 	aBand(ii+1,1) = 0.0
 end do
-  
   
 !!!!!!!!!!!! THIS !!!!!!!!!!!
 h_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),uVec,(xn-2)*(yn-2))
@@ -864,47 +868,47 @@ syMat(2:xn-1,2:yn-1) = reshape(syLong, (/xn-2, yn-2/))
 sxLong = reshape(transpose(sxMat(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 syLong = reshape(transpose(syMat(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
-! HORIZONTAL BOUNDARY CONDITIONS
+! horizontal boundary conditions
 h(:,2) = h(:,2) + flux(:,1)*syMat(:,1)/2.0 ! bottom
 h(:,xn-1) = h(:,xn-1) + flux(:,2)*syMat(:,yn)/2.0 ! top
 
 h_nextRow = reshape(transpose(h(2:xn-1,2:yn-1)), (/(xn-2)*(yn-2)/))
 
-
-! MAKE THE BAND
+! make the band
 bBand = 0.0
 do i = 1,(xn-2)*(yn-2)
 	bBand(i,2) = 1.0+syLong(i)
 	if (i-1 .gt. 0) then
-	bBand(i,1) = -syLong(i)/2.0 - vLong(i)*qy/2.0
+		bBand(i,1) = -syLong(i)/2.0 - vLong(i)*qy/2.0
 	end if
 	if (i+1 .le. (xn-2)*(yn-2)) then
-	bBand(i,3) = -syLong(i)/2.0 + vLong(i)*qy/2.0
+		bBand(i,3) = -syLong(i)/2.0 + vLong(i)*qy/2.0
 	end if
 
 	! first edge
 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-	bBand(i,2) = 1.0 + syLong(i) - vLong(i)*qy
-	if (i .gt. 1) then
-	bBand(i,1) =  0.0
-	end if
-	if (i .lt. (xn-2)*(yn-2)) then
-	bBand(i,3) = -syLong(i)/2.0 + vLong(i)*qy
-	end if
+		bBand(i,2) = 1.0 + syLong(i) - vLong(i)*qy
+		if (i .gt. 1) then
+			bBand(i,1) =  0.0
+		end if
+		if (i .lt. (xn-2)*(yn-2)) then
+			bBand(i,3) = -syLong(i)/2.0 + vLong(i)*qy
+		end if
 	end if
 
 	! last edge
 	if (any(mod((/i/),xn-2) .eq. 0.0)) then
-	bBand(i,2) = 1.0 + syLong(i) + vLong(i)*qy
-	if (i .gt. 1) then
-	bBand(i,3) =  0.0
-	end if
-	if (i .le. (xn-2)*(yn-2)) then
-	bBand(i,1) = -syLong(i)/2.0 - vLong(i)*qy
-	end if
+		bBand(i,2) = 1.0 + syLong(i) + vLong(i)*qy
+		if (i .gt. 1) then
+			bBand(i,3) =  0.0
+		end if
+		if (i .le. (xn-2)*(yn-2)) then
+			bBand(i,1) = -syLong(i)/2.0 - vLong(i)*qy
+		end if
 	end if
 end do
   
+! make sure solver doesn't go out of bounds
 do i=1,((xn-2)-1)
 	ii = i*(xn-2)
 	bBand(ii,3) = 0.0
@@ -914,7 +918,7 @@ end do
 h_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),h_nextRow,(xn-2)*(yn-2))
 h_next(2:xn-1,2:yn-1) = transpose(reshape(h_nextRow, (/xn-2, yn-2/)))
 
-! PRINT DELTA T
+! check out how this equation is converging to steady-state
 write(*,*) "deltaT"
 write(*,*) maxval(abs((mn(2:xn-1,2:yn-1)-h_next(2:xn-1,2:yn-1))/h_next(2:xn-1,2:yn-1)))
 
@@ -946,29 +950,34 @@ end function h_next
 ! ----------------------------------------------------------------------------------%%
 
 function psi_next (h, rhs0, psi, top_in, rho_in)
+
 use globals
 use initialize
 implicit none
 
 interface
+	
 	function partial(array,rows,cols,d1,d2,dim)
-	use globals
-	use initialize
-	implicit none
-	integer :: rows, cols, dim, i, j, ii, jj
-	real(8) :: array(rows,cols), d1, d2, d
-	real(8) :: partial(rows,cols)
+		use globals
+		use initialize
+		implicit none
+		integer :: rows, cols, dim, i, j, ii, jj
+		real(8) :: array(rows,cols), d1, d2, d
+		real(8) :: partial(rows,cols)
 	end function partial
 
 	function write_matrix ( m, n, table, filename )
-	use globals
-	implicit none
-	integer :: m, n, j, output_status, unit0
-	character ( len = * ) filename
-	character ( len = 30 ) string
-	real(4)  :: table(m,n) , write_matrix
+		use globals
+		implicit none
+		integer :: m, n, j, output_status, unit0
+		character ( len = * ) filename
+		character ( len = 30 ) string
+		real(4)  :: table(m,n) , write_matrix
 	end function write_matrix
+	
 end interface
+
+! declare errthing
 
 ! integers
 integer :: i, j, ii, n, m
@@ -983,12 +992,11 @@ real(8) :: mn(xn,yn)
 ! back to band
 real(8) :: aBand0((xn-2)*(yn-2),2*(xn-2) + 1)
 
-
 mn = psi
 
+! calculate coefficients in solver matrix 
 permx = partial((1/(permeability)),xn,yn,dx,dy,1)
 permy = partial((1/(permeability)),xn,yn,dx,dy,2)
-
 
 rhoLong = reshape(rho_in(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 permLong = reshape(permeability(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
@@ -998,6 +1006,7 @@ permyLong = reshape(permy(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
 rhs1 = rhs0
 
+! account for boundary cells in central cells
 rhs1(2,:) = rhs1(2,:) 
 rhs1(xn-1,:) = rhs1(xn-1,:) 
 rhs1(:,2) = rhs1(:,2) 
@@ -1009,41 +1018,50 @@ uVec = reshape(rhs1(2:xn-1,2:yn-1),(/(xn-2)*(yn-2)/))
 
 psi_next = 0.0
 
-
-! MAKE THE BAND
+! make the band
 aBand0 = 0.0
 m = 2*(xn-2) + 1
 do i = 1,(xn-2)*(yn-2)
-	! DIAGONAL
+	
+	! diagonal
 	aBand0(i,(m+1)/2) = (2.0)/(permLong(i)*dx*dx) + (2.0)/(permLong(i)*dy*dy)
-	! OFF-DIAGONALS
+	
+	! off-diagonals
 	if (i .gt. 1) then
-	aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*dx*dx) + (permxLong(i))/(2.0*dx)
+		aBand0(i,((m+1)/2)-1) = (-1.0)/(permLong(i)*dx*dx) + (permxLong(i))/(2.0*dx)
 	end if
 	if (i .lt. (xn-2)*(yn-2)) then
-	aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*dx*dx) - (permxLong(i))/(2.0*dx)
+		aBand0(i,((m+1)/2)+1) = (-1.0)/(permLong(i)*dx*dx) - (permxLong(i))/(2.0*dx)
 	end if
-	! FURTHER OFF-DIAGONALS
+	
+	! further off-diagonals
 	if (i .le. (xn-2)*(yn-2)-(xn-2)) then
-	aBand0(i,m) = (-1.0)/(permLong(i)*dy*dy) - (permyLong(i))/(2.0*dy)
+		aBand0(i,m) = (-1.0)/(permLong(i)*dy*dy) - (permyLong(i))/(2.0*dy)
 	end if
 	if (i .ge. (xn-2)) then
-	aBand0(i,1) = (-1.0)/(permLong(i)*dy*dy) + (permyLong(i))/(2.0*dy)
+		aBand0(i,1) = (-1.0)/(permLong(i)*dy*dy) + (permyLong(i))/(2.0*dy)
 	end if
+	
 end do
   
+! make sure solver doesn't go out of bounds
 do i=1,((xn-2)-1)
 	ii = i*(xn-2)
 	aBand0(ii,((m+1)/2)+1) = 0.0
 	aBand0(ii+1,((m+1)/2)-1) = 0.0
 end do
   
-! THIS IS FOR SOLVING
+! use the banded solver here
 aBand0 = band(aBand0,m,(xn-2)*(yn-2))
 psi_nextRow = solve(aBand0,uVec,m,(xn-2)*(yn-2))
 psi_next(2:xn-1,2:yn-1) = reshape(psi_nextRow, (/xn-2, yn-2/))
 
-! ENTIRELY JACOBIFIED !
+! here lies a jacobified version of the solver i used for a while
+! i'm saving it because: 1) it can be parallelized so if it's up to snuff
+! 						 that would be really useful and
+!						 2) i was working on a multi-grid solver for
+!						 three consecutive nights, late, late into the
+! 						 night and it might be fun to revisit
 
 !do n=1,800
 !do i=2,xn-1
@@ -1097,9 +1115,12 @@ end function psi_next
 ! ----------------------------------------------------------------------------------%%
 
 function solute_next (sol, uTransport, vTransport)
+	
 use globals
 use initialize
 implicit none
+
+! declare errthing
 
 ! integers
 integer :: i, j, ii, n, m
@@ -1115,10 +1136,6 @@ real(8) :: sol_nextRow((xn/cell-2)*(yn/cell-2))
 
 
 sol0 = sol
-
-! for implicit method
-! qx = dt/(cell*dx)
-! qy = dt/(cell*dy)
 
 qx = dt*mstep/(dx*cell)
 qy = dt*mstep/(dy*cell)
@@ -1140,24 +1157,24 @@ vLong = reshape(transpose(vTransport(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(y
 
 ! fully 2d lax-wendroff advection scheme test (order dx**3?)
 do i=2,(xn/cell)-1
-do ii=2,(yn/cell)-1
-	solute_next(i,ii) = sol(i,ii) &
-	& - uTransport(i,ii) * qx * (sol(i+1,ii)-sol(i-1,ii)) &
-	& - vTransport(i,ii) * qy * (sol(i,ii+1)-sol(i,ii-1)) &
-	& - ((uTransport(i,ii)*qx)**2) * 0.5 * (sol(i+1,ii) - 2.0*sol(i,ii) + sol(i-1,ii)) &
-	& - ((vTransport(i,ii)*qy)**2) * 0.5 * (sol(i,ii+1) - 2.0*sol(i,ii) + sol(i,ii-1)) &
-	& + uTransport(i,ii) * vTransport(i,ii) * qx * qy * .25 * &
-	& (sol(i+1,ii+1) - sol(i-1,ii+1) - sol(i+1,ii-1) + sol(i-1,ii-1))
+	do ii=2,(yn/cell)-1
+		solute_next(i,ii) = sol(i,ii) &
+		& - uTransport(i,ii) * qx * (sol(i+1,ii)-sol(i-1,ii)) &
+		& - vTransport(i,ii) * qy * (sol(i,ii+1)-sol(i,ii-1)) &
+		& - ((uTransport(i,ii)*qx)**2) * 0.5 * (sol(i+1,ii) - 2.0*sol(i,ii) + sol(i-1,ii)) &
+		& - ((vTransport(i,ii)*qy)**2) * 0.5 * (sol(i,ii+1) - 2.0*sol(i,ii) + sol(i,ii-1)) &
+		& + uTransport(i,ii) * vTransport(i,ii) * qx * qy * .25 * &
+		& (sol(i+1,ii+1) - sol(i-1,ii+1) - sol(i+1,ii-1) + sol(i-1,ii-1))
 	
-	! get rid of out-of-bounds truncation errors
-	if (solute_next(i,ii) .gt. maxval(sol0)) then
-		solute_next(i,ii) = maxval(sol0)
-	end if
-	if (solute_next(i,ii) .lt. minval(sol0)) then
-		solute_next(i,ii) = minval(sol0)
-	end if
+		! get rid of out-of-bounds truncation errors
+		if (solute_next(i,ii) .gt. maxval(sol0)) then
+			solute_next(i,ii) = maxval(sol0)
+		end if
+		if (solute_next(i,ii) .lt. minval(sol0)) then
+			solute_next(i,ii) = minval(sol0)
+		end if
 	
-end do
+	end do
 end do
 
 do i=2,(xn/cell)-1
@@ -1166,13 +1183,33 @@ do i=2,(xn/cell)-1
 		solute_next(i,yn/cell) = sol(i,yn/cell) &
 		& - uTransport(i,yn/cell) * qx * (sol(i,yn/cell)-sol(i-1,yn/cell)) &
 		& - vTransport(i,yn/cell) * qy * (sol(i,yn/cell)-sol(i,yn/cell-1)) 
+		
+		! get rid of out-of-bounds truncation errors
+		if (solute_next(i,yn/cell) .gt. maxval(sol0)) then
+			solute_next(i,yn/cell) = maxval(sol0)
+		end if
+		if (solute_next(i,yn/cell) .lt. minval(sol0)) then
+			solute_next(i,yn/cell) = minval(sol0)
+		end if
 	end if 
 	
 	! bottom edge
 	solute_next(i,1) = sol(i,1) &
 	& - uTransport(i,1) * qx * (sol(i+1,1)-sol(i,1)) &
 	& - vTransport(i,1) * qy * (sol(i,1+1)-sol(i,1)) 
+	
+	! get rid of out-of-bounds truncation errors
+	if (solute_next(i,1) .gt. maxval(sol0)) then
+		solute_next(i,1) = maxval(sol0)
+	end if
+	if (solute_next(i,1) .lt. minval(sol0)) then
+		solute_next(i,1) = minval(sol0)
+	end if
 end do
+
+! here lies a fully implicit version of the same thing. it seems to work just as well, but
+! in case i want to parallelize this part later, i might as well use the explicit method.
+! also boundary conditions are easier to deal with in the explicit method
 
 ! do ii=2,(yn/cell)-1
 ! 	! right edge
@@ -1312,7 +1349,7 @@ end function solute_next
 !
 ! ----------------------------------------------------------------------------------%%
 
-function alt_next (temp, timestep, primaryList, secondaryList, soluteList, order)
+function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
 use globals
 use initialize
 use alteration
@@ -1322,17 +1359,18 @@ interface
 
 end interface
 
-! DECLARE YO SHIT
+! declare errthing
+
 integer :: order
 real(8) :: temp, timestep
 real(8) :: alt_next(1,85)
 real(8) :: alter0(1,85)
 real(8) :: primaryList(5), secondaryList(28), soluteList(15)
 
-! GRAB EVERYTHING FROM THE ALTERATION MODULE
-alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList, order)
+! use the alteration module
+alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList)
 
-! RENAME IT FOR A REASON THAT I FORGET
+! rename it for a reason that i now forget
 alt_next = alter0
 
 end function alt_next
@@ -1351,20 +1389,23 @@ end function alt_next
 ! ----------------------------------------------------------------------------------%%
 
 function rho_next(h_in)
+	
 use globals
 use initialize
-  implicit none
+implicit none
   
-  integer :: i,j
-  real(8) :: h_in(xn,yn), rho_next(xn,yn)
-  
-  do i=1,xn
-  do j = 1,yn
-  rho_next(i,j) = rho_fluid*(1.0 - alpha*((h_in(i,j)-273.0)))
-  end do 
-  end do
-  
-  return
+! declare errthing
+integer :: i,j
+real(8) :: h_in(xn,yn), rho_next(xn,yn)
+
+
+do i=1,xn
+	do j = 1,yn
+		rho_next(i,j) = rho_fluid*(1.0 - alpha*((h_in(i,j)-273.0)))
+	end do 
+end do
+
+return
 
 end function rho_next
 
@@ -1385,26 +1426,27 @@ end function rho_next
 
 
 function velocities(psi)
+	
 use globals
 use initialize
 implicit none
 
 interface
 
-function partial(array,rows,cols,d1,d2,dim)
-use globals
-use initialize
-implicit none
-integer :: rows, cols, dim, i, j, ii, jj
-real(8) :: array(rows,cols), d1, d2, d
-real(8) :: partial(rows,cols)
-end function partial
+	function partial(array,rows,cols,d1,d2,dim)
+		use globals
+		use initialize
+		implicit none
+		integer :: rows, cols, dim, i, j, ii, jj
+		real(8) :: array(rows,cols), d1, d2, d
+		real(8) :: partial(rows,cols)
+	end function partial
 
 end interface
 
+! declare errthing
 real(8) :: velocities(xn,2*yn), psi(xn,yn)
 real(8) :: u0(xn,yn), v0(xn,yn)
-
 
 u0 = partial(psi,xn,yn,dx,dy,2)
 v0 = -partial(psi,xn,yn,dx,dy,1)
@@ -1434,36 +1476,43 @@ end function velocities
 ! ----------------------------------------------------------------------------------%%
 
 function partial(array,rows,cols,d1,d2,dim)
+	
 use globals
 use initialize
 implicit none
+
+! declare errthing
 integer :: rows, cols, dim, i, j, ii, jj
 real(8) :: array(rows,cols), d1, d2, d
 real(8) :: partial(rows,cols)
 
-
+! figure out which direction derivative goes (dx or dy)
 if (dim .eq. 1) then
-ii = 1
-jj = 0
-d = d1
-partial(1,:) = ( -3.0*array(1,:) + 4.0*array(2,:) -array(3,:)) / (2.0*d)
-partial(rows,:) = ( 3.0*array(rows,:) - 4.0*array(rows-1,:) + array(rows-2,:) ) / (2.0*d)
+	ii = 1
+	jj = 0
+	d = d1
+	
+	! compute edges beforehand
+	partial(1,:) = ( -3.0*array(1,:) + 4.0*array(2,:) -array(3,:)) / (2.0*d)
+	partial(rows,:) = ( 3.0*array(rows,:) - 4.0*array(rows-1,:) + array(rows-2,:) ) / (2.0*d)
 end if
 
 if (dim .eq. 2) then
-ii = 0
-jj = 1
-d = d2
-partial(:,1) = ( -3.0*array(:,1) + 4.0*array(:,2) -array(:,3)) / (2.0*d)
-partial(:,cols) = ( 3.0*array(:,cols) - 4.0*array(:,cols-1) + array(:,cols-2) ) / (2.0*d)
+	ii = 0
+	jj = 1
+	d = d2
+	
+	! compute edges beforehand 
+	partial(:,1) = ( -3.0*array(:,1) + 4.0*array(:,2) -array(:,3)) / (2.0*d)
+	partial(:,cols) = ( 3.0*array(:,cols) - 4.0*array(:,cols-1) + array(:,cols-2) ) / (2.0*d)
 end if
 
-
-    do i = 2-jj,rows-1+jj
+! use central difference method ignoring edges (already done)
+do i = 2-jj,rows-1+jj
     do j = 2-ii,cols-1+ii
-    partial(i,j) = (array(i+ii,j+jj)-array(i-ii,j-jj))/(2.0*d)
+    	partial(i,j) = (array(i+ii,j+jj)-array(i-ii,j-jj))/(2.0*d)
 	end do
-    end do
+end do
 
 return
 end function partial
