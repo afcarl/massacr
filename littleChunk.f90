@@ -49,7 +49,7 @@ PROGRAM main
 	
 	do i=1,50
 		
-		alt0 = alter(temp,timestep,primary,secondary,solute)
+		alt0 = alter(temp,timestep,primary,secondary,solute,0)
 	
 		!PARSING
 		solute = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &

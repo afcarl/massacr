@@ -85,11 +85,12 @@ interface
 	real(8) :: sol_nextRow((xn/cell-2)*(yn/cell-2))
 	end function solute_next
 	
-	function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
+	function alt_next (temp, timestep, primaryList, secondaryList, soluteList, order)
 	use globals
 	use initialize
 	use alteration
 	! declare yo shit
+	integer :: order
 	real(8) :: temp, timestep
 	real(8) :: alt_next(1,85)
 	real(8) :: alter0(1,85)
@@ -183,6 +184,7 @@ integer :: end_row, sender, start_row, num_rows_received
 real(8) :: vector(max_rows), vector2(max_rows), partial_sum, sum
 real(8) :: local_mean, global_mean
 real(8) :: hLocal((xn/cell)*(yn/cell)), dt_local
+integer :: order
 
 ! MPI ARRAYS ALL STRETCH OUT
 real(8) :: hLong((xn/cell)*(yn/cell))
@@ -274,6 +276,7 @@ vTransport = 0.0
 uCoarse = 0.0
 vCoarse = 0.0
 
+order = -1
 ! THIS IS THE MAIN LOOP THAT DOES ALL THE SOLVING
 do j = 2, tn
 write(*,*) j
@@ -331,6 +334,8 @@ write(*,*) j
 	
 ! THINGS DONE ONLY EVERY mTH TIMESTEP GO HERE
 if (mod(j,mstep) .eq. 0) then
+	
+	order = order + 1
 	
 	uTransport = uTransport/mstep
 	vTransport = vTransport/mstep
@@ -666,7 +671,7 @@ else
 	
 		! slave processor goes through phreeqc loop here
 		do m=1,num_rows_to_receive
-			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:),order)
 
 			!PARSING
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
@@ -1307,7 +1312,7 @@ end function solute_next
 !
 ! ----------------------------------------------------------------------------------%%
 
-function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
+function alt_next (temp, timestep, primaryList, secondaryList, soluteList, order)
 use globals
 use initialize
 use alteration
@@ -1318,13 +1323,14 @@ interface
 end interface
 
 ! DECLARE YO SHIT
+integer :: order
 real(8) :: temp, timestep
 real(8) :: alt_next(1,85)
 real(8) :: alter0(1,85)
 real(8) :: primaryList(5), secondaryList(28), soluteList(15)
 
 ! GRAB EVERYTHING FROM THE ALTERATION MODULE
-alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList)
+alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList, order)
 
 ! RENAME IT FOR A REASON THAT I FORGET
 alt_next = alter0

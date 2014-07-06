@@ -119,11 +119,11 @@ contains
 !
 ! ----------------------------------------------------------------------------------%%
 
-function alter ( temp, timestep, primary, secondary, solute )
+function alter ( temp, timestep, primary, secondary, solute, order )
 
 implicit none
 INTEGER(KIND=4) :: id, all=85
-INTEGER(KIND=4) :: i
+INTEGER(KIND=4) :: i, order
 CHARACTER(LEN=51200) :: line
 character(len=51200) :: inputz0
 character(len=4) :: fake_in
@@ -425,7 +425,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! &"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
 ! & "Na2O 0.0125 K2O 0.005 Al2O3 0.0525 SiO2 0.5" //NEW_LINE('')// &
 &"-f Ca 0.025 Fe 0.0095 Mg 0.065 " //&
-& "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.35" //NEW_LINE('')// &
+& "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.3505" //NEW_LINE('')// &
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
