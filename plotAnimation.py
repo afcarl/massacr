@@ -4,8 +4,18 @@ import matplotlib.cm as cm
 import math
 import streamplot as sp
 plt.rcParams['contour.negative_linestyle'] = 'solid'
+plt.rc('font', family='Arial')
+
 plt.rc('xtick', labelsize=8)
 plt.rc('ytick', labelsize=8)
+plt.rcParams['xtick.major.size'] = 0
+plt.rcParams['ytick.major.size'] = 0
+#plt.rcParams['xtick.direction'] = 'out'
+#plt.rcParams['ytick.direction'] = 'out'
+plt.rcParams['xtick.major.pad'] = 3
+plt.rcParams['ytick.major.pad'] = 3
+plt.rcParams['axes.linewidth'] = 1.0
+plt.rcParams['axes.color_cycle'] = "#CE1836, #F85931, #EDB92E, #A3A948, #009989"
 
 print "doing something..."
 
@@ -45,7 +55,7 @@ psi0 = np.loadtxt(path + 'psiMat.txt')
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sol_alk.txt')
+geo0 = np.loadtxt(path + 'sec_calcite.txt')
 
 
 geo00 = np.zeros(steps)
@@ -142,21 +152,26 @@ for i in range(steps):
     #contours = np.round(np.arange(0.0,np.max(ca0),np.max(ca0)/10.0),6)
     contours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
                          (np.max(geo00)-np.min(geo0))/10.0)
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, contours, cmap=cm.rainbow)
+    pGlass = plt.contourf(xCell, yCell[:-1], geo, contours, cmap=cm.YlOrRd)
     print np.max(geo00)
 
     #FF6600
-    CS = plt.contour(xg, yg, psi, 10, colors='#333333',linewidths=np.array([1.5]))
+    contoursPsi = np.arange(np.min(psi),np.max(psi)+(np.max(psi)-np.min(psi))/10.0,
+                         (np.max(psi)-np.min(psi))/10.0)
+    CS = plt.contour(xg, yg, psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))
+
+    plt.clabel(CS, contoursPsi, inline=0, fmt='  >  ', fontsize=14,
+               rightside_up="True")
 
     theTicks = contours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('ALKALINITY [eq/kgw]')
+    cbar.ax.set_xlabel('CALCITE [mol]')
     #ticks=np.arange(0.0,0.0045,0.0009)
     #cbar.set_clim(vmin=0.0,vmax=.012)
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig('fAlk' + str(i) + '.png')
+    plt.savefig(path + 'calcite0' + str(i) + '.png')
 
 
 print "ALL DONE!"
