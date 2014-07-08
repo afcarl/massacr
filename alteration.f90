@@ -186,7 +186,7 @@ write(s_mg,'(F25.10)') solute(6)
 write(s_na,'(F25.10)') solute(7)
 write(s_k,'(F25.10)') solute(8)
 write(s_fe,'(F25.10)') solute(9)
-write(s_s,'(F25.10)') solute(10)
+write(s_s,'(F25.10)') 0.0 !solute(10)
 write(s_si,'(F25.10)') solute(11)
 write(s_cl,'(F25.10)') solute(12)
 write(s_al,'(F25.10)') solute(13)
@@ -444,7 +444,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"BGlass" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
 !CALC_VALUE('R(s_sp)')
-&"    10 rate0=M*46.5*(1.52e-5)*0.01*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
+&"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.01*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
 &"*(((ACT('H+')^3)/(ACT('Al+3')))^.333)" //NEW_LINE('')// &
 &"    20 save rate0 * time" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
@@ -452,7 +452,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"Plagioclase" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
 !(1-SR('Plagioclase'))*
-&"    10 rate = (1-SR('Plagioclase'))*M*270.0*(1.52e-5)*0.1*(((1.58e-9)"//&
+&"    10 rate = (1-SR('Plagioclase'))*M*270.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-9)"//&
 &"*exp(-53.5/(.008314*TK))*(ACT('H+')^0.541) +(3.39e-12)*exp(-57.4/(.008314*TK)) +"//&
 &"(4.78e-15)*exp(-59.0/(.008314*TK))*(ACT('H+'))^-0.57))"//NEW_LINE('')//&
 &"    20 save rate * time"//NEW_LINE('')//&
@@ -460,21 +460,21 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 &"Augite" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-&"    10 rate0 = (1-SR('Augite'))*M*230.0*(1.52e-5)*0.1*(((1.58e-7)" // &
+&"    10 rate0 = (1-SR('Augite'))*M*230.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
 &"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))" //NEW_LINE('')// & 
 &"    20 save rate0 * time" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
 
 &"Pigeonite" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-&"    10 rate0 = (1-SR('Pigeonite'))*M*236.0*(1.52e-5)*0.1*(((1.58e-7)" // &
+&"    10 rate0 = (1-SR('Pigeonite'))*M*236.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
 &"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))"//NEW_LINE('')// &
 &"    20 save rate0 * time" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
 
 &"Magnetite" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-&"    10 rate0 = (1-SR('Magnetite'))*M*231.0*(1.52e-5)*0.1*(((2.57e-9)" // &
+&"    10 rate0 = (1-SR('Magnetite'))*M*231.0*CALC_VALUE('R(s_sp)')*0.1*(((2.57e-9)" // &
 &"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-11)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
 &"    20 save rate0 * time" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &

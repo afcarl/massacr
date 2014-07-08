@@ -342,7 +342,7 @@ do j = 2, tn
 	if (mod(j,mstep) .eq. 0) then
 	
 		! make coarse grid average velocities
-		uTransport = uTransport/mstep ! ??? why is this an average???
+		uTransport = uTransport/mstep
 		vTransport = vTransport/mstep
 	
 		! mixed top boundary condition
@@ -369,7 +369,7 @@ do j = 2, tn
 		! transport each solute
 		do n=1,15
 			solTemp = solute(:,:,n)
-			!solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 		end do
 		
 		! convert [H+], [e-] to pH, pe
@@ -1170,8 +1170,8 @@ do i=2,(xn/cell)-1
 		if (solute_next(i,ii) .gt. maxval(sol0)) then
 			solute_next(i,ii) = maxval(sol0)
 		end if
-		if (solute_next(i,ii) .lt. minval(sol0)) then
-			solute_next(i,ii) = minval(sol0)
+		if (solute_next(i,ii) .le. 0.0) then
+			solute_next(i,ii) = 1e-10
 		end if
 	
 	end do
@@ -1188,8 +1188,8 @@ do i=2,(xn/cell)-1
 		if (solute_next(i,yn/cell) .gt. maxval(sol0)) then
 			solute_next(i,yn/cell) = maxval(sol0)
 		end if
-		if (solute_next(i,yn/cell) .lt. minval(sol0)) then
-			solute_next(i,yn/cell) = minval(sol0)
+		if (solute_next(i,yn/cell) .le. 0.0) then
+			solute_next(i,yn/cell) = 1e-10
 		end if
 	end if 
 	
@@ -1202,8 +1202,8 @@ do i=2,(xn/cell)-1
 	if (solute_next(i,1) .gt. maxval(sol0)) then
 		solute_next(i,1) = maxval(sol0)
 	end if
-	if (solute_next(i,1) .lt. minval(sol0)) then
-		solute_next(i,1) = minval(sol0)
+	if (solute_next(i,1) .le. 0.0) then
+		solute_next(i,1) = 1e-10
 	end if
 end do
 

@@ -18,7 +18,7 @@ PROGRAM main
 	real(8) ::  alt0(1,85) 
 	
 	! initial conditions
-	timestep = 2000000000.0
+	timestep = 20000000000.0
 	temp = 60.0
 	
 	primary(1) = 12.96 ! feldspar
@@ -47,10 +47,10 @@ PROGRAM main
 	
 	write(*,*) "doing something..."
 	
-	do i=1,50
-		
+	do i=1,500
+		write(*,*) i
 		alt0 = alter(temp,timestep,primary,secondary,solute)
-	
+		write(*,*) alt0
 		!PARSING
 		solute = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
 		alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
@@ -67,10 +67,10 @@ PROGRAM main
 	
 		primary = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 		
-		write(*,*) "calcite"
-		write(*,*) secondary(16)
-		write(*,*) "pri 1"
-		write(*,*) primary
+!		write(*,*) "calcite"
+! 		write(*,*) secondary(16)
+ 		write(*,*) "pri 1"
+ 		write(*,*) primary(5)
 	
 	end do
 	
