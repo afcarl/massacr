@@ -78,7 +78,7 @@ interface
 	end function solute_next
 	
 	! runs geochemical alteration model for a single (coarse) cell
-	function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
+	function alt_next (temp, timestep, primaryList, secondaryList, soluteList, mediumList)
 		use globals
 		use initialize
 		use alteration
@@ -87,7 +87,7 @@ interface
 		real(8) :: temp, timestep
 		real(8) :: alt_next(1,85)
 		real(8) :: alter0(1,85)
-		real(8) :: primaryList(5), secondaryList(28), soluteList(15)
+		real(8) :: primaryList(5), secondaryList(28), soluteList(15), mediumList(4)
 	end function alt_next
 
 	! calculates fluid density
@@ -168,6 +168,7 @@ real(8) :: alt0(1,altnum)
 real(8) :: primary(xn/cell,yn/cell,5), primaryMat(xn/cell,yn*tn/(cell*mstep),5)
 real(8) :: secondary(xn/cell,yn/cell,28), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
 real(8) :: solute(xn/cell,yn/cell,15), soluteMat(xn/cell,yn*tn/(cell*mstep),15)
+real(8) :: medium(xn/cell,yn/cell,4), mediumMat(xn/cell,yn*tn/(cell*mstep),4)
 
 ! solute transport stuff
 real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
@@ -191,9 +192,11 @@ real(8) :: hLong((xn/cell)*(yn/cell))
 real(8) :: priLong((xn/cell)*(yn/cell),5), priLocal((xn/cell)*(yn/cell),5)
 real(8) :: secLong((xn/cell)*(yn/cell),28), secLocal((xn/cell)*(yn/cell),28)
 real(8) :: solLong((xn/cell)*(yn/cell),15), solLocal((xn/cell)*(yn/cell),15)
+real(8) :: medLong((xn/cell)*(yn/cell),4), medLocal((xn/cell)*(yn/cell),4)
 real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
 real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
+real(8) :: medLongBit((xn/cell)*(yn/cell)), medLocalBit((xn/cell)*(yn/cell))
 
 !--------------GEOCHEMICAL INITIAL CONDITIONS
 
@@ -229,6 +232,12 @@ soluteOcean = (/ solute(1,1,1), solute(1,1,2), solute(1,1,3), solute(1,1,4), sol
 			  & solute(1,1,6), solute(1,1,7), solute(1,1,8), solute(1,1,9), solute(1,1,10), &
 			  & solute(1,1,11), solute(1,1,12), solute(1,1,13), solute(1,1,14), solute(1,1,15) /)
 
+! properties of the medium
+medium(:,:,1) = 0.0 ! phi
+medium(:,:,1) = 0.0 ! s_sp
+medium(:,:,1) = .386 ! water_volume
+medium(:,:,1) = 0.0 ! rho_s
+			  
 write(*,*) "testing..."
 
 !--------------INITIALIZE ALL PROCESSORS
@@ -391,6 +400,7 @@ do j = 2, tn
 		priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
 		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 28/))
 		solLong = reshape(solute, (/(xn/cell)*(yn/cell), 15/))
+		medLong = reshape(medium, (/(xn/cell)*(yn/cell), 4/))
 	
 		!--------------MESSAGE DISTRIBUTING FROM MASTER TO SLAVES
 		do an_id = 1, num_procs - 1
@@ -436,6 +446,13 @@ do j = 2, tn
 				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 			end do
 			
+			! send medium array chunk to processor an_id
+			do ii = 1,4
+				medLongBit = medLong(:,ii)
+	        	call MPI_SEND( medLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
+			end do
+			
 			write(*,*) "DONE SENDING TO PROCESSOR", an_id
 
 		end do
@@ -477,6 +494,15 @@ do j = 2, tn
 				! fill it
 				solLong(start_row:end_row,ii) = solLocal(1:num_rows_to_send,ii)
 			end do
+			
+			! receive medium chunk
+			do ii = 1,4
+				! receive it
+				call MPI_RECV( medLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
+				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+				! fill it
+				medLong(start_row:end_row,ii) = medLocal(1:num_rows_to_send,ii)
+			end do
 
 			write(*,*) "DONE RECEIVING FROM PROCESSOR", an_id
 		
@@ -488,6 +514,7 @@ do j = 2, tn
 		primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
 		secondary = reshape(secLong,(/(xn/cell), (yn/cell), 28/))
 		solute = reshape(solLong,(/(xn/cell), (yn/cell), 15/))
+		medium = reshape(medLong,(/(xn/cell), (yn/cell), 4/))
 		!-TRANSPOSE 2
 
 		! add timestep's output to output arrays
@@ -498,6 +525,7 @@ do j = 2, tn
 		 primaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = primary
 		 secondaryMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = secondary
 		 soluteMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = solute
+		 mediumMat(1:xn/cell,1+(yn/cell)*(j/mstep-1):1+(yn/cell)*(j/mstep),:) = medium
 	 
 	end if 
 	! end mth timestep loop, finally
@@ -573,6 +601,11 @@ yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,3),kind=4)
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,4),kind=4), 'pri_magnetite.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(primaryMat(:,:,5),kind=4), 'pri_glass.txt' )
 
+! medium properties
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(mediumMat(:,:,1),kind=4), 'med_phi.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(mediumMat(:,:,2),kind=4), 'med_s_sp.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(mediumMat(:,:,3),kind=4), 'med_v_water.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(mediumMat(:,:,4),kind=4), 'med_rho_solid.txt' )
 
 
 !--------------WRITE TO NETCDF FILES
@@ -653,14 +686,27 @@ else
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			solLocal(:,ii) = solLocalBit
 		end do
+		
+		! receive medium chunk, save in local solLocal
+		do ii = 1,4
+			call MPI_RECV ( medLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
+			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
+			medLocal(:,ii) = medLocalBit
+		end do
 	
 		!--------------SLAVE PROCESSOR RUNS GEOCHEMICAL MODEL
 
 		! slave processor loops through each coarse cell
 		do m=1,num_rows_to_receive
 			
+			yep = write_matrix ( 5, 1, real(priLocal(m,:), kind = 4), 'upPri.txt' )
+			yep = write_matrix ( 28, 1, real(secLocal(m,:), kind = 4), 'upSec.txt' )
+			yep = write_matrix ( 15, 1, real(solLocal(m,:), kind = 4), 'upSol.txt' )
+			yep = write_matrix ( 4, 1, real(medLocal(m,:), kind = 4), 'upMed.txt' )
+			
 			! run the phreeqc alteration model
-			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:),secLocal(m,:),solLocal(m,:))
+			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
+						    secLocal(m,:),solLocal(m,:),medLocal(m,:))
 
 			! parse the phreeqc output
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
@@ -674,6 +720,8 @@ else
 			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70)/)
 			
 			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
+			
+			medLocal(m,:) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,85)/)
 			
 			! print something you want to look at
 			write(*,*) solLocal(m,10) ! sulfur
@@ -700,6 +748,12 @@ else
 		! send solute array chunk back to root process
 		do ii = 1,15
 			call MPI_SEND( solLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
+			return_data_tag, MPI_COMM_WORLD, ierr)
+		end do
+		
+		! send medium array chunk back to root process
+		do ii = 1,4
+			call MPI_SEND( medLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
@@ -1349,7 +1403,7 @@ end function solute_next
 !
 ! ----------------------------------------------------------------------------------%%
 
-function alt_next (temp, timestep, primaryList, secondaryList, soluteList)
+function alt_next (temp, timestep, primaryList, secondaryList, soluteList, mediumList)
 use globals
 use initialize
 use alteration
@@ -1365,10 +1419,10 @@ integer :: order
 real(8) :: temp, timestep
 real(8) :: alt_next(1,85)
 real(8) :: alter0(1,85)
-real(8) :: primaryList(5), secondaryList(28), soluteList(15)
+real(8) :: primaryList(5), secondaryList(28), soluteList(15), mediumList(4)
 
 ! use the alteration module
-alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList)
+alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList, mediumList)
 
 ! rename it for a reason that i now forget
 alt_next = alter0

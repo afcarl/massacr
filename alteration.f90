@@ -34,7 +34,7 @@ contains
 ! 1 time
 ! 2 pH
 ! 3 pe
-! 4 Al
+! 4 Al(k)
 ! 5 C
 ! 6 m_Ca+2
 ! 7 m_Mg+2
@@ -119,7 +119,7 @@ contains
 !
 ! ----------------------------------------------------------------------------------%%
 
-function alter ( temp, timestep, primary, secondary, solute)
+function alter ( temp, timestep, primary, secondary, solute, medium)
 
 implicit none
 INTEGER(KIND=4) :: id, all=85
@@ -156,10 +156,8 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(28), solute(15) ! important information
+real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(4) ! important information
 
-
-! STRINGS
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
 character(len=50) :: s_sio2, s_albite, s_calcite, s_mont_na, s_smectite, s_saponite ! secondary
@@ -170,8 +168,8 @@ character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! p
 character(len=50) :: s_temp, s_timestep ! important information
 character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk, s_co2 ! solutes
 character(len=50) :: s_hco3, s_co3, s_pe
+character(len=50) :: s_water ! medium
 real(8) :: water
-character(len=50) :: s_water
 
 glass = 2.0
 siderite = 0.0
@@ -193,9 +191,8 @@ write(s_al,'(F25.10)') solute(13)
 write(s_hco3,'(F25.10)') solute(14)
 write(s_co3,'(F25.10)') solute(15)
 
-
-water = .386
-write(s_water,'(F25.10)') water
+! MEDIUM TO STRINGS
+write(s_water,'(F25.10)') medium(3)
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)

@@ -1,13 +1,13 @@
 module globals
 save
 
-  integer, parameter :: testInt = 31, xn = 31, yn = 31
+  integer, parameter :: testInt = 31, xn = 81, yn = 81
   integer, parameter :: tn=310!tn = 64000
   real(8) :: x_min = 0.0D+00, x_max = 1.0D+00, y_min = 0.0D+00, y_max = 1.0D+00
   real(8) :: t_min = 0.0D+00, t_max=0.1!t_max = 4000000000.0 !t_max = 0.5
   real(8) :: dt, dx, dy, dt0 = 0.001
   !real(8) :: topo(xn), s(xn,yn), ds(xn)
-  real(8) :: ki = .56, ra = 100.0, viscosity = 4.3e-4, cp = 4186.0, alpha =8.0e-4, k
+  real(8) :: ki = .56, ra = 1000.0, viscosity = 4.3e-4, cp = 4186.0, alpha =4.0e-4, k
   real(8) :: lambda = 2.5
   real(8) :: g = 9.8
   real(8) :: rho_fluid = 1000.0

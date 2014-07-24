@@ -25,6 +25,7 @@ print "doing something..."
 
 cell = 2
 steps = 20
+#path = "output/noTransportCell2/"
 path = "output/noTransportCell2/"
 
 t = np.loadtxt(path + 't.txt',delimiter='\n')
@@ -55,7 +56,7 @@ psi0 = np.loadtxt(path + 'psiMat.txt')
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sec_calcite.txt')
+geo0 = np.loadtxt(path + 'sol_alk.txt')
 
 
 geo00 = np.zeros(steps)
@@ -165,13 +166,15 @@ for i in range(steps):
 
     theTicks = contours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('CALCITE [mol]')
+    cbar.ax.set_xlabel('ALKALINITY [eq/kgw]')
+    plt.xlabel('x [m]')
+    plt.ylabel('y [m]')
     #ticks=np.arange(0.0,0.0045,0.0009)
     #cbar.set_clim(vmin=0.0,vmax=.012)
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig(path + 'calcite0' + str(i) + '.png')
+    plt.savefig(path + 'alk0' + str(i) + '.eps')
 
 
 print "ALL DONE!"

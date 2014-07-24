@@ -13,15 +13,14 @@ y0=y0/np.max(y0)
 x=x0
 y=y0
 print y.shape
-bits = 41
+bits = 81
 x = np.append(x0, 1.0+1.0/float(bits))
 y = np.append(y0, 1.0+1.0/float(bits))
 
-
 xg, yg = np.meshgrid(x[:],y[:])
 
-h = np.loadtxt('h.txt')
-psi = np.loadtxt('psiMat.txt')
+h = np.loadtxt('h81.txt')
+psi = np.loadtxt('psiMat81.txt')
 
 i=5
 #wut = u0[i*len(y):((i)*len(y)+len(x)),:]
@@ -35,7 +34,7 @@ i=5
 fig=plt.figure()
 
 count = 1
-i = 50
+i = 3100
 ax1=fig.add_subplot(1,2,1, aspect='equal')
 
 
@@ -54,17 +53,19 @@ ax1=fig.add_subplot(1,2,1, aspect='equal')
 
 levels = np.arange(-20.0,21.0,1.0)
 
+
 print "hm"
 print y0.shape
 print x0.shape
 print psi.shape
 print h.shape
 
-CS = plt.contour(x0, y0, psi, levels, colors='k', linewidths=np.array([.5]))
+CS = plt.contour(x0, y0, -psi, levels, colors='k', linewidths=np.array([.5]))
 CS.set_clim([np.min(psi), np.max(psi)])
-plt.clabel(CS, fontsize=6, inline=1, fmt='%1.1f')
+levels2 = [-20, -17, -14, -11, -8, -5]
+plt.clabel(CS, levels2, fontsize=12,inline=1, fmt='%1.1f')
 #plt.quiver(x0,y0,ui,vi)
-plt.title("streamlines",fontsize=8)
+plt.title("streamlines",fontsize=18)
 
 ax1=fig.add_subplot(1,2,2, aspect='equal')
 levels = np.arange(-0.5,0.5,.05)
@@ -76,10 +77,10 @@ print h.shape
 levels = np.arange(-.5,.5,.05)
 IS = plt.contour(x0, y0, h, levels, colors='k', linewidths=np.array([.5]))
 IS.set_clim([np.min(h), np.max(h)])
-plt.clabel(IS, fontsize=6, inline=1, fmt='%1.2f')
-plt.yticks([],{'fontsize':'xsmall'})
+plt.clabel(IS, fontsize=12, manual='True',inline=1, fmt='%1.2f')
+plt.yticks([],{'fontsize':'small'})
 
-plt.title("isotherms",fontsize=8)
+plt.title("isotherms",fontsize=18)
 plt.xticks([])
 
 
@@ -96,6 +97,6 @@ plt.subplots_adjust(bottom=.0, left=.05, right=.95, top=1.0, hspace=.3)
 
 #cbar.set_label(r'TEMPERATURE',fontsize=10)
 
-plt.savefig('r1104.png')
+plt.savefig('r0718.png')
 
 
