@@ -23,8 +23,8 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 2
-steps = 20
+cell = 4
+steps = 3
 #path = "output/noTransportCell2/"
 path = "output/noTransportCell2/"
 
@@ -121,16 +121,14 @@ for i in range(steps):
 
     # permeability plot
     permC = plt.contour(xg, yg, np.log10(perm), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
-    #permC = plt.contourf(xg, yg, np.log10(perm), 10, cmap=cm.summer)
+    permC = plt.contourf(xg, yg, np.log10(perm), 10, cmap=cm.summer)
 
-    # levels[::2],
-    #plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
     CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
 
-    p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,126.0,5.0), cmap=cm.rainbow)
-    plt.clim(0.0,126.0)
-    cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,126.0,25.0))
-    cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
+    #p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,126.0,5.0), cmap=cm.rainbow)
+    #plt.clim(0.0,126.0)
+    #cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,126.0,25.0))
+    #cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
 
     plt.yticks([0.0, -500.0, -1000.0], [0, -500, -1000.0])
     plt.xticks([0.0, 1500.0, 3000.0], [0, 1500, 3000])
@@ -142,39 +140,39 @@ for i in range(steps):
     plt.savefig('j14.png')
 
 
-    ###############
-    # SECOND PLOT #
-    ###############
-
-    fig=plt.figure()
-
-    ax1=fig.add_subplot(1,1,1, aspect='equal')
-
-    #contours = np.round(np.arange(0.0,np.max(ca0),np.max(ca0)/10.0),6)
-    contours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
-                         (np.max(geo00)-np.min(geo0))/10.0)
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, contours, cmap=cm.YlOrRd)
-    print np.max(geo00)
-
-    #FF6600
-    contoursPsi = np.arange(np.min(psi),np.max(psi)+(np.max(psi)-np.min(psi))/10.0,
-                         (np.max(psi)-np.min(psi))/10.0)
-    CS = plt.contour(xg, yg, psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))
-
-    plt.clabel(CS, contoursPsi, inline=0, fmt='  >  ', fontsize=14,
-               rightside_up="True")
-
-    theTicks = contours
-    cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('ALKALINITY [eq/kgw]')
-    plt.xlabel('x [m]')
-    plt.ylabel('y [m]')
-    #ticks=np.arange(0.0,0.0045,0.0009)
-    #cbar.set_clim(vmin=0.0,vmax=.012)
-
-    plt.title('t = ' + str(i*64) + ' years')
-
-    plt.savefig(path + 'alk0' + str(i) + '.eps')
+##    ###############
+##    # SECOND PLOT #
+##    ###############
+##
+##    fig=plt.figure()
+##
+##    ax1=fig.add_subplot(1,1,1, aspect='equal')
+##
+##    #contours = np.round(np.arange(0.0,np.max(ca0),np.max(ca0)/10.0),6)
+##    contours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
+##                         (np.max(geo00)-np.min(geo0))/10.0)
+##    pGlass = plt.contourf(xCell, yCell[:-1], geo, contours, cmap=cm.YlOrRd)
+##    print np.max(geo00)
+##
+##    #FF6600
+##    contoursPsi = np.arange(np.min(psi),np.max(psi)+(np.max(psi)-np.min(psi))/10.0,
+##                         (np.max(psi)-np.min(psi))/10.0)
+##    CS = plt.contour(xg, yg, psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))
+##
+##    plt.clabel(CS, contoursPsi, inline=0, fmt='  >  ', fontsize=14,
+##               rightside_up="True")
+##
+##    theTicks = contours
+##    cbar= plt.colorbar(pGlass, orientation='horizontal')
+##    cbar.ax.set_xlabel('ALKALINITY [eq/kgw]')
+##    plt.xlabel('x [m]')
+##    plt.ylabel('y [m]')
+##    #ticks=np.arange(0.0,0.0045,0.0009)
+##    #cbar.set_clim(vmin=0.0,vmax=.012)
+##
+##    plt.title('t = ' + str(i*64) + ' years')
+##
+##    plt.savefig(path + 'alk0' + str(i) + '.eps')
 
 
 print "ALL DONE!"

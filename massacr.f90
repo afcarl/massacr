@@ -234,9 +234,9 @@ soluteOcean = (/ solute(1,1,1), solute(1,1,2), solute(1,1,3), solute(1,1,4), sol
 
 ! properties of the medium
 medium(:,:,1) = 0.0 ! phi
-medium(:,:,1) = 0.0 ! s_sp
-medium(:,:,1) = .386 ! water_volume
-medium(:,:,1) = 0.0 ! rho_s
+medium(:,:,2) = 0.0 ! s_sp
+medium(:,:,3) = .386 ! water_volume
+medium(:,:,4) = 0.0 ! rho_s
 			  
 write(*,*) "testing..."
 
@@ -395,6 +395,8 @@ do j = 2, tn
 	
 		!-TRANSPOSE 1
 		! stretch everything out
+		
+		
 		hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
 		!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
 		priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
@@ -724,7 +726,7 @@ else
 			medLocal(m,:) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,85)/)
 			
 			! print something you want to look at
-			write(*,*) solLocal(m,10) ! sulfur
+			!write(*,*) medLocal(m,3) ! water
 			
 		end do
 		
@@ -1193,6 +1195,8 @@ sol0 = sol
 
 qx = dt*mstep/(dx*cell)
 qy = dt*mstep/(dy*cell)
+!qx = 0.0
+!qy = 0.0
 
 write(*,*) "SOLUTE COURANT NUMBERS"
 write(*,*) qx*maxval(abs(uTransport))
@@ -1259,6 +1263,34 @@ do i=2,(xn/cell)-1
 	if (solute_next(i,1) .le. 0.0) then
 		solute_next(i,1) = 1e-10
 	end if
+	
+	! left edge
+	solute_next(1,i) = sol(1,i) &
+	& - uTransport(1,i) * qx * (sol(1,i+1)-sol(1,i)) &
+	& - vTransport(1,i) * qy * (sol(1+1,i)-sol(1,i)) 
+	
+	! get rid of out-of-bounds truncation errors
+	if (solute_next(1,i) .gt. maxval(sol0)) then
+		solute_next(1,i) = maxval(sol0)
+	end if
+	if (solute_next(1,i) .le. 0.0) then
+		solute_next(1,i) = 1e-10
+	end if
+	
+	! right edge
+	solute_next(xn/cell,i) = sol(xn/cell,i) &
+	& - uTransport(xn/cell,i) * qx * (sol(xn/cell,i)-sol(xn/cell,i-1)) &
+	& - vTransport(xn/cell,i) * qy * (sol(xn/cell,i)-sol((xn/cell)-1,i)) 
+	
+	! get rid of out-of-bounds truncation errors
+	if (solute_next(xn/cell,i) .gt. maxval(sol0)) then
+		solute_next(xn/cell,i) = maxval(sol0)
+	end if
+	if (solute_next(xn/cell,i) .le. 0.0) then
+		solute_next(xn/cell,i) = 1e-10
+	end if
+	
+	
 end do
 
 ! here lies a fully implicit version of the same thing. it seems to work just as well, but

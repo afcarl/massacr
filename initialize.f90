@@ -6,12 +6,14 @@ save
 
 real(8) :: x(xn), y(yn), t(tn), ytemp(xn,yn)
 real(8) :: permeability(xn,yn), permx(xn,yn), permy(xn,yn), permLong((xn-2)*(yn-2))
+real(8) :: permeability0(xn,yn)
 real(8) :: rhoLong((xn-2)*(yn-2))
 real(8) :: permxLong((xn-2)*(yn-2)), permyLong((xn-2)*(yn-2))
 real(8) :: rho0(xn,yn)
 real(8) :: bcx0(xn,2), bcy0(2,yn), bcxPsi(xn,2), bcyPsi(2,yn), ic0(xn,yn)
 real(8) :: kMat(xn,yn), lambdaMat(xn,yn), porosity(xn,yn), permeable(xn)
 real(8) :: sedx
+real(8) :: wt1, wt2
 
 contains
 
@@ -61,31 +63,36 @@ bcxPsi(1:xn,2) = 0.0 ! top
 ! PERMEABILITY
 lambdaMat = 2.6
 
-
+permeability = 1e-21
 do i=1,yn
 do j=1,xn
 	
-	
-	
-	
+! 	if (y(i) .ge. -800.0) then
+! 		permeability(j,i) = 1e-13
+! 	end if
+!
+! 	if ((y(i) .gt. -200.0) .and. (x(j) .ge. 500.0) .and. (x(j) .le. (x_max-500.0))) then
+! 		permeability(j,i) = 4e-15
+! 	end if
+
 	if (y(i) .ge. y_min) then
 	permeability(j,i) = (0.5+0.5*tanh((y(i)+((800.0)))/50.0))*1e-13 &
 	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/50.0)))*1e-21
 	end if
-	
+
 	sedx = 400.0-600.0*( ( (x(j)/(x_max/2.0)) - 1.0) **2.0)
 	sedx = 200.0
-	
+
 	if (y(i) .gt. -500.0) then
 	permeability(j,i) = (0.5+0.5*tanh((y(i)+sedx)/50.0))*4e-15 &
 	&+ (1.0 - (0.5+0.5*tanh((y(i)+sedx)/50.0)))*1e-13
 	end if
-	
+
 	if ((y(i) .gt. -150.0) .and. (x(j) .le. x_max/2)) then
 	permeability(j,i) = (0.5+0.5*tanh((x(j)-500.0)/50.0))*4e-15 &
 	&+ (1.0 - (0.5+0.5*tanh((x(j)-500.0)/50.0)))*1e-13
 	end if
-	
+
 	if ((y(i) .gt. -150.0) .and. (x(j) .gt. (x_max/2)-3.0)) then
 	permeability(j,i) = (0.5+0.5*tanh((x(j)-2500.0)/50.0))*1e-13 &
 	&+ (1.0 - (0.5+0.5*tanh((x(j)-2500.0)/50.0)))*4e-15
@@ -97,6 +104,44 @@ do j=1,xn
 	
 end do
 end do
+
+
+
+! ! first pass
+! wt1 = 0.8
+! wt2 = 0.05
+! permeability = log(permeability)
+! permeability0 = permeability
+! do i=2,xn-1
+! do j=2,yn-1
+! 	permeability(i,j) = permeability0(i,j)*wt1 + permeability0(i-1,j)*wt2 + permeability0(i+1,j)*wt2 &
+! 	& + permeability0(i,j-1)*wt2 + permeability0(i,j+1)*wt2
+! end do
+! end do
+!
+! ! second pass
+! permeability0 = permeability
+! do i=2,xn-1
+! do j=2,yn-1
+! 	permeability(i,j) = permeability0(i,j)*wt1 + permeability0(i-1,j)*wt2 + permeability0(i+1,j)*wt2 &
+! 	& + permeability0(i,j-1)*wt2 + permeability0(i,j+1)*wt2
+! end do
+! end do
+!
+! ! third pass
+! permeability0 = permeability
+! do i=2,xn-1
+! do j=2,yn-1
+! 	permeability(i,j) = permeability0(i,j)*wt1 + permeability0(i-1,j)*wt2 + permeability0(i+1,j)*wt2 &
+! 	& + permeability0(i,j-1)*wt2 + permeability0(i,j+1)*wt2
+! end do
+! end do
+!
+! permeability = exp(permeability)
+
+
+
+
 
 ! this should fix it, i just realized it might not.
 permeability(:,yn) = permeability(:,yn-1)

@@ -193,6 +193,7 @@ write(s_co3,'(F25.10)') solute(15)
 
 ! MEDIUM TO STRINGS
 write(s_water,'(F25.10)') medium(3)
+write(*,*) medium(3)
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)
