@@ -87,7 +87,7 @@ interface
 		real(8) :: temp, timestep
 		real(8) :: alt_next(1,85)
 		real(8) :: alter0(1,85)
-		real(8) :: primaryList(5), secondaryList(28), soluteList(15), mediumList(4)
+		real(8) :: primaryList(5), secondaryList(28), soluteList(15), mediumList(5)
 	end function alt_next
 
 	! calculates fluid density
@@ -168,7 +168,7 @@ real(8) :: alt0(1,altnum)
 real(8) :: primary(xn/cell,yn/cell,5), primaryMat(xn/cell,yn*tn/(cell*mstep),5)
 real(8) :: secondary(xn/cell,yn/cell,28), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
 real(8) :: solute(xn/cell,yn/cell,15), soluteMat(xn/cell,yn*tn/(cell*mstep),15)
-real(8) :: medium(xn/cell,yn/cell,4), mediumMat(xn/cell,yn*tn/(cell*mstep),4)
+real(8) :: medium(xn/cell,yn/cell,5), mediumMat(xn/cell,yn*tn/(cell*mstep),5)
 
 ! solute transport stuff
 real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
@@ -192,7 +192,7 @@ real(8) :: hLong((xn/cell)*(yn/cell))
 real(8) :: priLong((xn/cell)*(yn/cell),5), priLocal((xn/cell)*(yn/cell),5)
 real(8) :: secLong((xn/cell)*(yn/cell),28), secLocal((xn/cell)*(yn/cell),28)
 real(8) :: solLong((xn/cell)*(yn/cell),15), solLocal((xn/cell)*(yn/cell),15)
-real(8) :: medLong((xn/cell)*(yn/cell),4), medLocal((xn/cell)*(yn/cell),4)
+real(8) :: medLong((xn/cell)*(yn/cell),5), medLocal((xn/cell)*(yn/cell),5)
 real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
 real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
@@ -233,10 +233,16 @@ soluteOcean = (/ solute(1,1,1), solute(1,1,2), solute(1,1,3), solute(1,1,4), sol
 			  & solute(1,1,11), solute(1,1,12), solute(1,1,13), solute(1,1,14), solute(1,1,15) /)
 
 ! properties of the medium
-medium(:,:,1) = 0.0 ! phi
+medium(:,:,1) = 0.0 ! phi 
 medium(:,:,2) = 0.0 ! s_sp
+!medium(:,:,3) = .386 ! water_volume
 medium(:,:,3) = .386 ! water_volume
+medium(:,1:(xn/cell)*(5/13),3) = .03 ! water_volume
 medium(:,:,4) = 0.0 ! rho_s
+medium(:,:,5) = 0.0 ! rxn toggle
+
+! set reaction cells
+medium(:,(xn/cell)/2:(xn/cell),5) = 1.0 ! only bottom half reacts
 			  
 write(*,*) "testing..."
 
@@ -299,7 +305,7 @@ do j = 2, tn
 	
 	! bottom
 	do i = 1,xn
-		flux(i,1) = h(i,2) +((.27))*dy/(2.6)
+		flux(i,1) = h(i,2) +((.1))*dy/(2.6)
 	end do
 	
 	! top
@@ -354,14 +360,14 @@ do j = 2, tn
 		uTransport = uTransport/mstep
 		vTransport = vTransport/mstep
 	
-		! mixed top boundary condition
+		!mixed top boundary condition
 		do i=1,yn/cell
 			if (vTransport(i,yn/cell) .le. 0.0) then
 				do n=1,15
 					solute(i,yn/cell,n) = soluteOcean(n)
 				end do
 			end if
-		end do 
+		end do
 	
 		! other boundary condition examples
 		!solute(1,:,5) = 6.0e-3 ! left
@@ -402,7 +408,7 @@ do j = 2, tn
 		priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
 		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 28/))
 		solLong = reshape(solute, (/(xn/cell)*(yn/cell), 15/))
-		medLong = reshape(medium, (/(xn/cell)*(yn/cell), 4/))
+		medLong = reshape(medium, (/(xn/cell)*(yn/cell), 5/))
 	
 		!--------------MESSAGE DISTRIBUTING FROM MASTER TO SLAVES
 		do an_id = 1, num_procs - 1
@@ -449,7 +455,7 @@ do j = 2, tn
 			end do
 			
 			! send medium array chunk to processor an_id
-			do ii = 1,4
+			do ii = 1,5
 				medLongBit = medLong(:,ii)
 	        	call MPI_SEND( medLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
@@ -498,7 +504,7 @@ do j = 2, tn
 			end do
 			
 			! receive medium chunk
-			do ii = 1,4
+			do ii = 1,5
 				! receive it
 				call MPI_RECV( medLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
@@ -516,7 +522,7 @@ do j = 2, tn
 		primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
 		secondary = reshape(secLong,(/(xn/cell), (yn/cell), 28/))
 		solute = reshape(solLong,(/(xn/cell), (yn/cell), 15/))
-		medium = reshape(medLong,(/(xn/cell), (yn/cell), 4/))
+		medium = reshape(medLong,(/(xn/cell), (yn/cell), 5/))
 		!-TRANSPOSE 2
 
 		! add timestep's output to output arrays
@@ -690,7 +696,7 @@ else
 		end do
 		
 		! receive medium chunk, save in local solLocal
-		do ii = 1,4
+		do ii = 1,5
 			call MPI_RECV ( medLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			medLocal(:,ii) = medLocalBit
@@ -704,12 +710,18 @@ else
 			yep = write_matrix ( 5, 1, real(priLocal(m,:), kind = 4), 'upPri.txt' )
 			yep = write_matrix ( 28, 1, real(secLocal(m,:), kind = 4), 'upSec.txt' )
 			yep = write_matrix ( 15, 1, real(solLocal(m,:), kind = 4), 'upSol.txt' )
-			yep = write_matrix ( 4, 1, real(medLocal(m,:), kind = 4), 'upMed.txt' )
+			yep = write_matrix ( 5, 1, real(medLocal(m,:), kind = 4), 'upMed.txt' )
 			
-			! run the phreeqc alteration model
-			alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
+			write(*,*) hLocal(m)
+			
+			
+			if (medLocal(m,5) .eq. 1.0) then
+				! run the phreeqc alteration model
+				alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
 						    secLocal(m,:),solLocal(m,:),medLocal(m,:))
-
+			end if
+			
+			
 			! parse the phreeqc output
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
 			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
@@ -723,7 +735,7 @@ else
 			
 			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 			
-			medLocal(m,:) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,85)/)
+			medLocal(m,:) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,85), medLocal(m,5)/)
 			
 			! print something you want to look at
 			!write(*,*) medLocal(m,3) ! water
@@ -754,7 +766,7 @@ else
 		end do
 		
 		! send medium array chunk back to root process
-		do ii = 1,4
+		do ii = 1,5
 			call MPI_SEND( medLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
@@ -1451,7 +1463,7 @@ integer :: order
 real(8) :: temp, timestep
 real(8) :: alt_next(1,85)
 real(8) :: alter0(1,85)
-real(8) :: primaryList(5), secondaryList(28), soluteList(15), mediumList(4)
+real(8) :: primaryList(5), secondaryList(28), soluteList(15), mediumList(5)
 
 ! use the alteration module
 alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList, mediumList)

@@ -156,7 +156,7 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(4) ! important information
+real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(5) ! important information
 
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
@@ -193,7 +193,6 @@ write(s_co3,'(F25.10)') solute(15)
 
 ! MEDIUM TO STRINGS
 write(s_water,'(F25.10)') medium(3)
-write(*,*) medium(3)
 
 ! PRIMARIES TO STRINGS
 write(s_feldspar,'(F25.10)') primary(1)
@@ -420,10 +419,20 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"Magnetite" //NEW_LINE('')// &
 &"-m0 " // trim(s_magnetite) //NEW_LINE('')// &
 &"BGlass" //NEW_LINE('')// &
+
+! pham
 ! &"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
 ! & "Na2O 0.0125 K2O 0.005 Al2O3 0.0525 SiO2 0.5" //NEW_LINE('')// &
-&"-f Ca 0.025 Fe 0.0095 Mg 0.065 " //&
-& "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.3505" //NEW_LINE('')// &
+
+! pham phudge
+! &"-f Ca 0.025 Fe 0.0095 Mg 0.065 " //&
+! & "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.3505" //NEW_LINE('')// &
+
+! grove and kinzler 1992 (thomspon et al 1980)
+&"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&
+& "FeO 0.121 MgO 0.195 K2O 0.00265 " //&
+& "Na2O 0.0573" //NEW_LINE('')// &
+
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
@@ -488,7 +497,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
   &"SELECTED_OUTPUT" //NEW_LINE('')// &
   &"    -reset false" //NEW_LINE('')// &
-  &"    -high_precision true" //NEW_LINE('')// &
+!  &"    -high_precision true" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
   &"    -pe" //NEW_LINE('')// &

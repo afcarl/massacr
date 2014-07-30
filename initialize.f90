@@ -71,19 +71,19 @@ do j=1,xn
 ! 		permeability(j,i) = 1e-13
 ! 	end if
 !
-! 	if ((y(i) .gt. -200.0) .and. (x(j) .ge. 500.0) .and. (x(j) .le. (x_max-500.0))) then
-! 		permeability(j,i) = 4e-15
-! 	end if
+!	if ((y(i) .ge. -200.0) .and. (x(j) .ge. 500.0) .and. (x(j) .le. (x_max-500.0))) then
+!		permeability(j,i) = 4e-15
+!	end if
 
 	if (y(i) .ge. y_min) then
 	permeability(j,i) = (0.5+0.5*tanh((y(i)+((800.0)))/50.0))*1e-13 &
 	&+ (1.0 - (0.5+0.5*tanh((y(i)+((800.0)))/50.0)))*1e-21
 	end if
 
-	sedx = 400.0-600.0*( ( (x(j)/(x_max/2.0)) - 1.0) **2.0)
+	sedx = 400.0-600.0*( ( (x(j)/(x_max/2.0)) - 1.0) **2.0) ! must be the parabola
 	sedx = 200.0
 
-	if (y(i) .gt. -500.0) then
+	if ((y(i) .gt. -500.0) .and. (x(j) .gt. 500.0) .and. (x(j) .lt. (x_max-500.0))) then
 	permeability(j,i) = (0.5+0.5*tanh((y(i)+sedx)/50.0))*4e-15 &
 	&+ (1.0 - (0.5+0.5*tanh((y(i)+sedx)/50.0)))*1e-13
 	end if

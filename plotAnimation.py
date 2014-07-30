@@ -24,9 +24,10 @@ print "doing something..."
 #####################
 
 cell = 4
-steps = 3
+steps = 2
 #path = "output/noTransportCell2/"
-path = "output/noTransportCell2/"
+#path = "output/noTransportCell2/"
+path = ""
 
 t = np.loadtxt(path + 't.txt',delimiter='\n')
 x0 = np.loadtxt(path + 'x.txt',delimiter='\n')
@@ -121,14 +122,16 @@ for i in range(steps):
 
     # permeability plot
     permC = plt.contour(xg, yg, np.log10(perm), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
-    permC = plt.contourf(xg, yg, np.log10(perm), 10, cmap=cm.summer)
+    #permC = plt.contourf(xg, yg, np.log10(perm), 10, cmap=cm.summer)
 
+    # levels[::2],
+    #plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
     CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
 
-    #p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,126.0,5.0), cmap=cm.rainbow)
-    #plt.clim(0.0,126.0)
-    #cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,126.0,25.0))
-    #cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
+    p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,np.max(h-272.0),5.0), cmap=cm.rainbow)
+    plt.clim(0.0,np.max(h-272.0))
+    cbar = plt.colorbar(p, orientation='horizontal', ticks=np.arange(0.0,np.max(h-272.0),5.0))
+    cbar.ax.set_xlabel('FLUID TEMPERATURE [$^{\circ}$C]')
 
     plt.yticks([0.0, -500.0, -1000.0], [0, -500, -1000.0])
     plt.xticks([0.0, 1500.0, 3000.0], [0, 1500, 3000])
@@ -139,7 +142,7 @@ for i in range(steps):
 
     plt.savefig('j14.png')
 
-
+##
 ##    ###############
 ##    # SECOND PLOT #
 ##    ###############
@@ -172,7 +175,7 @@ for i in range(steps):
 ##
 ##    plt.title('t = ' + str(i*64) + ' years')
 ##
-##    plt.savefig(path + 'alk0' + str(i) + '.eps')
+##    plt.savefig(path + 'alk0' + str(i) + '.png')
 
 
 print "ALL DONE!"
