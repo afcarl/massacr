@@ -540,7 +540,7 @@ END IF
 ! RUN INPUT
 IF (RunString(id, inputz0).NE.0) THEN
 	CALL OutputErrorString(id)
-	STOP
+	!STOP
 END IF
   
 ! PRINT DUMP/OUTPUT

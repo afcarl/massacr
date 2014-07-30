@@ -87,7 +87,7 @@ interface
 		real(8) :: temp, timestep
 		real(8) :: alt_next(1,85)
 		real(8) :: alter0(1,85)
-		real(8) :: primaryList(5), secondaryList(28), soluteList(15), mediumList(5)
+		real(8) :: primaryList(g_pri), secondaryList(g_sec), soluteList(g_sol), mediumList(g_med)
 	end function alt_next
 
 	! calculates fluid density
@@ -165,15 +165,15 @@ real(8) :: nusseltLocalv(xn,1), nuBar
 
 ! geochemical alteration stuff
 real(8) :: alt0(1,altnum)
-real(8) :: primary(xn/cell,yn/cell,5), primaryMat(xn/cell,yn*tn/(cell*mstep),5)
-real(8) :: secondary(xn/cell,yn/cell,28), secondaryMat(xn/cell,yn*tn/(cell*mstep),28)
-real(8) :: solute(xn/cell,yn/cell,15), soluteMat(xn/cell,yn*tn/(cell*mstep),15)
-real(8) :: medium(xn/cell,yn/cell,5), mediumMat(xn/cell,yn*tn/(cell*mstep),5)
+real(8) :: primary(xn/cell,yn/cell,g_pri), primaryMat(xn/cell,yn*tn/(cell*mstep),g_pri)
+real(8) :: secondary(xn/cell,yn/cell,g_sec), secondaryMat(xn/cell,yn*tn/(cell*mstep),g_sec)
+real(8) :: solute(xn/cell,yn/cell,g_sol), soluteMat(xn/cell,yn*tn/(cell*mstep),g_sol)
+real(8) :: medium(xn/cell,yn/cell,g_med), mediumMat(xn/cell,yn*tn/(cell*mstep),g_med)
 
 ! solute transport stuff
 real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
 real(8) :: uCoarse(xn/cell,yn/cell), vCoarse(xn/cell,yn/cell)
-real(8) :: solTemp(xn/cell,yn/cell), soluteOcean(15)
+real(8) :: solTemp(xn/cell,yn/cell), soluteOcean(g_sol)
 
 ! message passing stuff
 integer, parameter :: max_rows = 10000000
@@ -189,10 +189,10 @@ integer :: order
 
 ! formatted message passing arrays
 real(8) :: hLong((xn/cell)*(yn/cell))
-real(8) :: priLong((xn/cell)*(yn/cell),5), priLocal((xn/cell)*(yn/cell),5)
-real(8) :: secLong((xn/cell)*(yn/cell),28), secLocal((xn/cell)*(yn/cell),28)
-real(8) :: solLong((xn/cell)*(yn/cell),15), solLocal((xn/cell)*(yn/cell),15)
-real(8) :: medLong((xn/cell)*(yn/cell),5), medLocal((xn/cell)*(yn/cell),5)
+real(8) :: priLong((xn/cell)*(yn/cell),g_pri), priLocal((xn/cell)*(yn/cell),g_pri)
+real(8) :: secLong((xn/cell)*(yn/cell),g_sec), secLocal((xn/cell)*(yn/cell),g_sec)
+real(8) :: solLong((xn/cell)*(yn/cell),g_sol), solLocal((xn/cell)*(yn/cell),g_sol)
+real(8) :: medLong((xn/cell)*(yn/cell),g_med), medLocal((xn/cell)*(yn/cell),g_med)
 real(8) :: priLongBit((xn/cell)*(yn/cell)), priLocalBit((xn/cell)*(yn/cell))
 real(8) :: secLongBit((xn/cell)*(yn/cell)), secLocalBit((xn/cell)*(yn/cell))
 real(8) :: solLongBit((xn/cell)*(yn/cell)), solLocalBit((xn/cell)*(yn/cell))
@@ -363,7 +363,7 @@ do j = 2, tn
 		!mixed top boundary condition
 		do i=1,yn/cell
 			if (vTransport(i,yn/cell) .le. 0.0) then
-				do n=1,15
+				do n=1,g_sol
 					solute(i,yn/cell,n) = soluteOcean(n)
 				end do
 			end if
@@ -382,7 +382,7 @@ do j = 2, tn
 		end do
 	
 		! transport each solute
-		do n=1,15
+		do n=1,g_sol
 			solTemp = solute(:,:,n)
 			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 		end do
@@ -405,10 +405,10 @@ do j = 2, tn
 		
 		hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
 		!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
-		priLong = reshape(primary, (/(xn/cell)*(yn/cell), 5/))
-		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), 28/))
-		solLong = reshape(solute, (/(xn/cell)*(yn/cell), 15/))
-		medLong = reshape(medium, (/(xn/cell)*(yn/cell), 5/))
+		priLong = reshape(primary, (/(xn/cell)*(yn/cell), g_pri/))
+		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), g_sec/))
+		solLong = reshape(solute, (/(xn/cell)*(yn/cell), g_sol/))
+		medLong = reshape(medium, (/(xn/cell)*(yn/cell), g_med/))
 	
 		!--------------MESSAGE DISTRIBUTING FROM MASTER TO SLAVES
 		do an_id = 1, num_procs - 1
@@ -434,28 +434,28 @@ do j = 2, tn
 			an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 		
 			! send primary array chunk to processor an_id
-			do ii = 1,5
+			do ii = 1,g_pri
 				priLongBit = priLong(:,ii)
 	        	call MPI_SEND( priLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 			end do
 		
 			! send secondary array chunk to processor an_id
-			do ii = 1,28
+			do ii = 1,g_sec
 				secLongBit = secLong(:,ii)
 	        	call MPI_SEND( secLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 			end do
 		
 			! send solute array chunk to processor an_id
-			do ii = 1,15
+			do ii = 1,g_sol
 				solLongBit = solLong(:,ii)
 	        	call MPI_SEND( solLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
 			end do
 			
 			! send medium array chunk to processor an_id
-			do ii = 1,5
+			do ii = 1,g_med
 				medLongBit = medLong(:,ii)
 	        	call MPI_SEND( medLongBit(start_row), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, send_data_tag, MPI_COMM_WORLD, ierr)
@@ -477,7 +477,7 @@ do j = 2, tn
 	        num_rows_to_send = (end_row - start_row + 1)
 		
 			! receive primary chunk
-			do ii = 1,5
+			do ii = 1,g_pri
 				! receive it
 				call MPI_RECV( priLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
@@ -486,7 +486,7 @@ do j = 2, tn
 			end do
 		
 			! receive secondary chunk
-			do ii = 1,28
+			do ii = 1,g_sec
 				! receive it
 				call MPI_RECV( secLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
@@ -495,7 +495,7 @@ do j = 2, tn
 			end do
 		
 			! receive solute chunk
-			do ii = 1,15
+			do ii = 1,g_sol
 				! receive it
 				call MPI_RECV( solLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
@@ -504,7 +504,7 @@ do j = 2, tn
 			end do
 			
 			! receive medium chunk
-			do ii = 1,5
+			do ii = 1,g_med
 				! receive it
 				call MPI_RECV( medLocal(:,ii), num_rows_to_send, MPI_DOUBLE_PRECISION, &
 				an_id, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
@@ -519,10 +519,10 @@ do j = 2, tn
 		!--------------MASTER PROCESSOR SAVES OUTPUT TO BE WRITTEN TO FILE
 	
 		! put stretched vectors back into 2d arrays
-		primary = reshape(priLong,(/(xn/cell), (yn/cell), 5/))
-		secondary = reshape(secLong,(/(xn/cell), (yn/cell), 28/))
-		solute = reshape(solLong,(/(xn/cell), (yn/cell), 15/))
-		medium = reshape(medLong,(/(xn/cell), (yn/cell), 5/))
+		primary = reshape(priLong,(/(xn/cell), (yn/cell), g_pri/))
+		secondary = reshape(secLong,(/(xn/cell), (yn/cell), g_sec/))
+		solute = reshape(solLong,(/(xn/cell), (yn/cell), g_sol/))
+		medium = reshape(medLong,(/(xn/cell), (yn/cell), g_med/))
 		!-TRANSPOSE 2
 
 		! add timestep's output to output arrays
@@ -675,28 +675,28 @@ else
 		num_rows_received = num_rows_to_receive
 
 		! receive primary array chunk, save in local priLocal
-		do ii = 1,5
+		do ii = 1,g_pri
 			call MPI_RECV ( priLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			priLocal(:,ii) = priLocalBit
 		end do
 	
 		! receive secondary array chunk, save in local secLocal
-		do ii = 1,28
+		do ii = 1,g_sec
 			call MPI_RECV ( secLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			secLocal(:,ii) = secLocalBit
 		end do
 	
 		! receive solute chunk, save in local solLocal
-		do ii = 1,15
+		do ii = 1,g_sol
 			call MPI_RECV ( solLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			solLocal(:,ii) = solLocalBit
 		end do
 		
 		! receive medium chunk, save in local solLocal
-		do ii = 1,5
+		do ii = 1,g_med
 			call MPI_RECV ( medLocalBit, num_rows_to_receive, MPI_DOUBLE_PRECISION, &
 			root_process, MPI_ANY_TAG, MPI_COMM_WORLD, status, ierr)
 			medLocal(:,ii) = medLocalBit
@@ -707,10 +707,10 @@ else
 		! slave processor loops through each coarse cell
 		do m=1,num_rows_to_receive
 			
-			yep = write_matrix ( 5, 1, real(priLocal(m,:), kind = 4), 'upPri.txt' )
-			yep = write_matrix ( 28, 1, real(secLocal(m,:), kind = 4), 'upSec.txt' )
-			yep = write_matrix ( 15, 1, real(solLocal(m,:), kind = 4), 'upSol.txt' )
-			yep = write_matrix ( 5, 1, real(medLocal(m,:), kind = 4), 'upMed.txt' )
+			yep = write_matrix ( g_pri, 1, real(priLocal(m,:), kind = 4), 'upPri.txt' )
+			yep = write_matrix ( g_sec, 1, real(secLocal(m,:), kind = 4), 'upSec.txt' )
+			yep = write_matrix ( g_sol, 1, real(solLocal(m,:), kind = 4), 'upSol.txt' )
+			yep = write_matrix ( g_med, 1, real(medLocal(m,:), kind = 4), 'upMed.txt' )
 			
 			write(*,*) hLocal(m)
 			
@@ -735,7 +735,7 @@ else
 			
 			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 			
-			medLocal(m,:) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,85), medLocal(m,5)/)
+			medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,85)/)
 			
 			! print something you want to look at
 			!write(*,*) medLocal(m,3) ! water
@@ -748,25 +748,25 @@ else
 		!--------------SLAVE PROCESSOR SENDS ALTERED MESSAGE TO MASTER PROCESSOR
 	
 		! send primary array chunk back to root process
-		do ii = 1,5
+		do ii = 1,g_pri
 			call MPI_SEND( priLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
 		! send secondary array chunk back to root process
-		do ii = 1,28
+		do ii = 1,g_sec
 			call MPI_SEND( secLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
 		! send solute array chunk back to root process
-		do ii = 1,15
+		do ii = 1,g_sol
 			call MPI_SEND( solLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
 		
 		! send medium array chunk back to root process
-		do ii = 1,5
+		do ii = 1,g_med
 			call MPI_SEND( medLocal(:,ii), num_rows_received, MPI_DOUBLE_PRECISION, root_process, &
 			return_data_tag, MPI_COMM_WORLD, ierr)
 		end do
@@ -1278,8 +1278,8 @@ do i=2,(xn/cell)-1
 	
 	! left edge
 	solute_next(1,i) = sol(1,i) &
-	& - uTransport(1,i) * qx * (sol(1,i+1)-sol(1,i)) &
-	& - vTransport(1,i) * qy * (sol(1+1,i)-sol(1,i)) 
+	& - vTransport(1,i) * qy * (sol(1,i+1)-sol(1,i)) &
+	& - uTransport(1,i) * qx * (sol(1+1,i)-sol(1,i)) 
 	
 	! get rid of out-of-bounds truncation errors
 	if (solute_next(1,i) .gt. maxval(sol0)) then
@@ -1291,8 +1291,8 @@ do i=2,(xn/cell)-1
 	
 	! right edge
 	solute_next(xn/cell,i) = sol(xn/cell,i) &
-	& - uTransport(xn/cell,i) * qx * (sol(xn/cell,i)-sol(xn/cell,i-1)) &
-	& - vTransport(xn/cell,i) * qy * (sol(xn/cell,i)-sol((xn/cell)-1,i)) 
+	& - vTransport(xn/cell,i) * qy * (sol(xn/cell,i)-sol(xn/cell,i-1)) &
+	& - uTransport(xn/cell,i) * qx * (sol(xn/cell,i)-sol((xn/cell)-1,i)) 
 	
 	! get rid of out-of-bounds truncation errors
 	if (solute_next(xn/cell,i) .gt. maxval(sol0)) then
@@ -1463,7 +1463,7 @@ integer :: order
 real(8) :: temp, timestep
 real(8) :: alt_next(1,85)
 real(8) :: alter0(1,85)
-real(8) :: primaryList(5), secondaryList(28), soluteList(15), mediumList(5)
+real(8) :: primaryList(g_pri), secondaryList(g_sec), soluteList(g_sol), mediumList(g_med)
 
 ! use the alteration module
 alter0 = alter(temp-272.9, timestep, primaryList, secondaryList, soluteList, mediumList)
