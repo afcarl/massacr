@@ -156,7 +156,7 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(5) ! important information
+real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(7) ! important information
 
 ! STRINGS
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
@@ -184,7 +184,7 @@ write(s_mg,'(F25.10)') solute(6)
 write(s_na,'(F25.10)') solute(7)
 write(s_k,'(F25.10)') solute(8)
 write(s_fe,'(F25.10)') solute(9)
-write(s_s,'(F25.10)') 0.0 !solute(10)
+write(s_s,'(F25.10)') solute(10)
 write(s_si,'(F25.10)') solute(11)
 write(s_cl,'(F25.10)') solute(12)
 write(s_al,'(F25.10)') solute(13)
@@ -540,6 +540,14 @@ END IF
 ! RUN INPUT
 IF (RunString(id, inputz0).NE.0) THEN
 	CALL OutputErrorString(id)
+	write(*,*) "primary"
+	write(*,*) primary
+	write(*,*) "secondary"
+	write(*,*) secondary
+	write(*,*) "solute"
+	write(*,*) solute
+	write(*,*) "medium"
+	write(*,*) medium
 	!STOP
 END IF
   
@@ -567,11 +575,13 @@ DO i=1,GetSelectedOutputStringLineCount(id)
  	   !write(12,*) trim(line)
 	   !write(*,*) "cell"
 	   !write(*,*) trim(line) ! PRINT LABELS FOR EVERY FIELD (USEFUL)
+		
 	end if
 	! MEAT
 	if (i .gt. 1) then
 		!write(*,*) trim(line)
 		read(line,*) outmat(i,:)
+		
 		!write(12,"(4F12.5)") outmat(i,:)
 		!!!!!write(12,*) outmat(i,:) ! this writes to file, which i don't need (USEFUL)
 		!write(*,*) trim(line) ! PRINT EVERY GOD DAMN LINE

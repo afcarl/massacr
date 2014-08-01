@@ -57,7 +57,7 @@ psi0 = np.loadtxt(path + 'psiMat.txt')
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sol_alk.txt')
+geo0 = np.loadtxt(path + 'pri_glass.txt')
 
 
 geo00 = np.zeros(steps)

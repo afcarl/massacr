@@ -239,7 +239,10 @@ medium(:,:,2) = 0.0 ! s_sp
 medium(:,:,3) = .386 ! water_volume
 medium(:,1:(xn/cell)*(5/13),3) = .03 ! water_volume
 medium(:,:,4) = 0.0 ! rho_s
-medium(:,:,5) = 0.0 ! rxn toggle
+medium(:,:,5) = 1.0 ! rxn toggle
+medium(:,:,6) = 0.0 ! x-coord
+medium(:,:,7) = 0.0 ! y-coord
+
 
 ! set reaction cells
 medium(:,(xn/cell)/2:(xn/cell),5) = 1.0 ! only bottom half reacts
@@ -270,6 +273,13 @@ if (my_id .eq. root_process) then
 ! initialize domain geometry
 call init()
 
+! fill coordinate arrays
+do i = 1,(xn/cell)
+do ii = 1,(yn/cell)
+	medium(i,ii,6) = x(i*cell) 
+	medium(i,ii,7) = y(ii*cell)
+end do
+end do
 
 ! boundary & initial condtions for flow equations
 psi=0.0
@@ -309,7 +319,7 @@ do j = 2, tn
 	end do
 	
 	! top
-	flux(:,2) = 300.0
+	flux(:,2) = 280.0
 	do i = 1,xn/2
 		flux(i,2) = 274.0
 	end do
@@ -362,12 +372,16 @@ do j = 2, tn
 	
 		!mixed top boundary condition
 		do i=1,yn/cell
-			if (vTransport(i,yn/cell) .le. 0.0) then
+			!if (vTransport(i,yn/cell) .le. 0.0) then
 				do n=1,g_sol
 					solute(i,yn/cell,n) = soluteOcean(n)
 				end do
-			end if
+			!end if
 		end do
+		
+		! vertical boundary conditions
+! 		solute(1,:,:) = (4.0/3.0)*solute(2,:,:) - (1.0/3.0)*solute(3,:,:) !l
+! 		solute(xn/cell,:,:) = (4.0/3.0)*solute((xn/cell)-1,:,:) - (1.0/3.0)*solute((xn/cell)-2,:,:) !r
 	
 		! other boundary condition examples
 		!solute(1,:,5) = 6.0e-3 ! left
@@ -382,7 +396,7 @@ do j = 2, tn
 		end do
 	
 		! transport each solute
-		do n=1,g_sol
+		do n=3,g_sol
 			solTemp = solute(:,:,n)
 			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 		end do
@@ -712,7 +726,7 @@ else
 			yep = write_matrix ( g_sol, 1, real(solLocal(m,:), kind = 4), 'upSol.txt' )
 			yep = write_matrix ( g_med, 1, real(medLocal(m,:), kind = 4), 'upMed.txt' )
 			
-			write(*,*) hLocal(m)
+			write(*,*) medLocal(m,6:7)
 			
 			
 			if (medLocal(m,5) .eq. 1.0) then
@@ -1225,85 +1239,85 @@ vLong = reshape(transpose(vTransport(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(y
 ! end do
 ! end do
 
-! fully 2d lax-wendroff advection scheme test (order dx**3?)
-do i=2,(xn/cell)-1
-	do ii=2,(yn/cell)-1
-		solute_next(i,ii) = sol(i,ii) &
-		& - uTransport(i,ii) * qx * (sol(i+1,ii)-sol(i-1,ii)) &
-		& - vTransport(i,ii) * qy * (sol(i,ii+1)-sol(i,ii-1)) &
-		& - ((uTransport(i,ii)*qx)**2) * 0.5 * (sol(i+1,ii) - 2.0*sol(i,ii) + sol(i-1,ii)) &
-		& - ((vTransport(i,ii)*qy)**2) * 0.5 * (sol(i,ii+1) - 2.0*sol(i,ii) + sol(i,ii-1)) &
-		& + uTransport(i,ii) * vTransport(i,ii) * qx * qy * .25 * &
-		& (sol(i+1,ii+1) - sol(i-1,ii+1) - sol(i+1,ii-1) + sol(i-1,ii-1))
-	
-		! get rid of out-of-bounds truncation errors
-		if (solute_next(i,ii) .gt. maxval(sol0)) then
-			solute_next(i,ii) = maxval(sol0)
-		end if
-		if (solute_next(i,ii) .le. 0.0) then
-			solute_next(i,ii) = 1e-10
-		end if
-	
-	end do
-end do
-
-do i=2,(xn/cell)-1
-	! top edge
-	if (vTransport(i,yn/cell) .ge. 0.0) then
-		solute_next(i,yn/cell) = sol(i,yn/cell) &
-		& - uTransport(i,yn/cell) * qx * (sol(i,yn/cell)-sol(i-1,yn/cell)) &
-		& - vTransport(i,yn/cell) * qy * (sol(i,yn/cell)-sol(i,yn/cell-1)) 
-		
-		! get rid of out-of-bounds truncation errors
-		if (solute_next(i,yn/cell) .gt. maxval(sol0)) then
-			solute_next(i,yn/cell) = maxval(sol0)
-		end if
-		if (solute_next(i,yn/cell) .le. 0.0) then
-			solute_next(i,yn/cell) = 1e-10
-		end if
-	end if 
-	
-	! bottom edge
-	solute_next(i,1) = sol(i,1) &
-	& - uTransport(i,1) * qx * (sol(i+1,1)-sol(i,1)) &
-	& - vTransport(i,1) * qy * (sol(i,1+1)-sol(i,1)) 
-	
-	! get rid of out-of-bounds truncation errors
-	if (solute_next(i,1) .gt. maxval(sol0)) then
-		solute_next(i,1) = maxval(sol0)
-	end if
-	if (solute_next(i,1) .le. 0.0) then
-		solute_next(i,1) = 1e-10
-	end if
-	
-	! left edge
-	solute_next(1,i) = sol(1,i) &
-	& - vTransport(1,i) * qy * (sol(1,i+1)-sol(1,i)) &
-	& - uTransport(1,i) * qx * (sol(1+1,i)-sol(1,i)) 
-	
-	! get rid of out-of-bounds truncation errors
-	if (solute_next(1,i) .gt. maxval(sol0)) then
-		solute_next(1,i) = maxval(sol0)
-	end if
-	if (solute_next(1,i) .le. 0.0) then
-		solute_next(1,i) = 1e-10
-	end if
-	
-	! right edge
-	solute_next(xn/cell,i) = sol(xn/cell,i) &
-	& - vTransport(xn/cell,i) * qy * (sol(xn/cell,i)-sol(xn/cell,i-1)) &
-	& - uTransport(xn/cell,i) * qx * (sol(xn/cell,i)-sol((xn/cell)-1,i)) 
-	
-	! get rid of out-of-bounds truncation errors
-	if (solute_next(xn/cell,i) .gt. maxval(sol0)) then
-		solute_next(xn/cell,i) = maxval(sol0)
-	end if
-	if (solute_next(xn/cell,i) .le. 0.0) then
-		solute_next(xn/cell,i) = 1e-10
-	end if
-	
-	
-end do
+!!  fully 2d lax-wendroff advection scheme test (order dx**3?)
+! do i=2,(xn/cell)-1
+! 	do ii=2,(yn/cell)-1
+! 		solute_next(i,ii) = sol(i,ii) &
+! 		& - uTransport(i,ii) * qx * (sol(i+1,ii)-sol(i-1,ii)) &
+! 		& - vTransport(i,ii) * qy * (sol(i,ii+1)-sol(i,ii-1)) &
+! 		& - ((uTransport(i,ii)*qx)**2) * 0.5 * (sol(i+1,ii) - 2.0*sol(i,ii) + sol(i-1,ii)) &
+! 		& - ((vTransport(i,ii)*qy)**2) * 0.5 * (sol(i,ii+1) - 2.0*sol(i,ii) + sol(i,ii-1)) &
+! 		& + uTransport(i,ii) * vTransport(i,ii) * qx * qy * .25 * &
+! 		& (sol(i+1,ii+1) - sol(i-1,ii+1) - sol(i+1,ii-1) + sol(i-1,ii-1))
+!
+! 		! get rid of out-of-bounds truncation errors
+! 		if (solute_next(i,ii) .gt. maxval(sol0)) then
+! 			solute_next(i,ii) = maxval(sol0)
+! 		end if
+! 		if (solute_next(i,ii) .le. 0.0) then
+! 			solute_next(i,ii) = 1e-10
+! 		end if
+!
+! 	end do
+! end do
+!
+! do i=2,(xn/cell)-1
+! 	! top edge
+! 	if (vTransport(i,yn/cell) .ge. 0.0) then
+! 		solute_next(i,yn/cell) = sol(i,yn/cell) &
+! 		& - uTransport(i,yn/cell) * qx * (sol(i,yn/cell)-sol(i-1,yn/cell)) &
+! 		& - vTransport(i,yn/cell) * qy * (sol(i,yn/cell)-sol(i,yn/cell-1))
+!
+! 		! get rid of out-of-bounds truncation errors
+! 		if (solute_next(i,yn/cell) .gt. maxval(sol0)) then
+! 			solute_next(i,yn/cell) = maxval(sol0)
+! 		end if
+! 		if (solute_next(i,yn/cell) .le. 0.0) then
+! 			solute_next(i,yn/cell) = 1e-10
+! 		end if
+! 	end if
+!
+! 	! bottom edge
+! 	solute_next(i,1) = sol(i,1) &
+! 	& - uTransport(i,1) * qx * (sol(i+1,1)-sol(i,1)) &
+! 	& - vTransport(i,1) * qy * (sol(i,1+1)-sol(i,1))
+!
+! 	! get rid of out-of-bounds truncation errors
+! 	if (solute_next(i,1) .gt. maxval(sol0)) then
+! 		solute_next(i,1) = maxval(sol0)
+! 	end if
+! 	if (solute_next(i,1) .le. 0.0) then
+! 		solute_next(i,1) = 1e-10
+! 	end if
+!
+! 	! left edge
+! 	solute_next(1,i) = sol(1,i) &
+! 	& - vTransport(1,i) * qy * (sol(1,i+1)-sol(1,i)) &
+! 	& - uTransport(1,i) * qx * (sol(1+1,i)-sol(1,i))
+!
+! 	! get rid of out-of-bounds truncation errors
+! 	if (solute_next(1,i) .gt. maxval(sol0)) then
+! 		solute_next(1,i) = maxval(sol0)
+! 	end if
+! 	if (solute_next(1,i) .le. 0.0) then
+! 		solute_next(1,i) = 1e-10
+! 	end if
+!
+! 	! right edge
+! 	solute_next(xn/cell,i) = sol(xn/cell,i) &
+! 	& - vTransport(xn/cell,i) * qy * (sol(xn/cell,i)-sol(xn/cell,i-1)) &
+! 	& - uTransport(xn/cell,i) * qx * (sol(xn/cell,i)-sol((xn/cell)-1,i))
+!
+! 	! get rid of out-of-bounds truncation errors
+! 	if (solute_next(xn/cell,i) .gt. maxval(sol0)) then
+! 		solute_next(xn/cell,i) = maxval(sol0)
+! 	end if
+! 	if (solute_next(xn/cell,i) .le. 0.0) then
+! 		solute_next(xn/cell,i) = 1e-10
+! 	end if
+!
+!
+! end do
 
 ! here lies a fully implicit version of the same thing. it seems to work just as well, but
 ! in case i want to parallelize this part later, i might as well use the explicit method.
@@ -1321,110 +1335,124 @@ end do
 ! 	& - vTransport(1,ii) * qy * (sol(1+1,ii)-sol(1,ii))
 ! end do
 
-! ! not using this implicit method
-! ! VERTICAL BOUNDARY CONDITIONS
-! sol(2,:) = sol(2,:) ! left
-! sol(xn/cell-1,:) = sol(xn/cell-1,:) ! right
-!
-! vec = reshape(sol(2:xn/cell-1,2:yn/cell-1), (/(xn/cell-2)*(yn/cell-2)/))
-!
-! ! MAKE THE BAND
-! aBand = 0.0
-! do i = 1,(xn/cell-2)*(yn/cell-2)
-!
-! 	aBand(i,2) = 1.0
-! 	if (i-1 .gt. 0) then
-! 	aBand(i,1) = - uLong(i)*qx/2.0
-! 	end if
-! 	if (i+1 .le. (xn/cell-2)*(yn/cell-2)) then
-! 	aBand(i,3) = uLong(i)*qx/2.0
-! 	end if
-!
-! 	! first edge
-! 	if (any(mod((/i-1/),xn/cell-2) .eq. 0.0)) then
-! 	aBand(i,2) = 1.0 - uLong(i)*qx
-! 	if (i .gt. 1) then
-! 	aBand(i,1) =  0.0
-! 	end if
-! 	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
-! 	aBand(i,3) = uLong(i)*qx
-! 	end if
-! 	end if
-!
-! 	! last edge
-! 	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
-! 	aBand(i,2) = 1.0 - uLong(i)*qx
-! 	if (i .gt. 1) then
-! 	aBand(i,3) =  0.0
-! 	end if
-! 	if (i .le. (xn/cell-2)*(yn/cell-2)) then
-! 	aBand(i,1) = uLong(i)*qx
-! 	end if
-! 	end if
-!
-! end do
-!
-! do i=1,((xn/cell-2)-1)
-! 	ii = i*(xn/cell-2)
-! 	aBand(ii,3) = 0.0
-! 	aBand(ii+1,1) = 0.0
-! end do
-!
-! !!!!!!!!!!!! THIS !!!!!!!!!!!
-! sol_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),vec,(xn/cell-2)*(yn/cell-2))
-! sol(2:xn/cell-1,2:yn/cell-1) = reshape(sol_nextRow, (/xn/cell-2, yn/cell-2/))
-!
-! ! HORIZONTAL BOUNDARY CONDITIONS
-! sol(:,2) = sol(:,2) ! bottom
-! sol(:,xn/cell-1) = sol(:,xn/cell-1) ! top
-!
-! sol_nextRow = reshape(transpose(sol(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(yn/cell-2)/))
-!
-!
-!
-! ! MAKE THE BAND
-! bBand = 0.0
-! do i = 1,(xn/cell-2)*(yn/cell-2)
-! 	bBand(i,2) = 1.0
-! 	if (i-1 .gt. 0) then
-! 	bBand(i,1) = - vLong(i)*qy/2.0
-! 	end if
-! 	if (i+1 .le. (xn/cell-2)*(yn/cell-2)) then
-! 	bBand(i,3) = vLong(i)*qy/2.0
-! 	end if
-!
-! 	! first edge
-! 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-! 	bBand(i,2) = 1.0 - vLong(i)*qy
-! 	if (i .gt. 1) then
-! 	bBand(i,1) =  0.0
-! 	end if
-! 	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
-! 	bBand(i,3) = vLong(i)*qy
-! 	end if
-! 	end if
-!
-! 	! last edge
-! 	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
-! 	bBand(i,2) = 1.0 + vLong(i)*qy
-! 	if (i .gt. 1) then
-! 	bBand(i,3) =  0.0
-! 	end if
-! 	if (i .le. (xn/cell-2)*(yn/cell-2)) then
-! 	bBand(i,1) = - vLong(i)*qy
-! 	end if
-! 	end if
-! end do
-!
-! do i=1,((xn/cell-2)-1)
-! 	ii = i*(xn/cell-2)
-! 	bBand(ii,3) = 0.0
-! 	bBand(ii+1,1) = 0.0
-! end do
-!
-! sol_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),sol_nextRow,(xn/cell-2)*(yn/cell-2))
-! solute_next(2:xn/cell-1,2:yn/cell-1) = transpose(reshape(sol_nextRow, (/xn/cell-2, yn/cell-2/)))
+! not using this implicit method
+! VERTICAL BOUNDARY CONDITIONS
+sol(2,:) = sol(2,:) ! left
+sol(xn/cell-1,:) = sol(xn/cell-1,:) ! right
 
+vec = reshape(sol(2:xn/cell-1,2:yn/cell-1), (/(xn/cell-2)*(yn/cell-2)/))
+
+! MAKE THE BAND
+aBand = 0.0
+do i = 1,(xn/cell-2)*(yn/cell-2)
+
+	aBand(i,2) = 1.0
+	if (i-1 .gt. 0) then
+	aBand(i,1) = - uLong(i)*qx/2.0
+	end if
+	if (i+1 .le. (xn/cell-2)*(yn/cell-2)) then
+	aBand(i,3) = uLong(i)*qx/2.0
+	end if
+
+	! first edge
+	if (any(mod((/i-1/),xn/cell-2) .eq. 0.0)) then
+	aBand(i,2) = 1.0 - uLong(i)*qx
+	if (i .gt. 1) then
+	aBand(i,1) =  0.0
+	end if
+	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
+	aBand(i,3) = uLong(i)*qx
+	end if
+	end if
+
+	! last edge
+	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
+	aBand(i,2) = 1.0 - uLong(i)*qx
+	if (i .gt. 1) then
+	aBand(i,3) =  0.0
+	end if
+	if (i .le. (xn/cell-2)*(yn/cell-2)) then
+	aBand(i,1) = uLong(i)*qx
+	end if
+	end if
+
+end do
+
+do i=1,((xn/cell-2)-1)
+	ii = i*(xn/cell-2)
+	aBand(ii,3) = 0.0
+	aBand(ii+1,1) = 0.0
+end do
+
+!!!!!!!!!!!! THIS !!!!!!!!!!!
+sol_nextRow = tridiag(aBand(:,1),aBand(:,2),aBand(:,3),vec,(xn/cell-2)*(yn/cell-2))
+sol(2:xn/cell-1,2:yn/cell-1) = reshape(sol_nextRow, (/xn/cell-2, yn/cell-2/))
+
+! HORIZONTAL BOUNDARY CONDITIONS
+sol(:,2) = sol(:,2) ! bottom
+sol(:,xn/cell-1) = sol(:,xn/cell-1) ! top
+
+sol_nextRow = reshape(transpose(sol(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(yn/cell-2)/))
+
+
+
+! MAKE THE BAND
+bBand = 0.0
+do i = 1,(xn/cell-2)*(yn/cell-2)
+	bBand(i,2) = 1.0
+	if (i-1 .gt. 0) then
+	bBand(i,1) = - vLong(i)*qy/2.0
+	end if
+	if (i+1 .le. (xn/cell-2)*(yn/cell-2)) then
+	bBand(i,3) = vLong(i)*qy/2.0
+	end if
+
+	! first edge
+	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
+	bBand(i,2) = 1.0 - vLong(i)*qy
+	if (i .gt. 1) then
+	bBand(i,1) =  0.0
+	end if
+	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
+	bBand(i,3) = vLong(i)*qy
+	end if
+	end if
+
+	! last edge
+	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
+	bBand(i,2) = 1.0 + vLong(i)*qy
+	if (i .gt. 1) then
+	bBand(i,3) =  0.0
+	end if
+	if (i .le. (xn/cell-2)*(yn/cell-2)) then
+	bBand(i,1) = - vLong(i)*qy
+	end if
+	end if
+end do
+
+do i=1,(((xn/cell)-2)-1)
+	ii = i*((xn/cell)-2)
+	bBand(ii,3) = 0.0
+	bBand(ii+1,1) = 0.0
+end do
+
+sol_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),sol_nextRow,((xn/cell)-2)*((yn/cell)-2))
+solute_next(2:(xn/cell)-1,2:(yn/cell)-1) = transpose(reshape(sol_nextRow, (/(xn/cell)-2, (yn/cell)-2/)))
+
+! vertical boundary conditions 
+solute_next(1,:) = (4.0/3.0)*solute_next(2,:) - (1.0/3.0)*solute_next(3,:)
+solute_next(xn/cell,:) = (4.0/3.0)*solute_next((xn/cell)-1,:) - (1.0/3.0)*solute_next((xn/cell)-2,:)
+
+do i=1,xn/cell
+do ii=1,yn/cell
+	if (solute_next(i,ii) .gt. maxval(sol0)) then
+		solute_next(i,ii) = maxval(sol0)
+	end if
+	if (solute_next(i,ii) .le. 1e-10) then
+		solute_next(i,ii) = 1e-10
+	end if
+end do
+end do
 
 return
 
