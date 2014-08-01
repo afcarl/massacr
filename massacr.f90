@@ -324,32 +324,36 @@ do j = 2, tn
 		flux(i,2) = 274.0
 	end do
 	
-	! solve thermal energy equation
-	rho = rho_next(h)
-	h = h_next(h, psi,rho, flux)
+	! stop fluid dynamic model after 19k timesteps
+	if (j .lt. 19000) then
+		! solve thermal energy equation
+		rho = rho_next(h)
+		h = h_next(h, psi,rho, flux)
   
-	! put thermal energy boundary conditions in for next timestep
-	h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
-	h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
-	h(:,1) = flux(:,1)
-	h(:,yn) = flux(:,2)
+		! put thermal energy boundary conditions in for next timestep
+		h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
+		h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
+		h(:,1) = flux(:,1)
+		h(:,yn) = flux(:,2)
   
-	! solve streamfunction-vorticity equation
-	rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
-	psi = psi_next(h, rhs0, psi, permeable, rho)
+		! solve streamfunction-vorticity equation
+		rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
+		psi = psi_next(h, rhs0, psi, permeable, rho)
+	
+		! put in streamfunction boundary conditions for next timestep
+		psi(1,1:yn) = bcyPsi(1,1:yn) ! left
+		psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
+		psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
+		psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
+		psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2))/1.0
+		permeable = psi(:,yn)
 
-	! put in streamfunction boundary conditions for next timestep
-	psi(1,1:yn) = bcyPsi(1,1:yn) ! left
-	psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
-	psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
-	psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
-	psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2))/1.0
-	permeable = psi(:,yn)
-
-	! get velocities from streamfunction
-	velocities0 = velocities(psi)
-	u = velocities0(1:xn,1:yn)
-	v = velocities0(1:xn,yn+1:2*yn)
+		! get velocities from streamfunction
+		velocities0 = velocities(psi)
+		u = velocities0(1:xn,1:yn)
+		v = velocities0(1:xn,yn+1:2*yn)
+	end if
+	
 	
 	! interpolate fine grid onto coarse grid
 	do i = 1,xn/cell
@@ -372,11 +376,9 @@ do j = 2, tn
 	
 		!mixed top boundary condition
 		do i=1,yn/cell
-			!if (vTransport(i,yn/cell) .le. 0.0) then
-				do n=1,g_sol
-					solute(i,yn/cell,n) = soluteOcean(n)
-				end do
-			!end if
+			do n=1,g_sol
+				solute(i,yn/cell-1,n) = soluteOcean(n)
+			end do
 		end do
 		
 		! vertical boundary conditions
@@ -410,9 +412,9 @@ do j = 2, tn
 ! 		n=3 ! alk
 !  		solTemp = solute(:,:,n)
 !  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 		n=4 ! c
-!  		solTemp = solute(:,:,n)
-!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=4 ! c
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 		n=5 ! ca
  		solTemp = solute(:,:,n)
  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
@@ -644,6 +646,7 @@ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,16),kind=4
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,1),kind=4), 'sol_ph.txt' )
 !yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,2),kind=4), 'sol_pe.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,3),kind=4), 'sol_alk.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,4),kind=4), 'sol_c.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'sol_ca.txt' )
 ! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,6),kind=4), 'sol_mg.txt' )
 ! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,7),kind=4), 'sol_na.txt' )

@@ -57,7 +57,7 @@ psi0 = np.loadtxt(path + 'psiMat.txt')
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'pri_glass.txt')
+geo0 = np.loadtxt(path + 'sol_alk.txt')
 
 
 geo00 = np.zeros(steps)
@@ -176,7 +176,7 @@ for i in range(steps):
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig(path + 'glass0' + str(i) + '.png')
+    plt.savefig(path + 'alk0' + str(i) + '.png')
 
 
 print "ALL DONE!"

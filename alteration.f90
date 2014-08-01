@@ -27,9 +27,9 @@ contains
 !         porosity : of the grid cell
 !         
 !
-! RETURNS: a 2d array of: [basalt glass, #; pyroxenes, #; precipiates, #;]
-!          it also prints to a text file
-!          but right now it returns nothing.
+! RETURNS: alt0 array to be parsed by main method
+!          
+!          
 !
 ! 1 time
 ! 2 pH
