@@ -24,7 +24,7 @@ print "doing something..."
 #####################
 
 cell = 2
-steps = 2
+steps = 20
 #path = "output/noTransportCell2/"
 #path = "output/noTransportCell2/"
 path = ""
@@ -176,7 +176,7 @@ for i in range(steps):
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig(path + 'alk0' + str(i) + '.png')
+    plt.savefig(path + 'glass0' + str(i) + '.png')
 
 
 print "ALL DONE!"

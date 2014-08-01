@@ -395,11 +395,51 @@ do j = 2, tn
 			end do
 		end do
 	
-		! transport each solute
-		do n=3,g_sol
-			solTemp = solute(:,:,n)
-			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		end do
+! 		! transport each solute
+! 		do n=5,g_sol
+! 			solTemp = solute(:,:,n)
+! 			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		end do
+
+		n=1 ! ph
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=2 ! pe
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=3 ! alk
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=4 ! c
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=5 ! ca
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=6 ! mg
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=7 ! na
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=8 ! k
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=9 ! fe
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=10 ! s issues
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=11 ! si
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=12 ! cl
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=13 ! al
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 		
 		! convert [H+], [e-] to pH, pe
 		do i=1,xn/cell
@@ -1443,16 +1483,16 @@ solute_next(2:(xn/cell)-1,2:(yn/cell)-1) = transpose(reshape(sol_nextRow, (/(xn/
 solute_next(1,:) = (4.0/3.0)*solute_next(2,:) - (1.0/3.0)*solute_next(3,:)
 solute_next(xn/cell,:) = (4.0/3.0)*solute_next((xn/cell)-1,:) - (1.0/3.0)*solute_next((xn/cell)-2,:)
 
-do i=1,xn/cell
-do ii=1,yn/cell
-	if (solute_next(i,ii) .gt. maxval(sol0)) then
-		solute_next(i,ii) = maxval(sol0)
-	end if
-	if (solute_next(i,ii) .le. 1e-10) then
-		solute_next(i,ii) = 1e-10
-	end if
-end do
-end do
+! do i=1,xn/cell
+! do ii=1,yn/cell
+! 	if (solute_next(i,ii) .gt. maxval(sol0)) then
+! 		solute_next(i,ii) = maxval(sol0)
+! 	end if
+! 	if (solute_next(i,ii) .le. 0.0) then
+! 		solute_next(i,ii) = 0.0
+! 	end if
+! end do
+! end do
 
 return
 

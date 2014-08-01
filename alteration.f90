@@ -184,7 +184,7 @@ write(s_mg,'(F25.10)') solute(6)
 write(s_na,'(F25.10)') solute(7)
 write(s_k,'(F25.10)') solute(8)
 write(s_fe,'(F25.10)') solute(9)
-write(s_s,'(F25.10)') solute(10)
+write(s_s,'(F25.10)') 0.0 !solute(10)
 write(s_si,'(F25.10)') solute(11)
 write(s_cl,'(F25.10)') solute(12)
 write(s_al,'(F25.10)') solute(13)
@@ -425,13 +425,13 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! & "Na2O 0.0125 K2O 0.005 Al2O3 0.0525 SiO2 0.5" //NEW_LINE('')// &
 
 ! pham phudge
-! &"-f Ca 0.025 Fe 0.0095 Mg 0.065 " //&
-! & "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.3505" //NEW_LINE('')// &
+&"-f Ca 0.025 Fe 0.0095 Mg 0.065 " //&
+& "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.3505" //NEW_LINE('')// &
 
 ! grove and kinzler 1992 (thomspon et al 1980)
-&"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&
-& "FeO 0.121 MgO 0.195 K2O 0.00265 " //&
-& "Na2O 0.0573" //NEW_LINE('')// &
+! &"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&
+! & "FeO 0.121 MgO 0.195 K2O 0.00265 " //&
+! & "Na2O 0.0573" //NEW_LINE('')// &
 
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
