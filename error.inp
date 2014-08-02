@@ -1,5 +1,5 @@
 SOLUTION_RAW                 1 
-  -temp                      3.8531487118
+  -temp                      1.1045234053
   -pressure                  1
   -total_h                   nan
   -total_o                   nan
@@ -8,15 +8,15 @@ SOLUTION_RAW                 1
   -totals
     H(0)                     nan
     O(0)                     nan
-  -pH                        0.0001228856
-  -pe                        0.0001228856
+  -pH                        8.4510002136
+  -pe                        0.0023000001
   -mu                        nan
   -ah2o                      1
   -mass_water                0
   -soln_vol                  nan
   -total_alkalinity          nan
   -activities
-    E                        -0.0001228856
+    E                        -0.0023000001
     H(0)                     nan
     O(0)                     nan
   -gammas
@@ -55,8 +55,8 @@ KINETICS_RAW                 1
   -component                 Pigeonite
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     0
-      -m0                    0
+      -m                     -0
+      -m0                    -0
       -namecoef
         Pigeonite            1
       -d_params
@@ -79,8 +79,8 @@ KINETICS_RAW                 1
   -component                 BGlass
       # KINETICS_MODIFY candidate identifiers #
       -tol                   1e-08
-      -m                     0
-      -m0                    0
+      -m                     1
+      -m0                    1
       -namecoef
         Al                   0.105
         Ca                   0.025
@@ -108,7 +108,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Albite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 11.3119
+      -moles                 0
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -156,7 +156,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Diaspore
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 7.8000001907
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -228,7 +228,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Montmor-Na
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 -0
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -288,7 +288,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Nontronite-Mg
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 43.134
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -300,7 +300,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Nontronite-Na
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 -0.036453
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -336,7 +336,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Saponite-Mg
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 5
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -360,7 +360,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 SiO2(am)
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 4.5
+      -moles                 2
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -372,7 +372,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Stilbite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 3
+      -moles                 0
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0

@@ -376,16 +376,16 @@ do j = 2, tn
 	
 		!mixed top boundary condition
 		do i=1,(yn/cell)
-			!if (vTransport(i,yn/cell) .lt. 0.0) then
+			if (vTransport(i,yn/cell-1) .lt. 0.0) then
 				do n=1,g_sol
-					solute(i,yn/cell,n) = soluteOcean(n)
+					solute(i,yn/cell-1,n) = soluteOcean(n)
 				end do
-			!end if
+			end if
 		end do
 		
-		! vertical boundary conditions
- 		solute(1,:,:) = (4.0/3.0)*solute(2,:,:) - (1.0/3.0)*solute(3,:,:) !l
- 		solute(xn/cell,:,:) = (4.0/3.0)*solute((xn/cell)-1,:,:) - (1.0/3.0)*solute((xn/cell)-2,:,:) !r
+! 		! vertical boundary conditions
+!  		solute(1,:,:) = (4.0/3.0)*solute(2,:,:) - (1.0/3.0)*solute(3,:,:) !l
+!  		solute(xn/cell,:,:) = (4.0/3.0)*solute((xn/cell)-1,:,:) - (1.0/3.0)*solute((xn/cell)-2,:,:) !r
 	
 		! other boundary condition examples
 		!solute(1,:,5) = 6.0e-3 ! left
@@ -1399,27 +1399,27 @@ do i = 1,(xn/cell-2)*(yn/cell-2)
 	aBand(i,3) = uLong(i)*qx/2.0
 	end if
 
-! 	! first edge
-! 	if (any(mod((/i-1/),xn/cell-2) .eq. 0.0)) then
-! 	aBand(i,2) = 1.0 - uLong(i)*qx
-! 	if (i .gt. 1) then
-! 	aBand(i,1) =  0.0
-! 	end if
-! 	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
-! 	aBand(i,3) = uLong(i)*qx
-! 	end if
-! 	end if
-!
-! 	! last edge
-! 	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
-! 	aBand(i,2) = 1.0 - uLong(i)*qx
-! 	if (i .gt. 1) then
-! 	aBand(i,3) =  0.0
-! 	end if
-! 	if (i .le. (xn/cell-2)*(yn/cell-2)) then
-! 	aBand(i,1) = uLong(i)*qx
-! 	end if
-! 	end if
+	! first edge
+	if (any(mod((/i-1/),xn/cell-2) .eq. 0.0)) then
+	aBand(i,2) = 1.0 - uLong(i)*qx
+	if (i .gt. 1) then
+	aBand(i,1) =  0.0
+	end if
+	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
+	aBand(i,3) = uLong(i)*qx
+	end if
+	end if
+
+	! last edge
+	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
+	aBand(i,2) = 1.0 - uLong(i)*qx
+	if (i .gt. 1) then
+	aBand(i,3) =  0.0
+	end if
+	if (i .le. (xn/cell-2)*(yn/cell-2)) then
+	aBand(i,1) = uLong(i)*qx
+	end if
+	end if
 
 end do
 
@@ -1452,27 +1452,27 @@ do i = 1,(xn/cell-2)*(yn/cell-2)
 	bBand(i,3) = vLong(i)*qy/2.0
 	end if
 
-! 	! first edge
-! 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-! 	bBand(i,2) = 1.0 - vLong(i)*qy
-! 	if (i .gt. 1) then
-! 	bBand(i,1) =  0.0
-! 	end if
-! 	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
-! 	bBand(i,3) = vLong(i)*qy
-! 	end if
-! 	end if
-!
-! 	! last edge
-! 	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
-! 	bBand(i,2) = 1.0 + vLong(i)*qy
-! 	if (i .gt. 1) then
-! 	bBand(i,3) =  0.0
-! 	end if
-! 	if (i .le. (xn/cell-2)*(yn/cell-2)) then
-! 	bBand(i,1) = - vLong(i)*qy
-! 	end if
-! 	end if
+	! first edge
+	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
+	bBand(i,2) = 1.0 - vLong(i)*qy
+	if (i .gt. 1) then
+	bBand(i,1) =  0.0
+	end if
+	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
+	bBand(i,3) = vLong(i)*qy
+	end if
+	end if
+
+	! last edge
+	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
+	bBand(i,2) = 1.0 + vLong(i)*qy
+	if (i .gt. 1) then
+	bBand(i,3) =  0.0
+	end if
+	if (i .le. (xn/cell-2)*(yn/cell-2)) then
+	bBand(i,1) = - vLong(i)*qy
+	end if
+	end if
 end do
 
 do i=1,(((xn/cell)-2)-1)
@@ -1484,9 +1484,9 @@ end do
 sol_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),sol_nextRow,((xn/cell)-2)*((yn/cell)-2))
 solute_next(2:(xn/cell)-1,2:(yn/cell)-1) = transpose(reshape(sol_nextRow, (/(xn/cell)-2, (yn/cell)-2/)))
 
-! vertical boundary conditions 
-solute_next(1,:) = (4.0/3.0)*solute_next(2,:) - (1.0/3.0)*solute_next(3,:)
-solute_next(xn/cell,:) = (4.0/3.0)*solute_next((xn/cell)-1,:) - (1.0/3.0)*solute_next((xn/cell)-2,:)
+! ! vertical boundary conditions
+solute_next(2,:) = (4.0/3.0)*solute_next(3,:) - (1.0/3.0)*solute_next(4,:)
+solute_next(xn/cell-1,:) = (4.0/3.0)*solute_next((xn/cell)-2,:) - (1.0/3.0)*solute_next((xn/cell)-3,:)
 
 ! do i=1,xn/cell
 ! do ii=1,yn/cell

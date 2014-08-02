@@ -57,7 +57,7 @@ psi0 = np.loadtxt(path + 'psiMat.txt')
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sol_c.txt')
+geo0 = np.loadtxt(path + 'sol_alk.txt')
 
 
 geo00 = np.zeros(steps)
@@ -168,7 +168,7 @@ for i in range(steps):
 
     theTicks = contours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('CALCITE [mol]')
+    cbar.ax.set_xlabel('ALK [eq/kgw]')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     #ticks=np.arange(0.0,0.0045,0.0009)
@@ -176,7 +176,7 @@ for i in range(steps):
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig(path + 'cR0' + str(i) + '.png')
+    plt.savefig(path + 'alkQ0' + str(i) + '.png')
 
 
 print "ALL DONE!"
