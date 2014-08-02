@@ -1,5 +1,5 @@
 SOLUTION_RAW                 1 
-  -temp                      21.9639730539
+  -temp                      3.8531487118
   -pressure                  1
   -total_h                   nan
   -total_o                   nan
@@ -8,15 +8,15 @@ SOLUTION_RAW                 1
   -totals
     H(0)                     nan
     O(0)                     nan
-  -pH                        -0
-  -pe                        -0
+  -pH                        0.0001228856
+  -pe                        0.0001228856
   -mu                        nan
   -ah2o                      1
   -mass_water                0
   -soln_vol                  nan
   -total_alkalinity          nan
   -activities
-    E                        0
+    E                        -0.0001228856
     H(0)                     nan
     O(0)                     nan
   -gammas
@@ -82,13 +82,15 @@ KINETICS_RAW                 1
       -m                     0
       -m0                    0
       -namecoef
-        Al2O3                0.16
-        CaO                  0.182
-        FeO                  0.121
-        K2O                  0.00265
-        MgO                  0.195
-        Na2O                 0.0573
-        SiO2                 0.861
+        Al                   0.105
+        Ca                   0.025
+        Fe                   0.0095
+        K                    0.001
+        Mg                   0.065
+        Na                   0.025
+        O                    1.3505
+        S                    0.003
+        Si                   0.5
       -d_params
         
       # KineticsComp workspace variables #
@@ -106,7 +108,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Albite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 11.3119
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -358,7 +360,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 SiO2(am)
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 4.5
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0
@@ -370,7 +372,7 @@ EQUILIBRIUM_PHASES_RAW       1
   -component                 Stilbite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
-      -moles                 0
+      -moles                 3
       -force_equality        0
       -dissolve_only         0
       -precipitate_only      0

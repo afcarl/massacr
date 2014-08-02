@@ -375,15 +375,17 @@ do j = 2, tn
 		vTransport = vTransport/mstep
 	
 		!mixed top boundary condition
-		do i=1,yn/cell
-			do n=1,g_sol
-				solute(i,yn/cell-1,n) = soluteOcean(n)
-			end do
+		do i=1,(yn/cell)
+			!if (vTransport(i,yn/cell) .lt. 0.0) then
+				do n=1,g_sol
+					solute(i,yn/cell,n) = soluteOcean(n)
+				end do
+			!end if
 		end do
 		
 		! vertical boundary conditions
-! 		solute(1,:,:) = (4.0/3.0)*solute(2,:,:) - (1.0/3.0)*solute(3,:,:) !l
-! 		solute(xn/cell,:,:) = (4.0/3.0)*solute((xn/cell)-1,:,:) - (1.0/3.0)*solute((xn/cell)-2,:,:) !r
+ 		solute(1,:,:) = (4.0/3.0)*solute(2,:,:) - (1.0/3.0)*solute(3,:,:) !l
+ 		solute(xn/cell,:,:) = (4.0/3.0)*solute((xn/cell)-1,:,:) - (1.0/3.0)*solute((xn/cell)-2,:,:) !r
 	
 		! other boundary condition examples
 		!solute(1,:,5) = 6.0e-3 ! left
@@ -648,14 +650,14 @@ yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,1),kind=4),
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,3),kind=4), 'sol_alk.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,4),kind=4), 'sol_c.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'sol_ca.txt' )
-! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,6),kind=4), 'sol_mg.txt' )
-! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,7),kind=4), 'sol_na.txt' )
-! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,8),kind=4), 'sol_k.txt' )
-! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,9),kind=4), 'sol_fe.txt' )
-! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,10),kind=4), 'sol_s.txt' )
-! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,11),kind=4), 'sol_si.txt' )
-! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,12),kind=4), 'sol_cl.txt' )
-! yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,13),kind=4), 'sol_al.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,6),kind=4), 'sol_mg.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,7),kind=4), 'sol_na.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,8),kind=4), 'sol_k.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,9),kind=4), 'sol_fe.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,10),kind=4), 'sol_s.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,11),kind=4), 'sol_si.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,12),kind=4), 'sol_cl.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,13),kind=4), 'sol_al.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,14),kind=4), 'sol_hco3.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,15),kind=4), 'sol_co3.txt' )
 
@@ -1397,27 +1399,27 @@ do i = 1,(xn/cell-2)*(yn/cell-2)
 	aBand(i,3) = uLong(i)*qx/2.0
 	end if
 
-	! first edge
-	if (any(mod((/i-1/),xn/cell-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 - uLong(i)*qx
-	if (i .gt. 1) then
-	aBand(i,1) =  0.0
-	end if
-	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
-	aBand(i,3) = uLong(i)*qx
-	end if
-	end if
-
-	! last edge
-	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
-	aBand(i,2) = 1.0 - uLong(i)*qx
-	if (i .gt. 1) then
-	aBand(i,3) =  0.0
-	end if
-	if (i .le. (xn/cell-2)*(yn/cell-2)) then
-	aBand(i,1) = uLong(i)*qx
-	end if
-	end if
+! 	! first edge
+! 	if (any(mod((/i-1/),xn/cell-2) .eq. 0.0)) then
+! 	aBand(i,2) = 1.0 - uLong(i)*qx
+! 	if (i .gt. 1) then
+! 	aBand(i,1) =  0.0
+! 	end if
+! 	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
+! 	aBand(i,3) = uLong(i)*qx
+! 	end if
+! 	end if
+!
+! 	! last edge
+! 	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
+! 	aBand(i,2) = 1.0 - uLong(i)*qx
+! 	if (i .gt. 1) then
+! 	aBand(i,3) =  0.0
+! 	end if
+! 	if (i .le. (xn/cell-2)*(yn/cell-2)) then
+! 	aBand(i,1) = uLong(i)*qx
+! 	end if
+! 	end if
 
 end do
 
@@ -1450,27 +1452,27 @@ do i = 1,(xn/cell-2)*(yn/cell-2)
 	bBand(i,3) = vLong(i)*qy/2.0
 	end if
 
-	! first edge
-	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
-	bBand(i,2) = 1.0 - vLong(i)*qy
-	if (i .gt. 1) then
-	bBand(i,1) =  0.0
-	end if
-	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
-	bBand(i,3) = vLong(i)*qy
-	end if
-	end if
-
-	! last edge
-	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
-	bBand(i,2) = 1.0 + vLong(i)*qy
-	if (i .gt. 1) then
-	bBand(i,3) =  0.0
-	end if
-	if (i .le. (xn/cell-2)*(yn/cell-2)) then
-	bBand(i,1) = - vLong(i)*qy
-	end if
-	end if
+! 	! first edge
+! 	if (any(mod((/i-1/),xn-2) .eq. 0.0)) then
+! 	bBand(i,2) = 1.0 - vLong(i)*qy
+! 	if (i .gt. 1) then
+! 	bBand(i,1) =  0.0
+! 	end if
+! 	if (i .lt. (xn/cell-2)*(yn/cell-2)) then
+! 	bBand(i,3) = vLong(i)*qy
+! 	end if
+! 	end if
+!
+! 	! last edge
+! 	if (any(mod((/i/),xn/cell-2) .eq. 0.0)) then
+! 	bBand(i,2) = 1.0 + vLong(i)*qy
+! 	if (i .gt. 1) then
+! 	bBand(i,3) =  0.0
+! 	end if
+! 	if (i .le. (xn/cell-2)*(yn/cell-2)) then
+! 	bBand(i,1) = - vLong(i)*qy
+! 	end if
+! 	end if
 end do
 
 do i=1,(((xn/cell)-2)-1)
