@@ -588,6 +588,14 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	end if
 END DO
   
+
+! OUTPUT TO THE MAIN MASSACR METHOD
+alter(1,:) = outmat(2,:)
+
+IF (RunString(id, inputz0).NE.0) THEN
+	alter(1,:) = 0.0
+END IF
+
 ! DESTROY INSTANCE
 IF (DestroyIPhreeqc(id).NE.IPQ_OK) THEN
 	STOP
@@ -595,9 +603,6 @@ END IF
 
 ! ALL DONE!
 !write(*,*) "phreeqed out"
-
-! OUTPUT TO THE MAIN MASSACR METHOD
-alter(1,:) = outmat(2,:)
 
 !write(*,*) outmat(2,54)
 

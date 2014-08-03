@@ -360,8 +360,12 @@ do j = 2, tn
 	do ii = 1,yn/cell
 		!uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell))/2
 		!vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell,ii*cell-1))/2
-		uCoarse(i,ii) = u(i*cell,ii*cell)
-		vCoarse(i,ii) = v(i*cell,ii*cell)
+		uCoarse(i,ii) = (u(i*cell,ii*cell) + u(i*cell-1,ii*cell) + u(i*cell,ii*cell-1) &
+						& + u(i*cell-1,ii*cell-1) + u(i*cell+1,ii*cell) + u(i*cell,ii*cell+1) &
+						& + u(i*cell+1,ii*cell+1) + u(i*cell-1,ii*cell+1) + u(i*cell+1,ii*cell-1))/9.0
+		vCoarse(i,ii) = (v(i*cell,ii*cell) + v(i*cell-1,ii*cell) + v(i*cell,ii*cell-1) &
+						& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
+						& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
 	end do
 	end do
 	uTransport = uTransport + uCoarse
@@ -380,6 +384,8 @@ do j = 2, tn
 				do n=1,g_sol
 					solute(i,yn/cell-1,n) = soluteOcean(n)
 				end do
+				! dont let seawater cells react
+				!medium(i,yn/cell-1,5) = 0.0
 			end if
 		end do
 		
@@ -461,8 +467,8 @@ do j = 2, tn
 		! stretch everything out
 		
 		
-		hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
-		!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
+		!hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
+		hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
 		priLong = reshape(primary, (/(xn/cell)*(yn/cell), g_pri/))
 		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), g_sec/))
 		solLong = reshape(solute, (/(xn/cell)*(yn/cell), g_sol/))
