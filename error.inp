@@ -1,5 +1,5 @@
 SOLUTION_RAW                 1 
-  -temp                      1.5266508404
+  -temp                      13.9305996576
   -pressure                  1
   -total_h                   nan
   -total_o                   nan
@@ -8,15 +8,15 @@ SOLUTION_RAW                 1
   -totals
     H(0)                     nan
     O(0)                     nan
-  -pH                        0
-  -pe                        3.7330509424
+  -pH                        -0
+  -pe                        -0.0085602649
   -mu                        nan
   -ah2o                      1
   -mass_water                0
   -soln_vol                  nan
   -total_alkalinity          nan
   -activities
-    E                        -3.7330509424
+    E                        0.0085602649
     H(0)                     nan
     O(0)                     nan
   -gammas
@@ -99,7 +99,7 @@ KINETICS_RAW                 1
   -equal_increments           1
   -count                     1
   -steps             
-    2000001959.042 
+    8000003836.1619 
   # KINETICS workspace variables #
   -totals                    
 EQUILIBRIUM_PHASES_RAW       1 

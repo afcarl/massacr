@@ -360,12 +360,15 @@ do j = 2, tn
 	do ii = 1,yn/cell
 		!uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell))/2
 		!vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell,ii*cell-1))/2
-		uCoarse(i,ii) = (u(i*cell,ii*cell) + u(i*cell-1,ii*cell) + u(i*cell,ii*cell-1) &
-						& + u(i*cell-1,ii*cell-1) + u(i*cell+1,ii*cell) + u(i*cell,ii*cell+1) &
-						& + u(i*cell+1,ii*cell+1) + u(i*cell-1,ii*cell+1) + u(i*cell+1,ii*cell-1))/9.0
-		vCoarse(i,ii) = (v(i*cell,ii*cell) + v(i*cell-1,ii*cell) + v(i*cell,ii*cell-1) &
-						& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
-						& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
+! 		uCoarse(i,ii) = (u(i*cell,ii*cell) + u(i*cell-1,ii*cell) + u(i*cell,ii*cell-1) &
+! 						& + u(i*cell-1,ii*cell-1) + u(i*cell+1,ii*cell) + u(i*cell,ii*cell+1) &
+! 						& + u(i*cell+1,ii*cell+1) + u(i*cell-1,ii*cell+1) + u(i*cell+1,ii*cell-1))/9.0
+! 		vCoarse(i,ii) = (v(i*cell,ii*cell) + v(i*cell-1,ii*cell) + v(i*cell,ii*cell-1) &
+! 						& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
+! 						& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
+
+		uCoarse(i,ii) = u(i*cell,ii*cell)
+		vCoarse(i,ii) = v(i*cell,ii*cell)
 	end do
 	end do
 	uTransport = uTransport + uCoarse
@@ -378,16 +381,6 @@ do j = 2, tn
 		uTransport = uTransport/mstep
 		vTransport = vTransport/mstep
 	
-		!mixed top boundary condition
-		do i=1,(yn/cell)
-			if (vTransport(i,yn/cell-1) .lt. 0.0) then
-				do n=1,g_sol
-					solute(i,yn/cell-1,n) = soluteOcean(n)
-				end do
-				! dont let seawater cells react
-				!medium(i,yn/cell-1,5) = 0.0
-			end if
-		end do
 		
 ! 		! vertical boundary conditions
 !  		solute(1,:,:) = (4.0/3.0)*solute(2,:,:) - (1.0/3.0)*solute(3,:,:) !l
@@ -458,6 +451,23 @@ do j = 2, tn
 				solute(i,ii,2) = -log10(solute(i,ii,2))
 			end do
 		end do
+		
+		!mixed top boundary condition
+		do i=1,(yn/cell)
+			if (vTransport(i,yn/cell-1) .lt. 0.0) then
+				do n=1,g_sol
+					solute(i,yn/cell-1,n) = (soluteOcean(n))
+				end do
+				! dont let seawater cells react
+				!medium(i,yn/cell-1,5) = 0.0
+			end if
+			do n=1,g_sol
+				solute(2,i,n) = soluteOcean(n)
+				solute(yn/cell-1,i,n) = soluteOcean(n)
+				solute(i,2,n) = soluteOcean(n)
+			end do
+		end do
+		
 	
 		! reset coarse grid velocities for next timestep
 		uTransport = 0.0
@@ -785,8 +795,8 @@ else
 				alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
 						    secLocal(m,:),solLocal(m,:),medLocal(m,:))
 			end if
-			
-			
+
+
 			! parse the phreeqc output
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
 			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
@@ -797,9 +807,9 @@ else
 			alt0(1,36), alt0(1,38), alt0(1,40), alt0(1,42), alt0(1,44), alt0(1,46), alt0(1,48), &
 			alt0(1,50), alt0(1,52), alt0(1,54), alt0(1,56), alt0(1,58), alt0(1,60), alt0(1,62), &
 			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70)/)
-			
+
 			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
-			
+
 			medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,85)/)
 			
 			! print something you want to look at
@@ -1490,20 +1500,22 @@ end do
 sol_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),sol_nextRow,((xn/cell)-2)*((yn/cell)-2))
 solute_next(2:(xn/cell)-1,2:(yn/cell)-1) = transpose(reshape(sol_nextRow, (/(xn/cell)-2, (yn/cell)-2/)))
 
-! ! vertical boundary conditions
-solute_next(2,:) = (4.0/3.0)*solute_next(3,:) - (1.0/3.0)*solute_next(4,:)
-solute_next(xn/cell-1,:) = (4.0/3.0)*solute_next((xn/cell)-2,:) - (1.0/3.0)*solute_next((xn/cell)-3,:)
+! ! most boundary conditions
+! solute_next(2,:) = sol0(2,:)!(4.0/3.0)*solute_next(3,:) - (1.0/3.0)*solute_next(4,:)
+! solute_next(xn/cell-1,:) = sol0(xn/cell,:)!(4.0/3.0)*solute_next((xn/cell)-2,:) 
+! - (1.0/3.0)*solute_next((xn/cell)-3,:)
+!solute_next(:,2) = sol0(:,2)
 
-! do i=1,xn/cell
-! do ii=1,yn/cell
-! 	if (solute_next(i,ii) .gt. maxval(sol0)) then
-! 		solute_next(i,ii) = maxval(sol0)
-! 	end if
-! 	if (solute_next(i,ii) .le. 0.0) then
-! 		solute_next(i,ii) = 0.0
-! 	end if
-! end do
-! end do
+do i=1,xn/cell
+do ii=1,yn/cell
+	if (solute_next(i,ii) .gt. maxval(sol0)) then
+		solute_next(i,ii) = maxval(sol0)
+	end if
+	if (solute_next(i,ii) .lt. minval(sol0)) then
+		solute_next(i,ii) = minval(sol0)
+	end if
+end do
+end do
 
 return
 

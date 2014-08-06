@@ -23,13 +23,16 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 5
-steps = 100
+cell = 1
+steps = 50
 #path = "output/noTransportCell2/"
 #path = "output/noTransportCell2/"
 path = ""
 #path = "output/transportWorks1200yr/"
-#path = "output/transportWorks6400yrCell5/"
+#path = "output/par4cell1/"
+#path = "output/par_4_2_cell1/"
+#path = "output/sixty/"
+#path = "output/off_test/"
 
 t = np.loadtxt(path + 't.txt',delimiter='\n')
 x0 = np.loadtxt(path + 'x.txt',delimiter='\n')
@@ -157,9 +160,10 @@ for i in range(steps):
     contours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
                          (np.max(geo00)-np.min(geo0))/10.0)
     #ticks=np.arange(0.000,0.0028,.0004)
-    print contours
+    print geo.shape
+    print xCell.shape
+    print yCell[:-1].shape
     pGlass = plt.contourf(xCell, yCell[:-1], geo, cmap=cm.YlOrRd)
-    print np.max(geo00)
 
     #FF6600
     contoursPsi = np.arange(np.min(psi),np.max(psi)+(np.max(psi)-np.min(psi))/10.0,
@@ -179,7 +183,7 @@ for i in range(steps):
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig(path + 'c0' + str(i) + '.png')
+    plt.savefig(path + 'ct0' + str(i) + '.png')
 
 
 print "ALL DONE!"
