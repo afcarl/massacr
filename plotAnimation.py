@@ -23,7 +23,7 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 1
+cell = 2
 steps = 50
 #path = "output/noTransportCell2/"
 #path = "output/noTransportCell2/"
@@ -183,7 +183,7 @@ for i in range(steps):
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig(path + 'ct0' + str(i) + '.png')
+    plt.savefig(path + 'cq0' + str(i) + '.png')
 
 
 print "ALL DONE!"

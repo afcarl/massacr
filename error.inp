@@ -1,5 +1,5 @@
 SOLUTION_RAW                 1 
-  -temp                      13.9305996576
+  -temp                      17.6118976515
   -pressure                  1
   -total_h                   nan
   -total_o                   nan
@@ -8,15 +8,15 @@ SOLUTION_RAW                 1
   -totals
     H(0)                     nan
     O(0)                     nan
-  -pH                        -0
-  -pe                        -0.0085602649
+  -pH                        0
+  -pe                        0.0006698386
   -mu                        nan
   -ah2o                      1
   -mass_water                0
   -soln_vol                  nan
   -total_alkalinity          nan
   -activities
-    E                        0.0085602649
+    E                        -0.0006698386
     H(0)                     nan
     O(0)                     nan
   -gammas
