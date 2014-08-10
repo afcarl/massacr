@@ -201,6 +201,7 @@ real(8) :: medLongBit((xn/cell)*(yn/cell)), medLocalBit((xn/cell)*(yn/cell))
 !--------------GEOCHEMICAL INITIAL CONDITIONS
 
 ! primary minerals [mol]
+primary(:,:,:) = 0.0
 primary(:,:,1) = 12.96 ! feldspar
 primary(:,:,2) = 6.96 ! augite
 primary(:,:,3) = 1.26 ! pigeonite
@@ -367,8 +368,11 @@ do j = 2, tn
 ! 						& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
 ! 						& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
 
-		uCoarse(i,ii) = u(i*cell,ii*cell)
-		vCoarse(i,ii) = v(i*cell,ii*cell)
+! 		uCoarse(i,ii) = u(i*cell,ii*cell) 
+! 		vCoarse(i,ii) = v(i*cell,ii*cell)
+		
+		uCoarse(i,ii) = sum(u(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
+		vCoarse(i,ii) = sum(v(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
 	end do
 	end do
 	uTransport = uTransport + uCoarse
@@ -1464,12 +1468,12 @@ do i = 1,(xn/cell)*(yn/cell)
 
 	! last edge
 	if (any(mod((/i/),xn/cell) .eq. 0.0)) then
-		aBand(i,2) = 1.0 - uLong(i)*qx
+		aBand(i,2) = 1.0 + uLong(i)*qx
 		if (i .gt. 1) then
 		aBand(i,3) =  0.0
 		end if
 		if (i .le. (xn/cell)*(yn/cell)) then
-		aBand(i,1) = uLong(i)*qx
+		aBand(i,1) = - uLong(i)*qx
 		end if
 	end if
 

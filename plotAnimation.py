@@ -23,7 +23,7 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 4
+cell = 1
 steps = 100
 #path = "output/noTransportCell2/"
 #path = "output/noTransportCell2/"
@@ -34,7 +34,8 @@ path = ""
 #path = "output/sixty/"
 #path = "output/off_test/"
 #path = "output/test6transport/"
-path = "output/testLR/"
+#path = "output/testLR/"
+#path = "output/interpBlock/"
 
 t = np.loadtxt(path + 't.txt',delimiter='\n')
 x0 = np.loadtxt(path + 'x.txt',delimiter='\n')
@@ -75,7 +76,7 @@ for i in range(steps):
     geo1 = np.append(geo1, geo1[:,-1:], axis=1)
     geo00[i] = np.max(geo1)
     
-for i in range(steps): 
+for i in range(0,steps,1): 
     #i=1
     print h0.shape
 
@@ -185,7 +186,7 @@ for i in range(steps):
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig(path + 'cq0' + str(i) + '.png')
+    plt.savefig(path + 'transport0' + str(i) + '.png')
 
 
 print "ALL DONE!"
