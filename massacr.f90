@@ -355,6 +355,19 @@ do j = 2, tn
 		v = velocities0(1:xn,yn+1:2*yn)
 	end if
 	
+	! write sample steady-state simulation to file
+	! only gotta do this once
+	if (j .eq. 19000) then
+		 yep = write_matrix(xn, yn, real(h,kind=4), 'steady_h.txt')
+		 yep = write_matrix(xn, yn, real(u,kind=4), 'steady_u.txt')
+		 yep = write_matrix(xn, yn, real(v,kind=4), 'steady_v.txt')
+	end if
+	
+	! read steady-state simulation from file
+! 	OPEN(UNIT=11, FILE="data.txt")
+! 	DO row = 1,max_rows
+! 	      READ(11,*) (a(row,col),col=1,max_cols)
+! 	END DO
 	
 	! interpolate fine grid onto coarse grid
 	do i = 1,xn/cell
@@ -368,11 +381,11 @@ do j = 2, tn
 ! 						& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
 ! 						& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
 
-! 		uCoarse(i,ii) = u(i*cell,ii*cell) 
-! 		vCoarse(i,ii) = v(i*cell,ii*cell)
+		uCoarse(i,ii) = u(i*cell,ii*cell)
+		vCoarse(i,ii) = v(i*cell,ii*cell)
 		
-		uCoarse(i,ii) = sum(u(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
-		vCoarse(i,ii) = sum(v(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
+! 		uCoarse(i,ii) = sum(u(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
+! 		vCoarse(i,ii) = sum(v(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
 	end do
 	end do
 	uTransport = uTransport + uCoarse
@@ -1554,6 +1567,18 @@ do ii=1,yn/cell
 	end if
 	if (solute_next(i,ii) .lt. minval(sol0)) then
 		solute_next(i,ii) = minval(sol0)
+	end if
+end do
+end do
+
+
+do i=2,xn/cell-1
+do ii=2,yn/cell-1
+	if (solute_next(i,ii) .gt. maxval(sol0(i-1:i+1,ii-1:ii+1))) then
+		solute_next(i,ii) = sol0(i,ii)
+	end if
+	if (solute_next(i,ii) .lt. minval(sol0(i-1:i+1,ii-1:ii+1))) then
+		solute_next(i,ii) = sol0(i,ii)
 	end if
 end do
 end do

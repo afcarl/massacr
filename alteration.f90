@@ -486,6 +486,13 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    20 save rate0 * time" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
 
+! ----------------------------------%%
+! KNOBS FOR SOLVERS AND STUFF
+! ----------------------------------%%
+	
+! &"KNOBS" //NEW_LINE('')// &
+! &"-diagonal_scale true" //NEW_LINE('')// &
+
 
 ! ----------------------------------%%
 ! DEFINE THE KIND OF OUTPUT

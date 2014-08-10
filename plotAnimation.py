@@ -23,7 +23,7 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 1
+cell = 4
 steps = 100
 #path = "output/noTransportCell2/"
 #path = "output/noTransportCell2/"
@@ -36,6 +36,7 @@ path = ""
 #path = "output/test6transport/"
 #path = "output/testLR/"
 #path = "output/interpBlock/"
+#path = "output/conv/"
 
 t = np.loadtxt(path + 't.txt',delimiter='\n')
 x0 = np.loadtxt(path + 'x.txt',delimiter='\n')
@@ -65,7 +66,7 @@ psi0 = np.loadtxt(path + 'psiMat.txt')
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sol_c.txt')
+geo0 = np.loadtxt(path + 'sol_ca.txt')
 
 
 geo00 = np.zeros(steps)
@@ -166,7 +167,8 @@ for i in range(0,steps,1):
     print geo.shape
     print xCell.shape
     print yCell[:-1].shape
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, np.arange(0.0,0.0032,0.0004), cmap=cm.YlOrRd)
+    # np.arange(0.0,0.0032,0.0004),
+    pGlass = plt.contourf(xCell, yCell[:-1], geo, cmap=cm.YlOrRd)
 
     #FF6600
     contoursPsi = np.arange(np.min(psi),np.max(psi)+(np.max(psi)-np.min(psi))/10.0,
@@ -178,7 +180,7 @@ for i in range(0,steps,1):
 
     theTicks = contours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('DISSOLVED INORGANIC CARBON [mol/kgw]')
+    cbar.ax.set_xlabel('[Ca] [mol/kgw]')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     #ticks=np.arange(0.0,0.0045,0.0009)
@@ -186,7 +188,7 @@ for i in range(0,steps,1):
 
     plt.title('t = ' + str(i*64) + ' years')
 
-    plt.savefig(path + 'transport0' + str(i) + '.png')
+    plt.savefig(path + 'ca0' + str(i) + '.png')
 
 
 print "ALL DONE!"
