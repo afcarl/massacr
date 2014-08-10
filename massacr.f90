@@ -390,8 +390,9 @@ do j = 2, tn
 		!solute(1,:,5) = 6.0e-3 ! left
 		!solute(xn/cell,:,5) = 0.0 ! right
 
-
-		if (j .gt. 500000) then 
+		!!!!!!!!!!!
+		!if (j .gt. 500000) then 
+		!!!!!!!!!!!
 			
 			! convert pH, pe to concentrations
 			do i=1,xn/cell
@@ -400,13 +401,13 @@ do j = 2, tn
 					solute(i,ii,2) = 10**(-solute(i,ii,2))
 				end do
 			end do
-	
+
 	! 		! transport each solute
 	! 		do n=5,g_sol
 	! 			solTemp = solute(:,:,n)
 	! 			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 	! 		end do
-		
+
 			n=1 ! ph
 	 		solTemp = solute(:,:,n)
 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
@@ -443,7 +444,7 @@ do j = 2, tn
 			n=13 ! al
 	 		solTemp = solute(:,:,n)
 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		
+
 			! convert [H+], [e-] to pH, pe
 			do i=1,xn/cell
 				do ii=1,yn/cell
@@ -452,8 +453,11 @@ do j = 2, tn
 				end do
 			end do
 		
-		end if
-		
+			!!!!!!!!!!!
+			!end if
+			!!!!!!!!!!!
+			
+			
 ! 		!mixed top boundary condition
 ! 		do i=1,(yn/cell)
 ! 			if (vTransport(i,yn/cell-1) .lt. 0.0) then
@@ -474,9 +478,16 @@ do j = 2, tn
 ! 			end do
 ! 		end do
 
+
+
 		! actual boundary conditions
 		do n=1,g_sol
-			solute(:,yn/cell,n) = (soluteOcean(n)) ! top
+			!solute(:,yn/cell,n) = (soluteOcean(n)) ! top
+			do i=1,(yn/cell)
+				if (vTransport(i,yn/cell) .lt. 0.0) then
+					solute(i,yn/cell,n) = (soluteOcean(n))
+				end if
+			end do
 			solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
 			solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
 								& (1.0/3.0)*solute(3,:,n)  ! left
@@ -1311,6 +1322,7 @@ write(*,*) qy*maxval(abs(vTransport))
 
 ! uLong = reshape(uTransport(2:xn/cell-1,2:yn/cell-1), (/(xn/cell-2)*(yn/cell-2)/))
 ! vLong = reshape(transpose(vTransport(2:xn/cell-1,2:yn/cell-1)), (/(xn/cell-2)*(yn/cell-2)/))
+
 
 uLong = reshape(uTransport(1:xn/cell,1:yn/cell), (/(xn/cell)*(yn/cell)/))
 vLong = reshape(transpose(vTransport(1:xn/cell,1:yn/cell)), (/(xn/cell)*(yn/cell)/))

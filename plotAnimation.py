@@ -23,8 +23,8 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 2
-steps = 50
+cell = 4
+steps = 100
 #path = "output/noTransportCell2/"
 #path = "output/noTransportCell2/"
 path = ""
@@ -33,6 +33,8 @@ path = ""
 #path = "output/par_4_2_cell1/"
 #path = "output/sixty/"
 #path = "output/off_test/"
+#path = "output/test6transport/"
+path = "output/testLR/"
 
 t = np.loadtxt(path + 't.txt',delimiter='\n')
 x0 = np.loadtxt(path + 'x.txt',delimiter='\n')
@@ -163,7 +165,7 @@ for i in range(steps):
     print geo.shape
     print xCell.shape
     print yCell[:-1].shape
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, cmap=cm.YlOrRd)
+    pGlass = plt.contourf(xCell, yCell[:-1], geo, np.arange(0.0,0.0032,0.0004), cmap=cm.YlOrRd)
 
     #FF6600
     contoursPsi = np.arange(np.min(psi),np.max(psi)+(np.max(psi)-np.min(psi))/10.0,
