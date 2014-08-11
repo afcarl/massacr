@@ -295,7 +295,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
 &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
 &"    Albite 0.0 " // trim(s_albite) //NEW_LINE('')// &
-&"    Calcite 0.0 " // trim(s_calcite) //NEW_LINE('')// &
+&"    Calcite 1.5 " // trim(s_calcite) //NEW_LINE('')// &
 &"    Montmor-Na 0.0 " // trim(s_mont_na) //NEW_LINE('')// &
 &"    Saponite-Mg 0.0 " // trim(s_saponite) //NEW_LINE('')// &
 &"    Stilbite 0.0 " // trim(s_stilbite) //NEW_LINE('')// &
@@ -420,13 +420,13 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"-m0 " // trim(s_magnetite) //NEW_LINE('')// &
 &"BGlass" //NEW_LINE('')// &
 
-! pham
+! pham phudge
 ! &"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
 ! & "Na2O 0.0125 K2O 0.005 Al2O3 0.0525 SiO2 0.5" //NEW_LINE('')// &
 
-! pham phudge
-&"-f Ca 0.025 Fe 0.0095 Mg 0.065 " //&
-& "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.3505" //NEW_LINE('')// &
+! pham
+&"-f Ca 0.015 Fe 0.0095 Mg 0.065 " //&
+& "Na 0.025 K 0.001 Al 0.105 S 0.003 Si 0.5 O 1.35" //NEW_LINE('')// &
 
 ! grove and kinzler 1992 (thomspon et al 1980)
 ! &"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&

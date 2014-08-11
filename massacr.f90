@@ -211,10 +211,11 @@ primary(:,:,5) = 96.77 ! basaltic glass
 ! secondary minerals [mol]
 secondary(:,:,:) = 0.0
 
+!columbia river composition
 ! hydrothermal solute concentrations [mol/kgw]
 solute(:,:,1) = 7.8 ! ph
 solute(:,:,2) = 8.451 ! pe
-solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3 
+solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3
 solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
 solute(:,:,5) = 6.0e-3 ! Ca
 solute(:,:,6) = 2.0e-5 ! Mg
@@ -228,6 +229,23 @@ solute(:,:,13) = 1.0e-6 ! Al
 solute(:,:,14) = 2.200e-3 ! HCO3-
 solute(:,:,15) = 0.0 ! CO3-2
 
+! ! hydrothermal solute concentrations [mol/kgw]
+! solute(:,:,1) = 7.8 ! ph
+! solute(:,:,2) = 8.451 ! pe
+! solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3
+! solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
+! solute(:,:,5) = .0103 ! Ca
+! solute(:,:,6) = .0528 ! Mg
+! solute(:,:,7) = .469 ! Na
+! solute(:,:,8) = .0102 ! K
+! solute(:,:,9) = 0.0 ! Fe
+! solute(:,:,10) = 1e-6 ! 1.0e-4 ! S(6)
+! solute(:,:,11) = 0.0 ! Si
+! solute(:,:,12) = .546 ! Cl
+! solute(:,:,13) = 0.0 ! Al
+! solute(:,:,14) = 2.200e-3 ! HCO3-
+! solute(:,:,15) = 0.0 ! CO3-2
+
 ! seawater solute concentrations [mol/kgw]
 soluteOcean = (/ solute(1,1,1), solute(1,1,2), solute(1,1,3), solute(1,1,4), solute(1,1,5), & 
 			  & solute(1,1,6), solute(1,1,7), solute(1,1,8), solute(1,1,9), solute(1,1,10), &
@@ -238,7 +256,7 @@ medium(:,:,1) = 0.0 ! phi
 medium(:,:,2) = 0.0 ! s_sp
 !medium(:,:,3) = .386 ! water_volume
 medium(:,:,3) = .386 ! water_volume
-medium(:,1:(xn/cell)*(5/13),3) = .03 ! water_volume
+!medium(:,1:(xn/cell)*(5/13),3) = .03 ! water_volume
 medium(:,:,4) = 0.0 ! rho_s
 medium(:,:,5) = 1.0 ! rxn toggle
 medium(:,:,6) = 0.0 ! x-coord
@@ -330,17 +348,17 @@ do j = 2, tn
 		! solve thermal energy equation
 		rho = rho_next(h)
 		h = h_next(h, psi,rho, flux)
-  
+
 		! put thermal energy boundary conditions in for next timestep
 		h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
 		h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
 		h(:,1) = flux(:,1)
 		h(:,yn) = flux(:,2)
-  
+
 		! solve streamfunction-vorticity equation
 		rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
 		psi = psi_next(h, rhs0, psi, permeable, rho)
-	
+
 		! put in streamfunction boundary conditions for next timestep
 		psi(1,1:yn) = bcyPsi(1,1:yn) ! left
 		psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
@@ -357,16 +375,41 @@ do j = 2, tn
 	
 	! write sample steady-state simulation to file
 	! only gotta do this once
-	if (j .eq. 19000) then
-		 yep = write_matrix(xn, yn, real(h,kind=4), 'steady_h.txt')
-		 yep = write_matrix(xn, yn, real(u,kind=4), 'steady_u.txt')
-		 yep = write_matrix(xn, yn, real(v,kind=4), 'steady_v.txt')
-	end if
+! 	if (j .eq. 19000) then
+! 		 yep = write_matrix(xn, yn, real(h,kind=4), 'steady_h.txt')
+! 		 yep = write_matrix(xn, yn, real(u,kind=4), 'steady_u.txt')
+! 		 yep = write_matrix(xn, yn, real(v,kind=4), 'steady_v.txt')
+! 	end if
 	
-	! read steady-state simulation from file
-! 	OPEN(UNIT=11, FILE="data.txt")
-! 	DO row = 1,max_rows
-! 	      READ(11,*) (a(row,col),col=1,max_cols)
+! ! 	! read steady-state simulation from file
+! 	OPEN(UNIT=11, FILE="steady4_h.txt")
+! 	do i=1,xn
+! 		read(*,*) h(i,:)
+! 		write(*,*) "reading..."
+! 	end do
+!
+! 	OPEN(UNIT=12, FILE="steady4_u.txt")
+! 	do i=1,xn
+! 		read(*,*) u(i,:)
+! 	end do
+!
+! 	OPEN(UNIT=13, FILE="steady4_v.txt")
+! 	do i=1,xn
+! 		read(*,*) v(i,:)
+! 	end do
+	
+! 	DO i = 1,xn
+! 	      READ(11,*) (h(i,ii),ii=1,yn)
+! 	END DO
+	
+! 	OPEN(UNIT=12, FILE="steady4_u.txt")
+! 	DO i = 1,xn
+! 	      READ(12,*) (u(i,ii),ii=1,yn)
+! 	END DO
+!
+! 	OPEN(UNIT=13, FILE="steady4_v.txt")
+! 	DO i = 1,xn
+! 	      READ(13,*) (v(i,ii),ii=1,yn)
 ! 	END DO
 	
 	! interpolate fine grid onto coarse grid
@@ -381,11 +424,11 @@ do j = 2, tn
 ! 						& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
 ! 						& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
 
-		uCoarse(i,ii) = u(i*cell,ii*cell)
-		vCoarse(i,ii) = v(i*cell,ii*cell)
+ 		uCoarse(i,ii) = u(i*cell,ii*cell)
+ 		vCoarse(i,ii) = v(i*cell,ii*cell)
 		
-! 		uCoarse(i,ii) = sum(u(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
-! 		vCoarse(i,ii) = sum(v(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
+ 		!uCoarse(i,ii) = sum(u(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
+ 		!vCoarse(i,ii) = sum(v(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
 	end do
 	end do
 	uTransport = uTransport + uCoarse
@@ -411,19 +454,48 @@ do j = 2, tn
 		!if (j .gt. 500000) then 
 		!!!!!!!!!!!
 			
-			! convert pH, pe to concentrations
-			do i=1,xn/cell
-				do ii=1,yn/cell
-					solute(i,ii,1) = 10**(-solute(i,ii,1))
-					solute(i,ii,2) = 10**(-solute(i,ii,2))
-				end do
-			end do
+! 			! convert pH, pe to concentrations
+! 			do i=1,xn/cell
+! 				do ii=1,yn/cell
+! 					solute(i,ii,1) = 10**(-solute(i,ii,1))
+! 					solute(i,ii,2) = 10**(-solute(i,ii,2))
+! 				end do
+! 			end do
 
 	! 		! transport each solute
 	! 		do n=5,g_sol
 	! 			solTemp = solute(:,:,n)
 	! 			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 	! 		end do
+	
+			! smooth out glitch cells  BAD IDEA!!!!
+			do i=2,xn/cell-1
+				do ii=2,yn/cell-1
+					if (primary(i,ii,5) .eq. 0.0) then
+						
+						do n=1,g_pri
+							primary(i,ii,n) = (primary(i+1,ii,n) + primary(i-1,ii,n) &
+											& + primary(i,ii+1,n) + primary(i,ii-1,n))/4.0
+						end do
+						
+						do n=1,g_sec
+							secondary(i,ii,n) = (secondary(i+1,ii,n) + secondary(i-1,ii,n) &
+											& + secondary(i,ii+1,n) + secondary(i,ii-1,n))/4.0
+						end do
+						
+						do n=1,g_sol
+							solute(i,ii,n) = (solute(i+1,ii,n) + solute(i-1,ii,n) &
+											& + solute(i,ii+1,n) + solute(i,ii-1,n))/4.0
+						end do
+						
+						do n=1,g_med
+							medium(i,ii,n) = (medium(i+1,ii,n) + medium(i-1,ii,n) &
+											& + medium(i,ii+1,n) + medium(i,ii-1,n))/4.0
+						end do
+						
+					end if
+				end do
+			end do
 
 			n=1 ! ph
 	 		solTemp = solute(:,:,n)
@@ -462,13 +534,13 @@ do j = 2, tn
 	 		solTemp = solute(:,:,n)
 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 
-			! convert [H+], [e-] to pH, pe
-			do i=1,xn/cell
-				do ii=1,yn/cell
-					solute(i,ii,1) = -log10(solute(i,ii,1))
-					solute(i,ii,2) = -log10(solute(i,ii,2))
-				end do
-			end do
+! 			! convert [H+], [e-] to pH, pe
+! 			do i=1,xn/cell
+! 				do ii=1,yn/cell
+! 					solute(i,ii,1) = -log10(solute(i,ii,1))
+! 					solute(i,ii,2) = -log10(solute(i,ii,2))
+! 				end do
+! 			end do
 		
 			!!!!!!!!!!!
 			!end if
