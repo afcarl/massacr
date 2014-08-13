@@ -222,7 +222,7 @@ solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
 solute(:,:,8) = 1.0e-4 ! K
 solute(:,:,9) = 1.2e-6 ! Fe
-solute(:,:,10) = 0.0 ! 1.0e-4 ! S(6)
+solute(:,:,10) = 1.0e-4 ! S(6)
 solute(:,:,11) = 2.0e-4 ! Si
 solute(:,:,12) = 3.0e-4 ! Cl
 solute(:,:,13) = 1.0e-6 ! Al
@@ -324,6 +324,25 @@ vTransport = 0.0
 uCoarse = 0.0
 vCoarse = 0.0
 
+! read steady state results from file
+write(*,*) "reading..."
+OPEN(UNIT=11, FILE="steady_h.txt")
+DO i = 1,xn
+	READ(11,*) (h(i,ii),ii=1,yn)
+END DO
+
+write(*,*) "reading..."
+OPEN(UNIT=12, FILE="steady_u.txt")
+DO i = 1,xn
+	READ(12,*) (u(i,ii),ii=1,yn)
+END DO
+
+write(*,*) "reading..."
+OPEN(UNIT=13, FILE="steady_v.txt")
+DO i = 1,xn
+	READ(13,*) (v(i,ii),ii=1,yn)
+END DO
+
 ! this is the main loop that does all the solving for tn timesteps
 do j = 2, tn
 	
@@ -343,74 +362,46 @@ do j = 2, tn
 		flux(i,2) = 274.0
 	end do
 	
-	! stop fluid dynamic model after 19k timesteps
-	if (j .lt. 19000) then
-		! solve thermal energy equation
-		rho = rho_next(h)
-		h = h_next(h, psi,rho, flux)
-
-		! put thermal energy boundary conditions in for next timestep
-		h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
-		h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
-		h(:,1) = flux(:,1)
-		h(:,yn) = flux(:,2)
-
-		! solve streamfunction-vorticity equation
-		rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
-		psi = psi_next(h, rhs0, psi, permeable, rho)
-
-		! put in streamfunction boundary conditions for next timestep
-		psi(1,1:yn) = bcyPsi(1,1:yn) ! left
-		psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
-		psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
-		psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
-		psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2))/1.0
-		permeable = psi(:,yn)
-
-		! get velocities from streamfunction
-		velocities0 = velocities(psi)
-		u = velocities0(1:xn,1:yn)
-		v = velocities0(1:xn,yn+1:2*yn)
-	end if
+! 	! stop fluid dynamic model after 19k timesteps
+! 	if (j .lt. 19000) then
+! 		! solve thermal energy equation
+! 		rho = rho_next(h)
+! 		h = h_next(h, psi,rho, flux)
+!
+! 		! put thermal energy boundary conditions in for next timestep
+! 		h(1,:) = (4.0/3.0)*h(2,:) - (1.0/3.0)*h(3,:) ! left
+! 		h(xn,:) = (4.0/3.0)*h(xn-1,:) - (1.0/3.0)*h(xn-2,:) ! right
+! 		h(:,1) = flux(:,1)
+! 		h(:,yn) = flux(:,2)
+!
+! 		! solve streamfunction-vorticity equation
+! 		rhs0 = (1.0/(viscosity))*g*rho_fluid*alpha*partial(h,xn,yn,dx,dy,1)
+! 		psi = psi_next(h, rhs0, psi, permeable, rho)
+!
+! 		! put in streamfunction boundary conditions for next timestep
+! 		psi(1,1:yn) = bcyPsi(1,1:yn) ! left
+! 		psi(xn,1:yn) = bcyPsi(2,1:yn) ! right
+! 		psi(1:xn,1) = bcxPsi(1:xn,1) ! bottom
+! 		psi(1:xn,yn) = bcxPsi(1:xn,2) ! top
+! 		psi(:,yn) = ((4.0/3.0)*psi(:,yn-1) - (1.0/3.0)*psi(:,yn-2))/1.0
+! 		permeable = psi(:,yn)
+!
+! 		! get velocities from streamfunction
+! 		velocities0 = velocities(psi)
+! 		u = velocities0(1:xn,1:yn)
+! 		v = velocities0(1:xn,yn+1:2*yn)
+! 	end if
 	
-	! write sample steady-state simulation to file
-	! only gotta do this once
+! 	!write sample steady-state simulation to file
+! 	!only gotta do this once
 ! 	if (j .eq. 19000) then
 ! 		 yep = write_matrix(xn, yn, real(h,kind=4), 'steady_h.txt')
 ! 		 yep = write_matrix(xn, yn, real(u,kind=4), 'steady_u.txt')
 ! 		 yep = write_matrix(xn, yn, real(v,kind=4), 'steady_v.txt')
 ! 	end if
 	
-! ! 	! read steady-state simulation from file
-! 	OPEN(UNIT=11, FILE="steady4_h.txt")
-! 	do i=1,xn
-! 		read(*,*) h(i,:)
-! 		write(*,*) "reading..."
-! 	end do
-!
-! 	OPEN(UNIT=12, FILE="steady4_u.txt")
-! 	do i=1,xn
-! 		read(*,*) u(i,:)
-! 	end do
-!
-! 	OPEN(UNIT=13, FILE="steady4_v.txt")
-! 	do i=1,xn
-! 		read(*,*) v(i,:)
-! 	end do
-	
-! 	DO i = 1,xn
-! 	      READ(11,*) (h(i,ii),ii=1,yn)
-! 	END DO
-	
-! 	OPEN(UNIT=12, FILE="steady4_u.txt")
-! 	DO i = 1,xn
-! 	      READ(12,*) (u(i,ii),ii=1,yn)
-! 	END DO
-!
-! 	OPEN(UNIT=13, FILE="steady4_v.txt")
-! 	DO i = 1,xn
-! 	      READ(13,*) (v(i,ii),ii=1,yn)
-! 	END DO
+
+
 	
 	! interpolate fine grid onto coarse grid
 	do i = 1,xn/cell
@@ -453,49 +444,146 @@ do j = 2, tn
 		!!!!!!!!!!!
 		!if (j .gt. 500000) then 
 		!!!!!!!!!!!
-			
-! 			! convert pH, pe to concentrations
-! 			do i=1,xn/cell
-! 				do ii=1,yn/cell
-! 					solute(i,ii,1) = 10**(-solute(i,ii,1))
-! 					solute(i,ii,2) = 10**(-solute(i,ii,2))
-! 				end do
+		
+		
+! 		! smooth out glitch cells  BAD IDEA!!!!
+! 		do i=2,xn/cell-1
+! 			do ii=2,yn/cell-1
+! 				if (primary(i,ii,5) .eq. 0.0) then
+!
+! 					do n=1,g_pri
+! 						primary(i,ii,n) = (primary(i+1,ii,n) + primary(i-1,ii,n) &
+! 										& + primary(i,ii+1,n) + primary(i,ii-1,n))/4.0
+! 					end do
+!
+! 					do n=1,g_sec
+! 						secondary(i,ii,n) = (secondary(i+1,ii,n) + secondary(i-1,ii,n) &
+! 										& + secondary(i,ii+1,n) + secondary(i,ii-1,n))/4.0
+! 					end do
+!
+! 					do n=1,g_sol
+! 						solute(i,ii,n) = (solute(i+1,ii,n) + solute(i-1,ii,n) &
+! 										& + solute(i,ii+1,n) + solute(i,ii-1,n))/4.0
+! 					end do
+!
+! 					do n=1,g_med
+! 						medium(i,ii,n) = (medium(i+1,ii,n) + medium(i-1,ii,n) &
+! 										& + medium(i,ii+1,n) + medium(i,ii-1,n))/4.0
+! 					end do
+!
+! 				end if
 ! 			end do
+! 		end do
+!
+! 		do i=2,xn/cell-1
+!
+! 			! bottom boundary
+! 			if (primary(i,1,5) .eq. 0.0) then
+! 				do n=1,g_pri
+! 					primary(i,1,n) = (primary(i+1,1,n) + primary(i-1,1,n) &
+! 									& + primary(i,2,n))/3.0
+! 				end do
+!
+! 				do n=1,g_sec
+! 					secondary(i,1,n) = (secondary(i+1,1,n) + secondary(i-1,1,n) &
+! 									& + secondary(i,2,n))/3.0
+! 				end do
+!
+! 				do n=1,g_sol
+! 					solute(i,1,n) = (solute(i+1,1,n) + solute(i-1,1,n) &
+! 									& + solute(i,2,n))/3.0
+! 				end do
+!
+! 				do n=1,g_med
+! 					medium(i,1,n) = (medium(i+1,1,n) + medium(i-1,1,n) &
+! 									& + medium(i,2,n))/3.0
+! 				end do
+! 			end if
+!
+! 			! top boundary
+! 			if (primary(i,yn/cell,5) .eq. 0.0) then
+! 				do n=1,g_pri
+! 					primary(i,yn/cell,n) = (primary(i+1,yn/cell,n) + primary(i-1,yn/cell,n) &
+! 									& + primary(i,yn/cell-1,n))/3.0
+! 				end do
+!
+! 				do n=1,g_sec
+! 					secondary(i,yn/cell,n) = (secondary(i+1,yn/cell,n) + secondary(i-1,yn/cell,n) &
+! 									& + secondary(i,yn/cell-1,n))/3.0
+! 				end do
+!
+! 				do n=1,g_sol
+! 					solute(i,yn/cell,n) = (solute(i+1,yn/cell,n) + solute(i-1,yn/cell,n) &
+! 									& + solute(i,yn/cell-1,n))/3.0
+! 				end do
+!
+! 				do n=1,g_med
+! 					medium(i,yn/cell,n) = (medium(i+1,yn/cell,n) + medium(i-1,yn/cell,n) &
+! 									& + medium(i,yn/cell-1,n))/3.0
+! 				end do
+! 			end if
+!
+! 			! left boundary
+! 			if (primary(1,i,5) .eq. 0.0) then
+! 				do n=1,g_pri
+! 					primary(1,i,n) = (primary(1,i+1,n) + primary(1,i-1,n) &
+! 									& + primary(2,i,n))/3.0
+! 				end do
+!
+! 				do n=1,g_sec
+! 					secondary(1,i,n) = (secondary(1,i+1,n) + secondary(1,i-1,n) &
+! 									& + secondary(2,i,n))/3.0
+! 				end do
+!
+! 				do n=1,g_sol
+! 					solute(1,i,n) = (solute(1,i+1,n) + solute(1,i-1,n) &
+! 									& + solute(2,i,n))/3.0
+! 				end do
+!
+! 				do n=1,g_med
+! 					medium(1,i,n) = (medium(1,i+1,n) + medium(1,i-1,n) &
+! 									& + medium(2,i,n))/3.0
+! 				end do
+! 			end if
+!
+! 			! right boundary
+! 			if (primary(xn/cell,i,5) .eq. 0.0) then
+! 				do n=1,g_pri
+! 					primary(xn/cell,i,n) = (primary(xn/cell,i+1,n) + primary(xn/cell,i-1,n) &
+! 									& + primary(xn/cell-1,i,n))/3.0
+! 				end do
+!
+! 				do n=1,g_sec
+! 					secondary(xn/cell,i,n) = (secondary(xn/cell,i+1,n) + secondary(xn/cell,i-1,n) &
+! 									& + secondary(xn/cell-1,i,n))/3.0
+! 				end do
+!
+! 				do n=1,g_sol
+! 					solute(xn/cell,i,n) = (solute(xn/cell,i+1,n) + solute(xn/cell,i-1,n) &
+! 									& + solute(xn/cell-1,i,n))/3.0
+! 				end do
+!
+! 				do n=1,g_med
+! 					medium(xn/cell,i,n) = (medium(xn/cell,i+1,n) + medium(xn/cell,i-1,n) &
+! 									& + medium(xn/cell-1,i,n))/3.0
+! 				end do
+! 			end if
+!
+! 		end do
+			
+			! convert pH, pe to concentrations
+			do i=1,xn/cell
+				do ii=1,yn/cell
+					solute(i,ii,1) = 10**(-solute(i,ii,1))
+					solute(i,ii,2) = 10**(-solute(i,ii,2))
+				end do
+			end do
 
 	! 		! transport each solute
 	! 		do n=5,g_sol
 	! 			solTemp = solute(:,:,n)
 	! 			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 	! 		end do
-	
-			! smooth out glitch cells  BAD IDEA!!!!
-			do i=2,xn/cell-1
-				do ii=2,yn/cell-1
-					if (primary(i,ii,5) .eq. 0.0) then
-						
-						do n=1,g_pri
-							primary(i,ii,n) = (primary(i+1,ii,n) + primary(i-1,ii,n) &
-											& + primary(i,ii+1,n) + primary(i,ii-1,n))/4.0
-						end do
-						
-						do n=1,g_sec
-							secondary(i,ii,n) = (secondary(i+1,ii,n) + secondary(i-1,ii,n) &
-											& + secondary(i,ii+1,n) + secondary(i,ii-1,n))/4.0
-						end do
-						
-						do n=1,g_sol
-							solute(i,ii,n) = (solute(i+1,ii,n) + solute(i-1,ii,n) &
-											& + solute(i,ii+1,n) + solute(i,ii-1,n))/4.0
-						end do
-						
-						do n=1,g_med
-							medium(i,ii,n) = (medium(i+1,ii,n) + medium(i-1,ii,n) &
-											& + medium(i,ii+1,n) + medium(i,ii-1,n))/4.0
-						end do
-						
-					end if
-				end do
-			end do
 
 			n=1 ! ph
 	 		solTemp = solute(:,:,n)
@@ -534,13 +622,13 @@ do j = 2, tn
 	 		solTemp = solute(:,:,n)
 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 
-! 			! convert [H+], [e-] to pH, pe
-! 			do i=1,xn/cell
-! 				do ii=1,yn/cell
-! 					solute(i,ii,1) = -log10(solute(i,ii,1))
-! 					solute(i,ii,2) = -log10(solute(i,ii,2))
-! 				end do
-! 			end do
+			! convert [H+], [e-] to pH, pe
+			do i=1,xn/cell
+				do ii=1,yn/cell
+					solute(i,ii,1) = -log10(solute(i,ii,1))
+					solute(i,ii,2) = -log10(solute(i,ii,2))
+				end do
+			end do
 		
 			!!!!!!!!!!!
 			!end if

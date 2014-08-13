@@ -38,6 +38,7 @@ path = ""
 #path = "output/interpBlock/"
 #path = "output/fix/"
 #path = "output/perm/"
+path = "output/ts5000.sat0.river/"
 
 t = np.loadtxt(path + 't.txt',delimiter='\n')
 x0 = np.loadtxt(path + 'x.txt',delimiter='\n')
@@ -67,7 +68,7 @@ psi0 = np.loadtxt(path + 'psiMat.txt')
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sol_c.txt')
+geo0 = np.loadtxt(path + 'sec_saponite.txt')
 
 
 geo00 = np.zeros(steps)
@@ -166,13 +167,12 @@ for i in range(0,steps,5):
                          (np.max(geo00)-np.min(geo0))/10.0)
     #ticks=np.arange(0.000,0.0028,.0004)
     contours = np.arange(0.0,0.0032,0.0004)
-    #contours = np.arange(6.0,9.0,0.25)
+    contours = np.arange(0.0,.162,0.02)
     print geo.shape
     print xCell.shape
     print yCell[:-1].shape
     # np.arange(0.0,0.0032,0.0004),
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, np.arange(0.0,0.0032,0.0004), cmap=cm.YlOrRd)
-
+    pGlass = plt.contourf(xCell, yCell[:-1], geo, contours, cmap=cm.YlOrRd)
     #FF6600
     contoursPsi = np.arange(np.min(psi),np.max(psi)+(np.max(psi)-np.min(psi))/10.0,
                          (np.max(psi)-np.min(psi))/10.0)
@@ -183,15 +183,15 @@ for i in range(0,steps,5):
 
     theTicks = contours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('DISSOLVED INORGANIC CARBON [mol/kgw]')
+    cbar.ax.set_xlabel('SAPONITE [mol]')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     #ticks=np.arange(0.0,0.0045,0.0009)
     #cbar.set_clim(vmin=0.0,vmax=.012)
 
-    plt.title('t = ' + str(i*128) + ' years')
+    plt.title('t = ' + str(i*16) + ' years')
 
-    plt.savefig(path + 'cm0' + str(i) + '.png')
+    plt.savefig(path + 'sap0' + str(i) + '.png')
 
 
 print "ALL DONE!"
