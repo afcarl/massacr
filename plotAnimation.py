@@ -38,7 +38,16 @@ path = ""
 #path = "output/interpBlock/"
 #path = "output/fix/"
 #path = "output/perm/"
-path = "output/ts5000.sat0.river/"
+#path = "output/ts5000.sat0.river/"
+
+#htest = np.loadtxt(path + 'steady_h.txt')
+
+##fig=plt.figure()
+##ax1=fig.add_subplot(1,1,1, aspect='equal')
+##ht = plt.contourf(htest)
+##cbar = plt.colorbar()
+##plt.savefig(path + 'htest.png')
+##print "yeah!"
 
 t = np.loadtxt(path + 't.txt',delimiter='\n')
 x0 = np.loadtxt(path + 'x.txt',delimiter='\n')
@@ -68,7 +77,7 @@ psi0 = np.loadtxt(path + 'psiMat.txt')
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sec_saponite.txt')
+geo0 = np.loadtxt(path + 'sol_c.txt')
 
 
 geo00 = np.zeros(steps)
@@ -78,6 +87,7 @@ for i in range(steps):
     geo1 = np.append(geo1, geo1[-1:,:], axis=0)
     geo1 = np.append(geo1, geo1[:,-1:], axis=1)
     geo00[i] = np.max(geo1)
+
     
 for i in range(0,steps,5): 
     #i=1
@@ -137,7 +147,11 @@ for i in range(0,steps,5):
 
     # levels[::2],
     #plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
-    CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
+    print xg.shape
+    print yg.shape
+    print psi.shape
+    #CS = plt.contour(xg, yg, psi, 10, colors='k',linewidths=np.array([1.0]))
+    
 
     p = plt.contourf(xg,yg,h-272.0, np.arange(0.0,np.max(h-272.0),5.0), cmap=cm.rainbow)
     plt.clim(0.0,np.max(h-272.0))
@@ -166,24 +180,24 @@ for i in range(0,steps,5):
     contours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
                          (np.max(geo00)-np.min(geo0))/10.0)
     #ticks=np.arange(0.000,0.0028,.0004)
-    contours = np.arange(0.0,0.0032,0.0004)
-    contours = np.arange(0.0,.162,0.02)
+    contours = np.arange(0.0020,0.0032,0.0004)
+    #contours = np.arange(0.0,.162,0.02)
     print geo.shape
     print xCell.shape
     print yCell[:-1].shape
     # np.arange(0.0,0.0032,0.0004),
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, contours, cmap=cm.YlOrRd)
+    pGlass = plt.contourf(xCell, yCell[:-1], geo, cmap=cm.YlOrRd)
     #FF6600
     contoursPsi = np.arange(np.min(psi),np.max(psi)+(np.max(psi)-np.min(psi))/10.0,
                          (np.max(psi)-np.min(psi))/10.0)
-    CS = plt.contour(xg, yg, psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))
+    #CS = plt.contour(xg, yg, psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))
 
-    plt.clabel(CS, contoursPsi, inline=0, fmt='  >  ', fontsize=14,
-               rightside_up="True")
+    #plt.clabel(CS, contoursPsi, inline=0, fmt='  >  ', fontsize=14,
+    #           rightside_up="True")
 
     theTicks = contours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('SAPONITE [mol]')
+    cbar.ax.set_xlabel('DISSOLVED INORGANIC CARBON [mol/kgw]')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     #ticks=np.arange(0.0,0.0045,0.0009)
@@ -191,7 +205,9 @@ for i in range(0,steps,5):
 
     plt.title('t = ' + str(i*16) + ' years')
 
-    plt.savefig(path + 'sap0' + str(i) + '.png')
+    plt.savefig(path + 'jjjump0' + str(i) + '.png')
+
+
 
 
 print "ALL DONE!"

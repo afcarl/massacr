@@ -222,7 +222,7 @@ solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
 solute(:,:,8) = 1.0e-4 ! K
 solute(:,:,9) = 1.2e-6 ! Fe
-solute(:,:,10) = 1.0e-4 ! S(6)
+solute(:,:,10) = 0.0 !1.0e-4 ! S(6)
 solute(:,:,11) = 2.0e-4 ! Si
 solute(:,:,12) = 3.0e-4 ! Cl
 solute(:,:,13) = 1.0e-6 ! Al
@@ -330,18 +330,21 @@ OPEN(UNIT=11, FILE="steady_h.txt")
 DO i = 1,xn
 	READ(11,*) (h(i,ii),ii=1,yn)
 END DO
+h = transpose(h)
 
 write(*,*) "reading..."
 OPEN(UNIT=12, FILE="steady_u.txt")
 DO i = 1,xn
 	READ(12,*) (u(i,ii),ii=1,yn)
 END DO
+u = transpose(u)
 
 write(*,*) "reading..."
 OPEN(UNIT=13, FILE="steady_v.txt")
 DO i = 1,xn
 	READ(13,*) (v(i,ii),ii=1,yn)
 END DO
+v = transpose(v)
 
 ! this is the main loop that does all the solving for tn timesteps
 do j = 2, tn
@@ -415,11 +418,11 @@ do j = 2, tn
 ! 						& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
 ! 						& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
 
- 		uCoarse(i,ii) = u(i*cell,ii*cell)
- 		vCoarse(i,ii) = v(i*cell,ii*cell)
+ 		!uCoarse(i,ii) = u(i*cell,ii*cell)
+ 		!vCoarse(i,ii) = v(i*cell,ii*cell)
 		
- 		!uCoarse(i,ii) = sum(u(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
- 		!vCoarse(i,ii) = sum(v(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
+ 		uCoarse(i,ii) = sum(u(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
+ 		vCoarse(i,ii) = sum(v(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
 	end do
 	end do
 	uTransport = uTransport + uCoarse
@@ -427,6 +430,8 @@ do j = 2, tn
 	
 	! things only done every mth timestep go here
 	if (mod(j,mstep) .eq. 0) then
+	
+		yep = write_matrix( 2, 1, real((/j*1.0, 1.0/), kind = 4), 'upStep.txt' )
 	
 		! make coarse grid average velocities
 		uTransport = uTransport/mstep
@@ -441,143 +446,139 @@ do j = 2, tn
 		!solute(1,:,5) = 6.0e-3 ! left
 		!solute(xn/cell,:,5) = 0.0 ! right
 
-		!!!!!!!!!!!
-		!if (j .gt. 500000) then 
-		!!!!!!!!!!!
-		
-		
-! 		! smooth out glitch cells  BAD IDEA!!!!
-! 		do i=2,xn/cell-1
-! 			do ii=2,yn/cell-1
-! 				if (primary(i,ii,5) .eq. 0.0) then
-!
-! 					do n=1,g_pri
-! 						primary(i,ii,n) = (primary(i+1,ii,n) + primary(i-1,ii,n) &
-! 										& + primary(i,ii+1,n) + primary(i,ii-1,n))/4.0
-! 					end do
-!
-! 					do n=1,g_sec
-! 						secondary(i,ii,n) = (secondary(i+1,ii,n) + secondary(i-1,ii,n) &
-! 										& + secondary(i,ii+1,n) + secondary(i,ii-1,n))/4.0
-! 					end do
-!
-! 					do n=1,g_sol
-! 						solute(i,ii,n) = (solute(i+1,ii,n) + solute(i-1,ii,n) &
-! 										& + solute(i,ii+1,n) + solute(i,ii-1,n))/4.0
-! 					end do
-!
-! 					do n=1,g_med
-! 						medium(i,ii,n) = (medium(i+1,ii,n) + medium(i-1,ii,n) &
-! 										& + medium(i,ii+1,n) + medium(i,ii-1,n))/4.0
-! 					end do
-!
-! 				end if
-! 			end do
-! 		end do
-!
-! 		do i=2,xn/cell-1
-!
-! 			! bottom boundary
-! 			if (primary(i,1,5) .eq. 0.0) then
-! 				do n=1,g_pri
-! 					primary(i,1,n) = (primary(i+1,1,n) + primary(i-1,1,n) &
-! 									& + primary(i,2,n))/3.0
-! 				end do
-!
-! 				do n=1,g_sec
-! 					secondary(i,1,n) = (secondary(i+1,1,n) + secondary(i-1,1,n) &
-! 									& + secondary(i,2,n))/3.0
-! 				end do
-!
-! 				do n=1,g_sol
-! 					solute(i,1,n) = (solute(i+1,1,n) + solute(i-1,1,n) &
-! 									& + solute(i,2,n))/3.0
-! 				end do
-!
-! 				do n=1,g_med
-! 					medium(i,1,n) = (medium(i+1,1,n) + medium(i-1,1,n) &
-! 									& + medium(i,2,n))/3.0
-! 				end do
-! 			end if
-!
-! 			! top boundary
-! 			if (primary(i,yn/cell,5) .eq. 0.0) then
-! 				do n=1,g_pri
-! 					primary(i,yn/cell,n) = (primary(i+1,yn/cell,n) + primary(i-1,yn/cell,n) &
-! 									& + primary(i,yn/cell-1,n))/3.0
-! 				end do
-!
-! 				do n=1,g_sec
-! 					secondary(i,yn/cell,n) = (secondary(i+1,yn/cell,n) + secondary(i-1,yn/cell,n) &
-! 									& + secondary(i,yn/cell-1,n))/3.0
-! 				end do
-!
-! 				do n=1,g_sol
-! 					solute(i,yn/cell,n) = (solute(i+1,yn/cell,n) + solute(i-1,yn/cell,n) &
-! 									& + solute(i,yn/cell-1,n))/3.0
-! 				end do
-!
-! 				do n=1,g_med
-! 					medium(i,yn/cell,n) = (medium(i+1,yn/cell,n) + medium(i-1,yn/cell,n) &
-! 									& + medium(i,yn/cell-1,n))/3.0
-! 				end do
-! 			end if
-!
-! 			! left boundary
-! 			if (primary(1,i,5) .eq. 0.0) then
-! 				do n=1,g_pri
-! 					primary(1,i,n) = (primary(1,i+1,n) + primary(1,i-1,n) &
-! 									& + primary(2,i,n))/3.0
-! 				end do
-!
-! 				do n=1,g_sec
-! 					secondary(1,i,n) = (secondary(1,i+1,n) + secondary(1,i-1,n) &
-! 									& + secondary(2,i,n))/3.0
-! 				end do
-!
-! 				do n=1,g_sol
-! 					solute(1,i,n) = (solute(1,i+1,n) + solute(1,i-1,n) &
-! 									& + solute(2,i,n))/3.0
-! 				end do
-!
-! 				do n=1,g_med
-! 					medium(1,i,n) = (medium(1,i+1,n) + medium(1,i-1,n) &
-! 									& + medium(2,i,n))/3.0
-! 				end do
-! 			end if
-!
-! 			! right boundary
-! 			if (primary(xn/cell,i,5) .eq. 0.0) then
-! 				do n=1,g_pri
-! 					primary(xn/cell,i,n) = (primary(xn/cell,i+1,n) + primary(xn/cell,i-1,n) &
-! 									& + primary(xn/cell-1,i,n))/3.0
-! 				end do
-!
-! 				do n=1,g_sec
-! 					secondary(xn/cell,i,n) = (secondary(xn/cell,i+1,n) + secondary(xn/cell,i-1,n) &
-! 									& + secondary(xn/cell-1,i,n))/3.0
-! 				end do
-!
-! 				do n=1,g_sol
-! 					solute(xn/cell,i,n) = (solute(xn/cell,i+1,n) + solute(xn/cell,i-1,n) &
-! 									& + solute(xn/cell-1,i,n))/3.0
-! 				end do
-!
-! 				do n=1,g_med
-! 					medium(xn/cell,i,n) = (medium(xn/cell,i+1,n) + medium(xn/cell,i-1,n) &
-! 									& + medium(xn/cell-1,i,n))/3.0
-! 				end do
-! 			end if
-!
-! 		end do
-			
-			! convert pH, pe to concentrations
-			do i=1,xn/cell
-				do ii=1,yn/cell
-					solute(i,ii,1) = 10**(-solute(i,ii,1))
-					solute(i,ii,2) = 10**(-solute(i,ii,2))
-				end do
+	
+		! smooth out glitch cells  BAD IDEA!!!!
+		do i=2,xn/cell-1
+			do ii=2,yn/cell-1
+				if (primary(i,ii,5) .eq. 0.0) then
+
+					do n=1,g_pri
+						primary(i,ii,n) = (primary(i+1,ii,n) + primary(i-1,ii,n) &
+										& + primary(i,ii+1,n) + primary(i,ii-1,n))/4.0
+					end do
+
+					do n=1,g_sec
+						secondary(i,ii,n) = (secondary(i+1,ii,n) + secondary(i-1,ii,n) &
+										& + secondary(i,ii+1,n) + secondary(i,ii-1,n))/4.0
+					end do
+
+					do n=1,g_sol
+						solute(i,ii,n) = (solute(i+1,ii,n) + solute(i-1,ii,n) &
+										& + solute(i,ii+1,n) + solute(i,ii-1,n))/4.0
+					end do
+
+					do n=1,g_med-2
+						medium(i,ii,n) = (medium(i+1,ii,n) + medium(i-1,ii,n) &
+										& + medium(i,ii+1,n) + medium(i,ii-1,n))/4.0
+					end do
+
+				end if
 			end do
+		end do
+
+		do i=2,xn/cell-1
+
+			! bottom boundary
+			if (primary(i,1,5) .eq. 0.0) then
+				do n=1,g_pri
+					primary(i,1,n) = (primary(i+1,1,n) + primary(i-1,1,n) &
+									& + primary(i,2,n))/3.0
+				end do
+
+				do n=1,g_sec
+					secondary(i,1,n) = (secondary(i+1,1,n) + secondary(i-1,1,n) &
+									& + secondary(i,2,n))/3.0
+				end do
+
+				do n=1,g_sol
+					solute(i,1,n) = (solute(i+1,1,n) + solute(i-1,1,n) &
+									& + solute(i,2,n))/3.0
+				end do
+
+				do n=1,g_med-2
+					medium(i,1,n) = (medium(i+1,1,n) + medium(i-1,1,n) &
+									& + medium(i,2,n))/3.0
+				end do
+			end if
+
+			! top boundary
+			if (primary(i,yn/cell,5) .eq. 0.0) then
+				do n=1,g_pri
+					primary(i,yn/cell,n) = (primary(i+1,yn/cell,n) + primary(i-1,yn/cell,n) &
+									& + primary(i,yn/cell-1,n))/3.0
+				end do
+
+				do n=1,g_sec
+					secondary(i,yn/cell,n) = (secondary(i+1,yn/cell,n) + secondary(i-1,yn/cell,n) &
+									& + secondary(i,yn/cell-1,n))/3.0
+				end do
+
+				do n=1,g_sol
+					solute(i,yn/cell,n) = (solute(i+1,yn/cell,n) + solute(i-1,yn/cell,n) &
+									& + solute(i,yn/cell-1,n))/3.0
+				end do
+
+				do n=1,g_med-2
+					medium(i,yn/cell,n) = (medium(i+1,yn/cell,n) + medium(i-1,yn/cell,n) &
+									& + medium(i,yn/cell-1,n))/3.0
+				end do
+			end if
+
+			! left boundary
+			if (primary(1,i,5) .eq. 0.0) then
+				do n=1,g_pri
+					primary(1,i,n) = (primary(1,i+1,n) + primary(1,i-1,n) &
+									& + primary(2,i,n))/3.0
+				end do
+
+				do n=1,g_sec
+					secondary(1,i,n) = (secondary(1,i+1,n) + secondary(1,i-1,n) &
+									& + secondary(2,i,n))/3.0
+				end do
+
+				do n=1,g_sol
+					solute(1,i,n) = (solute(1,i+1,n) + solute(1,i-1,n) &
+									& + solute(2,i,n))/3.0
+				end do
+
+				do n=1,g_med-2
+					medium(1,i,n) = (medium(1,i+1,n) + medium(1,i-1,n) &
+									& + medium(2,i,n))/3.0
+				end do
+			end if
+
+			! right boundary
+			if (primary(xn/cell,i,5) .eq. 0.0) then
+				do n=1,g_pri
+					primary(xn/cell,i,n) = (primary(xn/cell,i+1,n) + primary(xn/cell,i-1,n) &
+									& + primary(xn/cell-1,i,n))/3.0
+				end do
+
+				do n=1,g_sec
+					secondary(xn/cell,i,n) = (secondary(xn/cell,i+1,n) + secondary(xn/cell,i-1,n) &
+									& + secondary(xn/cell-1,i,n))/3.0
+				end do
+
+				do n=1,g_sol
+					solute(xn/cell,i,n) = (solute(xn/cell,i+1,n) + solute(xn/cell,i-1,n) &
+									& + solute(xn/cell-1,i,n))/3.0
+				end do
+
+				do n=1,g_med-2
+					medium(xn/cell,i,n) = (medium(xn/cell,i+1,n) + medium(xn/cell,i-1,n) &
+									& + medium(xn/cell-1,i,n))/3.0
+				end do
+			end if
+
+		end do
+			
+! 			! convert pH, pe to concentrations
+! 			do i=1,xn/cell
+! 				do ii=1,yn/cell
+! 					solute(i,ii,1) = 10**(-solute(i,ii,1))
+! 					solute(i,ii,2) = 10**(-solute(i,ii,2))
+! 				end do
+! 			end do
 
 	! 		! transport each solute
 	! 		do n=5,g_sol
@@ -622,24 +623,20 @@ do j = 2, tn
 	 		solTemp = solute(:,:,n)
 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 
-			! convert [H+], [e-] to pH, pe
-			do i=1,xn/cell
-				do ii=1,yn/cell
-					solute(i,ii,1) = -log10(solute(i,ii,1))
-					solute(i,ii,2) = -log10(solute(i,ii,2))
-				end do
-			end do
+! 			! convert [H+], [e-] to pH, pe
+! 			do i=1,xn/cell
+! 				do ii=1,yn/cell
+! 					solute(i,ii,1) = -log10(solute(i,ii,1))
+! 					solute(i,ii,2) = -log10(solute(i,ii,2))
+! 				end do
+! 			end do
 		
-			!!!!!!!!!!!
-			!end if
-			!!!!!!!!!!!
-			
 			
 ! 		!mixed top boundary condition
 ! 		do i=1,(yn/cell)
 ! 			if (vTransport(i,yn/cell-1) .lt. 0.0) then
 ! 				do n=1,g_sol
-! 					solute(i,yn/cell-1,n) = (soluteOcean(n)*1.2)
+! 					solute(i,yn/cell-1,n) = (soluteOcean(n))
 ! 				end do
 ! 				! dont let seawater cells react
 ! 				!medium(i,yn/cell-1,5) = 0.0
@@ -649,9 +646,9 @@ do j = 2, tn
 ! ! 				end do
 ! 			end if
 ! 			do n=1,g_sol
-! 				solute(2,i,n) = soluteOcean(n)
-! 				solute(yn/cell-1,i,n) = soluteOcean(n)
-! 				solute(i,2,n) = soluteOcean(n)
+! 				!solute(2,i,n) = soluteOcean(n)
+! 				!solute(yn/cell-1,i,n) = soluteOcean(n)
+! 				!solute(i,2,n) = soluteOcean(n)
 ! 			end do
 ! 		end do
 
@@ -681,8 +678,8 @@ do j = 2, tn
 		! stretch everything out
 		
 		
-		!hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
-		hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
+		hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
+		!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
 		priLong = reshape(primary, (/(xn/cell)*(yn/cell), g_pri/))
 		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), g_sec/))
 		solLong = reshape(solute, (/(xn/cell)*(yn/cell), g_sol/))
@@ -986,10 +983,10 @@ else
 		! slave processor loops through each coarse cell
 		do m=1,num_rows_to_receive
 			
-			yep = write_matrix ( g_pri, 1, real(priLocal(m,:), kind = 4), 'upPri.txt' )
-			yep = write_matrix ( g_sec, 1, real(secLocal(m,:), kind = 4), 'upSec.txt' )
-			yep = write_matrix ( g_sol, 1, real(solLocal(m,:), kind = 4), 'upSol.txt' )
-			yep = write_matrix ( g_med, 1, real(medLocal(m,:), kind = 4), 'upMed.txt' )
+			yep = write_matrix ( g_pri, 1, real(priLocal(m,:), kind = 4), 'upPri0.txt' )
+			yep = write_matrix ( g_sec, 1, real(secLocal(m,:), kind = 4), 'upSec0.txt' )
+			yep = write_matrix ( g_sol, 1, real(solLocal(m,:), kind = 4), 'upSol0.txt' )
+			yep = write_matrix ( g_med, 1, real(medLocal(m,:), kind = 4), 'upMed0.txt' )
 			
 			write(*,*) medLocal(m,6:7)
 			
