@@ -456,7 +456,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"BGlass" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
 !CALC_VALUE('R(s_sp)')
-&"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.01*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
+&"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.1*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
 &"*(((ACT('H+')^3)/(ACT('Al+3')))^.333)" //NEW_LINE('')// &
 &"    20 save rate0 * time" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &

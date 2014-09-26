@@ -40,14 +40,14 @@ PROGRAM main
 	! other stuff
 	integer :: i, j, steps
 	real(8) ::  alt0(1,85) 
-	real(8) :: out(20,85)
+	real(8) :: out(100,85)
 	real(8) :: yep, mix1= .9, mix2=0.1
 
 	
 	! initial conditions
 	infile = "prelim.txt"
-	steps = 20
-	timestep = 2000000000.0
+	steps = 100
+	timestep = 100000000.0
 	temp = 12.0
 	
 	primary(1) = 12.96 ! feldspar
@@ -57,15 +57,8 @@ PROGRAM main
 	primary(5) = 96.43 ! basaltic glass
 	
 	secondary(:) = 0.0
-	secondary(1) = 2.1004e-003
-	secondary(5) = 6.9991e-003
-	secondary(16) = 4.15329e-004
-	secondary(17) = 9.8489e-002
-	secondary(24) = 1.6761e-003
-	secondary(25) = 2.5825e-004
-	secondary(26) = 1.0274e-002
-	secondary(28) = 8.3926e-003
-	
+
+! 	! columbia river
 ! 	solute(1) = 7.8 ! ph
 ! 	solute(2) = 8.451 ! pe
 ! 	solute(3) = 2.3e-3 ! Alk 1.6e-3
@@ -81,23 +74,58 @@ PROGRAM main
 ! 	solute(13) = 1.0e-6 ! Al
 ! 	solute(14) = 2.200e-3 ! HCO3-
 ! 	solute(15) = 0.0 ! CO3-2
+	
+	! today
+	solute(1) = 7.8 ! ph
+	solute(2) = 8.451 ! pe
+	solute(3) = .000234 ! Alk 1.6e-3
+	solute(4) = 2.200e-3 !1.2e-2 ! H2CO3
+	solute(5) = .0105 ! Ca
+	solute(6) = .0533 ! Mg
+	solute(7) = .468 ! Na
+	solute(8) = .00997 ! K
+	solute(9) = 1.2e-6 ! Fe
+	solute(10) = .0281 ! 1.0e-4 ! S(6)
+	solute(11) = 2.0e-4 ! Si
+	solute(12) = .546 ! Cl
+	solute(13) = 1.0e-6 ! Al
+	solute(14) = .000234 ! HCO3-
+	solute(15) = 0.0 ! CO3-2
 
-solute(:) = 0.0
-solute(1) = 7.882959
-solute(2) = 14.66159
-solute(3) = 5.6893e-004
-solute(4) = 5.8361e-004
-solute(5) = 4.4860e-003
-solute(6) = 2.1836e-003
-solute(7) = 1.8791e-003
-solute(8) = 2.1209e-004
-solute(9) = 3.0177e-013
-solute(10) = 1.600e-003
-solute(11) = 6.061e-005
-solute(12) = 3.0036e-004
-solute(13) = 6.8355e-009
-solute(14) = 5.2320e-004
-solute(15) = 0.0 ! CO3-2
+! ! timestep grab
+! solute(:) = 0.0
+! solute(1) = 7.882959
+! solute(2) = 14.66159
+! solute(3) = 5.6893e-004
+! solute(4) = 5.8361e-004
+! solute(5) = 4.4860e-003
+! solute(6) = 2.1836e-003
+! solute(7) = 1.8791e-003
+! solute(8) = 2.1209e-004
+! solute(9) = 3.0177e-013
+! solute(10) = 1.600e-003
+! solute(11) = 6.061e-005
+! solute(12) = 3.0036e-004
+! solute(13) = 6.8355e-009
+! solute(14) = 5.2320e-004
+! solute(15) = 0.0 ! CO3-2
+
+! ! hydrothermal solute concentrations [mol/kgw]
+! solute(1) = 7.8 ! ph
+! solute(2) = 8.451 ! pe
+! solute(3) = 2.3e-3 ! Alk 1.6e-3
+! solute(4) = 2.200e-3 !1.2e-2 ! H2CO3
+! solute(5) = .0103 ! Ca
+! solute(6) = .0528 ! Mg
+! solute(7) = .469 ! Na
+! solute(8) = .0102 ! K
+! solute(9) = 0.0 ! Fe
+! solute(10) = 0.0 !1e-6 ! 1.0e-4 ! S(6)
+! solute(11) = 0.0 ! Si
+! solute(12) = .546 ! Cl
+! solute(13) = 0.0 ! Al
+! solute(14) = 2.200e-3 ! HCO3-
+! solute(15) = 0.0 ! CO3-2
 
 solute0 = solute
 
@@ -133,9 +161,12 @@ medium(3) = .385 ! water_volume
 	
 		primary = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 		
+		write(*,*) alt0(1,80)
+		
+		!solute(1) = solute(1)*mix1 + solute0(1)*mix2
+		!solute(2) = solute(2)*mix1 + solute0(2)*mix2
 		solute(1) = -log10(mix1*10.0**(-solute(1)) + mix2*10.0**(-solute0(1)))
 		solute(2) = -log10(mix1*10.0**(-solute(2)) + mix2*10.0**(-solute0(2)))
-		solute(2) = solute(2)*mix1 + solute0(2)*mix2
 		solute(3) = solute(3)*mix1 + solute0(3)*mix2
 		solute(4) = solute(4)*mix1 + solute0(4)*mix2
 		solute(5) = solute(5)*mix1 + solute0(5)*mix2
@@ -148,7 +179,7 @@ medium(3) = .385 ! water_volume
 		solute(12) = solute(12)*mix1 + solute0(12)*mix2
 		solute(13) = solute(13)*mix1 + solute0(13)*mix2
 		solute(14) = solute(14)*mix1 + solute0(14)*mix2
-		solute(14) = solute(14)*mix1 + solute0(14)*mix2
+		solute(15) = solute(15)*mix1 + solute0(15)*mix2
 		
 		out(i,:) = alt0(1,:)
 		
