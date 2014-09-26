@@ -5,19 +5,48 @@
 ! gfortran -O3 -g -I/usr/local/include -o littleChunk littleChunk.o alteration.o -L/usr/local/lib -liphreeqc
 ! ./littleChunk
 
+! revising this script to use it in preliminary experiments
+
 PROGRAM main
 	use alteration
 	
 	implicit none
 	
+	interface
+		! writes 2D array to file
+		function write_matrix ( m, n, table, filename )
+			implicit none
+			integer :: m, n, j, output_status, unit0
+			character ( len = * ) filename
+			character ( len = 30 ) string
+			real(4)  :: table(m,n) , write_matrix
+		end function write_matrix
+
+		! writes 1D array to file
+		function write_vec ( n, vector, filename )
+			implicit none
+			integer :: n, j, output_status, unit0
+			character ( len = * ) filename 
+			real(4)  :: vector(n), write_vec
+		end function write_vec
+	end interface
+	
+	
+	
 	! inputs
-	real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(7)
+	real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(7), solute0(15)
+	character(len=50) :: infile
 	
 	! other stuff
-	integer :: i, j
+	integer :: i, j, steps
 	real(8) ::  alt0(1,85) 
+	real(8) :: out(20,85)
+	real(8) :: yep, mix1= .9, mix2=0.1
+
 	
 	! initial conditions
+	infile = "prelim.txt"
+	steps = 20
 	timestep = 2000000000.0
 	temp = 12.0
 	
@@ -70,25 +99,24 @@ solute(13) = 6.8355e-009
 solute(14) = 5.2320e-004
 solute(15) = 0.0 ! CO3-2
 
+solute0 = solute
+
 medium(:) = 0.0
 medium(3) = .385 ! water_volume
 	
 	write(*,*) "doing something..."
 	
-	do i=1,1
+	do i=1,steps
 		write(*,*) i
+		
+		
+		write(*,*) "altering"
+		
 		alt0 = alter(temp,timestep,primary,secondary,solute,medium)
 		!write(*,*) alt0
 		!PARSING
 		
-		write(*,*) "primary"
-		write(*,*) primary
-		write(*,*) "secondary"
-		write(*,*) secondary
-		write(*,*) "solute"
-		write(*,*) solute
-		write(*,*) "medium"
-		write(*,*) medium
+		write(*,*) "altered"
 		
 		solute = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
 		alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
@@ -105,8 +133,173 @@ medium(3) = .385 ! water_volume
 	
 		primary = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 		
+		solute(1) = -log10(mix1*10.0**(-solute(1)) + mix2*10.0**(-solute0(1)))
+		solute(2) = -log10(mix1*10.0**(-solute(2)) + mix2*10.0**(-solute0(2)))
+		solute(2) = solute(2)*mix1 + solute0(2)*mix2
+		solute(3) = solute(3)*mix1 + solute0(3)*mix2
+		solute(4) = solute(4)*mix1 + solute0(4)*mix2
+		solute(5) = solute(5)*mix1 + solute0(5)*mix2
+		solute(6) = solute(6)*mix1 + solute0(6)*mix2
+		solute(7) = solute(7)*mix1 + solute0(7)*mix2
+		solute(8) = solute(8)*mix1 + solute0(8)*mix2
+		solute(9) = solute(9)*mix1 + solute0(9)*mix2
+		solute(10) = solute(10)*mix1 + solute0(10)*mix2
+		solute(11) = solute(11)*mix1 + solute0(11)*mix2
+		solute(12) = solute(12)*mix1 + solute0(12)*mix2
+		solute(13) = solute(13)*mix1 + solute0(13)*mix2
+		solute(14) = solute(14)*mix1 + solute0(14)*mix2
+		solute(14) = solute(14)*mix1 + solute0(14)*mix2
 		
-	
+		out(i,:) = alt0(1,:)
+		
+
 	end do
 	
+	yep = write_matrix ( steps, 85, real(out,kind=4), infile )
+
+
+	! ALL DONE!
+	write(*,*) "this is phreeqing me out"
+	
 END PROGRAM main
+
+! ----------------------------------------------------------------------------------%%
+!
+! WRITE_VEC
+!
+! SUMMARY: Write linspace-style vector to file
+!
+! INPUTS: n : dimension
+!         vector : vector with data
+!         filename : file name
+!
+! RETURNS: write_vec
+!
+! ----------------------------------------------------------------------------------%%
+
+function write_vec ( n, vector, filename )
+
+  implicit none
+  
+  interface
+	  function get_unit ( )
+	    integer :: i, ios, get_unit
+	    logical lopen
+	  end function get_unit
+  end interface
+  
+  
+  integer :: n, j, output_status, unit0
+  character ( len = * ) filename 
+  real(4)  :: vector(n), write_vec
+
+
+
+  unit0 = get_unit ()
+  open ( unit = unit0, file = filename, status = 'replace', iostat = output_status )
+  if ( output_status /= 0 ) then
+    write ( *, '(a,i8)' ) 'COULD NOT OPEN OUTPUT FILE "' // &
+      trim ( filename ) // '" USING UNIT ', unit0
+    unit0 = -1
+    stop
+  end if
+  
+
+  if ( 0 < n ) then
+    do j = 1, n
+      write ( unit0, '(2x,g24.16)' ) vector(j)
+    end do
+
+  end if
+
+
+  close ( unit = unit0 )
+  write_vec = 1.0
+  return
+end function write_vec
+
+
+
+
+! ----------------------------------------------------------------------------------%%
+!
+! WRITE_MATRIX
+!
+! SUMMARY: Write 2d array to file
+!
+! INPUTS: m,n : 2d dimensinons
+!         table : 2d array with data
+!         filename : file name
+!
+! RETURNS: write_matrix
+!
+! ----------------------------------------------------------------------------------%%
+
+function write_matrix ( m, n, table, filename )
+
+  implicit none
+  
+  interface
+	  function get_unit ( )
+	    integer :: i, ios, get_unit
+	    logical lopen
+	  end function get_unit
+  end interface
+  
+  
+  integer :: m, n, j, output_status, unit0
+  character ( len = * ) filename
+  character ( len = 30 ) string
+  real(4)  :: table(m,n) , write_matrix
+
+  unit0 = get_unit ()
+  open ( unit = unit0, file = filename, &
+    status = 'replace', iostat = output_status )
+
+  if ( output_status /= 0 ) then
+    write ( *, '(a)' ) ' '
+    write ( *, '(a)' ) 'R8MAT_WRITE - Fatal error!'
+    write ( *, '(a,i8)' ) 'Could not open the output file "' // &
+      trim ( filename ) // '" on unit ', unit0
+    unit0 = -1
+    stop
+  end if
+
+
+	write ( string, '(a1,i8,a1,i8,a1,i8,a1)' ) '(', m, 'g', 24, '.', 16, ')'
+
+    do j = 1, n
+      write ( unit0, string ) table(1:m,j)
+    end do
+
+
+  close ( unit = unit0 )
+  write_matrix = 2.0
+  return
+end function write_matrix
+
+! ----------------------------------------------------------------------------------%%
+!
+! GIVE ME A NUMBER I AM NOT USING SO I CAN USE IT TO MAKE MYSELF SOME FILES
+!
+! ----------------------------------------------------------------------------------%%
+
+function get_unit ( )
+
+  implicit none
+  integer :: i, ios, get_unit
+  logical lopen
+  get_unit = 0
+  do i = 1, 99
+    if ( i /= 5 .and. i /= 6 .and. i /= 9 ) then
+      inquire ( unit = i, opened = lopen, iostat = ios )
+      if ( ios == 0 ) then
+        if ( .not. lopen ) then
+          get_unit = i
+          return
+        end if
+      end if
+    end if
+  end do
+  return
+end function get_unit

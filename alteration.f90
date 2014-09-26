@@ -399,8 +399,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   
 &"R(s_sp)" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-!&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
-&"10 s_sp = 1.53e-5" //&
+&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
+!&"10 s_sp = 1.53e-5" //&
 &"" //NEW_LINE('')// &
 &"100 SAVE s_sp" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &

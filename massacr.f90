@@ -135,7 +135,7 @@ interface
 		character ( len = * ) filename 
 		real(4)  :: vector(n), write_vec
 	end function write_vec
-	
+
 end interface
 
 !--------------DECLARE EVERYTHING 
@@ -218,6 +218,7 @@ solute(:,:,2) = 8.451 ! pe
 solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3
 solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
 solute(:,:,5) = 6.0e-3 ! Ca
+!solute(:,:,5) = 0.0e-3 ! Ca
 solute(:,:,6) = 2.0e-5 ! Mg
 solute(:,:,7) = 1.0e-3 ! Na
 solute(:,:,8) = 1.0e-4 ! K
@@ -346,6 +347,13 @@ DO i = 1,xn
 END DO
 v = transpose(v)
 
+write(*,*) "reading..."
+OPEN(UNIT=14, FILE="steady_psi.txt")
+DO i = 1,xn
+	READ(14,*) (psi(i,ii),ii=1,yn)
+END DO
+psi = transpose(psi)
+
 ! this is the main loop that does all the solving for tn timesteps
 do j = 2, tn
 	
@@ -394,13 +402,15 @@ do j = 2, tn
 ! 		u = velocities0(1:xn,1:yn)
 ! 		v = velocities0(1:xn,yn+1:2*yn)
 ! 	end if
-	
+!
 ! 	!write sample steady-state simulation to file
 ! 	!only gotta do this once
 ! 	if (j .eq. 19000) then
 ! 		 yep = write_matrix(xn, yn, real(h,kind=4), 'steady_h.txt')
 ! 		 yep = write_matrix(xn, yn, real(u,kind=4), 'steady_u.txt')
 ! 		 yep = write_matrix(xn, yn, real(v,kind=4), 'steady_v.txt')
+! 		 yep = write_matrix(xn, yn, real(psi,kind=4), 'steady_psi.txt')
+! 		 yep = write_matrix(xn, yn, real(permeability,kind=4), 'steady_permeability.txt')
 ! 	end if
 	
 
@@ -586,42 +596,42 @@ do j = 2, tn
 	! 			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 	! 		end do
 
-			n=1 ! ph
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=2 ! pe
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=4 ! c
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=5 ! ca
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=6 ! mg
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=7 ! na
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=8 ! k
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=9 ! fe
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=10 ! s issues
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=11 ! si
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=12 ! cl
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-			n=13 ! al
-	 		solTemp = solute(:,:,n)
-	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=1 ! ph
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=2 ! pe
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=4 ! c
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=5 ! ca
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=6 ! mg
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=7 ! na
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=8 ! k
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=9 ! fe
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=10 ! s issues
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=11 ! si
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=12 ! cl
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=13 ! al
+! 	 		solTemp = solute(:,:,n)
+! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 
 ! 			! convert [H+], [e-] to pH, pe
 ! 			do i=1,xn/cell
@@ -654,31 +664,14 @@ do j = 2, tn
 
 
 
-		! actual boundary conditions
-		do n=1,g_sol
-			!solute(:,yn/cell,n) = (soluteOcean(n)) ! top
-			do i=1,(yn/cell)
-				if (vTransport(i,yn/cell) .lt. 0.0) then
-					solute(i,yn/cell,n) = (soluteOcean(n))
-				end if
-			end do
-			solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
-			solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
-								& (1.0/3.0)*solute(3,:,n)  ! left
-			solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
-								& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
-		end do
 		
-	
-		! reset coarse grid velocities for next timestep
-		uTransport = 0.0
-		vTransport = 0.0
 	
 		!-TRANSPOSE 1
 		! stretch everything out
 		
 		
 		hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
+		!hLong = 285.0
 		!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
 		priLong = reshape(primary, (/(xn/cell)*(yn/cell), g_pri/))
 		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), g_sec/))
@@ -790,6 +783,68 @@ do j = 2, tn
 			write(*,*) "DONE RECEIVING FROM PROCESSOR", an_id
 		
 		end do
+		
+		!--------------MASTER PROCESSOR ADVECTS SOLUTES
+		
+		
+		! actual boundary conditions
+		do n=1,g_sol
+			!solute(:,yn/cell,n) = (soluteOcean(n)) ! top
+			do i=1,(yn/cell)
+				if (vTransport(i,yn/cell) .lt. 0.0) then
+					solute(i,yn/cell,n) = (soluteOcean(n))
+				end if
+			end do
+			solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
+			solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
+								& (1.0/3.0)*solute(3,:,n)  ! left
+			solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
+								& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
+		end do
+		
+		n=1 ! ph
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=2 ! pe
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=4 ! c
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=5 ! ca
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=6 ! mg
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=7 ! na
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=8 ! k
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=9 ! fe
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=10 ! s issues
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=11 ! si
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=12 ! cl
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		n=13 ! al
+ 		solTemp = solute(:,:,n)
+ 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+		
+
+		
+	
+		! reset coarse grid velocities for next timestep
+		uTransport = 0.0
+		vTransport = 0.0
 	
 		!--------------MASTER PROCESSOR SAVES OUTPUT TO BE WRITTEN TO FILE
 	
@@ -824,10 +879,10 @@ end do
 yep = write_vec ( xn, real(x,kind=4), 'x.txt' )
 yep = write_vec ( yn, real(y,kind=4), 'y.txt' )
 yep = write_vec ( tn, real(t, kind=4), 't.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(hmat, kind = 4), 'hMat.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat.txt' )
-yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat.txt' )
+!yep = write_matrix ( xn, yn*tn/mstep, real(hmat, kind = 4), 'hMat.txt' )
+!yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat.txt' )
+!yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat.txt' )
+!yep = write_matrix ( xn, yn*tn/mstep, real(vmat,kind=4), 'vMat.txt' )
 yep = write_matrix ( xn, yn, real(rho,kind=4), 'rho.txt' )
 yep = write_matrix ( xn, yn,real(permeability,kind=4), 'permeability.txt' )
 
