@@ -34,27 +34,28 @@ PROGRAM main
 	
 	
 	! inputs
-	real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(7), solute0(15)
+	real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(7)
+	real(8) :: solute0(15), water0
 	character(len=50) :: infile
 	
 	! other stuff
 	integer :: i, j, steps
 	real(8) ::  alt0(1,85) 
 	real(8) :: out(100,85)
-	real(8) :: yep, mix1= .9, mix2=0.1
+	real(8) :: yep, mix1= 0.9, mix2=0.1
 
 	
 	! initial conditions
 	infile = "prelim.txt"
 	steps = 100
-	timestep = 100000000.0
-	temp = 12.0
+	timestep = 1000000000.0
+	temp = 2.0
 	
 	primary(1) = 12.96 ! feldspar
 	primary(2) = 6.96 ! augite
 	primary(3) = 1.26 ! pigeonite
 	primary(4) = .4 ! magnetite
-	primary(5) = 96.43 ! basaltic glass
+	primary(5) = 96.77 ! basaltic glass
 	
 	secondary(:) = 0.0
 
@@ -77,19 +78,19 @@ PROGRAM main
 	
 	! today
 	solute(1) = 7.8 ! ph
-	solute(2) = 8.451 ! pe
-	solute(3) = .000234 ! Alk 1.6e-3
-	solute(4) = 2.200e-3 !1.2e-2 ! H2CO3
+	solute(2) = 8.4 ! pe
+	solute(3) = .00234 ! Alk 1.6e-3
+	solute(4) = .00334 !1.2e-2 ! H2CO3
 	solute(5) = .0105 ! Ca
 	solute(6) = .0533 ! Mg
 	solute(7) = .468 ! Na
 	solute(8) = .00997 ! K
-	solute(9) = 1.2e-6 ! Fe
+	solute(9) = 0.0 !1.2e-6 ! Fe
 	solute(10) = .0281 ! 1.0e-4 ! S(6)
-	solute(11) = 2.0e-4 ! Si
+	solute(11) = 0.0 !2.0e-4 ! Si
 	solute(12) = .546 ! Cl
-	solute(13) = 1.0e-6 ! Al
-	solute(14) = .000234 ! HCO3-
+	solute(13) = 0.0 !1.0e-6 ! Al
+	solute(14) = .00234 ! HCO3-
 	solute(15) = 0.0 ! CO3-2
 
 ! ! timestep grab
@@ -137,14 +138,19 @@ medium(3) = .385 ! water_volume
 	do i=1,steps
 		write(*,*) i
 		
+		water0 = medium(3)
 		
 		write(*,*) "altering"
+		
+		write(*,*) solute(4)
 		
 		alt0 = alter(temp,timestep,primary,secondary,solute,medium)
 		!write(*,*) alt0
 		!PARSING
 		
 		write(*,*) "altered"
+		
+		
 		
 		solute = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
 		alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
@@ -161,12 +167,15 @@ medium(3) = .385 ! water_volume
 	
 		primary = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 		
-		write(*,*) alt0(1,80)
+		medium(3) = alt0(1,84)
+		
+		!solute = solute * water0 / medium(3)
 		
 		!solute(1) = solute(1)*mix1 + solute0(1)*mix2
+		!solute(1) = solute0(1)
 		!solute(2) = solute(2)*mix1 + solute0(2)*mix2
-		solute(1) = -log10(mix1*10.0**(-solute(1)) + mix2*10.0**(-solute0(1)))
-		solute(2) = -log10(mix1*10.0**(-solute(2)) + mix2*10.0**(-solute0(2)))
+		solute(1) = -log10(mix1*10.0**(0.0-solute(1)) + mix2*10.0**(0.0-solute0(1)))
+		!solute(2) = -log10(mix1*10.0**(-solute(2)) mix2*10.0**(-solute0(2)))
 		solute(3) = solute(3)*mix1 + solute0(3)*mix2
 		solute(4) = solute(4)*mix1 + solute0(4)*mix2
 		solute(5) = solute(5)*mix1 + solute0(5)*mix2
@@ -181,8 +190,15 @@ medium(3) = .385 ! water_volume
 		solute(14) = solute(14)*mix1 + solute0(14)*mix2
 		solute(15) = solute(15)*mix1 + solute0(15)*mix2
 		
+		
+		
+		write(*,*) solute(4)
+		
+		!alt0(1,2:16) = solute
+		
 		out(i,:) = alt0(1,:)
 		
+		!secondary = 0.0
 
 	end do
 	

@@ -78,7 +78,7 @@ print output[79,:].shape
 
 for i in range(15,71,2):
     if np.max(output[i,:]) > 0.0:
-        p = plt.plot(x, output[i,:], label=labels[i], linewidth=1.5)
+        p = plt.plot(x, output[i,:], label=labels[i], linewidth=1.0)
 
 handles, labeling = ax1.get_legend_handles_labels()
 plt.legend(handles[::-1], labeling[::-1])
@@ -96,10 +96,11 @@ print x.shape
 print output[79,:].shape
 
 
-
 for i in range(71,81,2):
     p = plt.plot(x, output[i,:]/np.max(output[i,:]),
                  label=labels[i], linewidth=1.5)
+
+#p = plt.plot(x, output[4,:], label=labels[4])
 
 handles, labeling = ax1.get_legend_handles_labels()
 plt.legend(handles[::-1], labeling[::-1])
@@ -117,7 +118,11 @@ ax1=fig.add_subplot(2,2,3)
 print x.shape
 print output[79,:].shape
 
+#p = plt.plot(x, output[3,:]*output[83,:], label=labels[3], linewidth=1.5)
+#p = plt.plot(x, output[4,:]*output[83,:], label=labels[4], linewidth=1.5)
+
 p = plt.plot(x, output[3,:], label=labels[3], linewidth=1.5)
+p = plt.plot(x, output[4,:], label=labels[4], linewidth=1.5)
 
 handles, labeling = ax1.get_legend_handles_labels()
 plt.legend(handles[::-1], labeling[::-1])
@@ -128,7 +133,7 @@ plt.title('ALKALINITY')
 
 
 
-# ALKALINITY
+# pH
 
 ax1=fig.add_subplot(2,2,4)
 
@@ -147,4 +152,6 @@ plt.title('pH')
 
 
 
-plt.savefig('prelim0.png')
+plt.savefig('prelimC_334.png')
+
+print output[45,:]

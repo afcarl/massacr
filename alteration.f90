@@ -246,7 +246,7 @@ write(s_timestep,'(F25.10)') timestep
 
 inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    pH " // trim(s_pH) //NEW_LINE('')// &
-&"    pe " // trim(s_pe) //NEW_LINE('')// &
+!&"    pe " // trim(s_pe) //NEW_LINE('')// &
 &"    units   mol/kgw" //NEW_LINE('')// &
 &"    temp" // trim(s_temp) //NEW_LINE('')// &
 &"    Ca " // trim(s_ca) //NEW_LINE('')// &
@@ -289,7 +289,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! ----------------------------------%%
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
-!&"    CO2(g) -3.25 100" //NEW_LINE('')// &
+!&"    CO2(g) -3.25 1000" //NEW_LINE('')// &
 &"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
@@ -428,15 +428,20 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! &"-f Ca 0.015 Fe 0.0095 Mg 0.065 " //&
 ! & "Na 0.025 K 0.001 Al 0.105 Si 0.5 O 1.35" //NEW_LINE('')// &
 
-! pham
-&"-f Ca 0.025 Fe 0.0095 Mg 0.065 " //&
-&"Na 0.025 K 0.001 Al 0.105 " //&
-& "S 0.003 Si 0.5 O 1.35" //NEW_LINE('')// &
+! ! pham
+! &"-f Ca 0.015 Fe 0.0095 Mg 0.065 " //&
+! &"Na 0.025 K 0.001 Al 0.105 " //&
+! & "S 0.003 Si 0.5 O 1.35" //NEW_LINE('')// &
 
-! grove and kinzler 1992 (thomspon et al 1980)
+! ! grove and kinzler 1992 (thomspon et al 1980)
 ! &"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&
 ! & "FeO 0.121 MgO 0.195 K2O 0.00265 " //&
 ! & "Na2O 0.0573" //NEW_LINE('')// &
+
+! grove and kinzler 1992 (thomspon et al 1980)
+&"-f Ca 0.182 Si 0.861 Al 0.32 " //&
+& "Fe 0.121 Mg 0.195 K 0.0053 " //&
+& "Na 0.1146 O 2.75995" //NEW_LINE('')// &
 
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
