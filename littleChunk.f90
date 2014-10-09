@@ -34,9 +34,9 @@ PROGRAM main
 	
 	
 	! inputs
-	real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(7)
+	real(8) :: timestep, primary(5), secondary(28), solute(15), medium(7), temp
 	real(8) :: solute0(15), water0
-	character(len=50) :: infile
+	!character(len=50) :: infile
 	
 	! other stuff
 	integer :: i, j, steps
@@ -44,12 +44,26 @@ PROGRAM main
 	real(8) :: out(100,85)
 	real(8) :: yep, mix1= 0.9, mix2=0.1
 
+
+	! command line arguments
+	character(len=100) :: intemp
+	character(len=100) :: infile
+	integer :: in
+	
+	in = iargc()
+	call getarg(1,intemp)
+	call getarg(2,infile)
+	
+	read(intemp,*)temp
+	print *,temp
+	
 	
 	! initial conditions
-	infile = "prelim.txt"
+	!infile = "prelim.txt"
 	steps = 100
 	timestep = 1000000000.0
-	temp = 2.0
+	!temp = 2.0
+
 	
 	primary(1) = 12.96 ! feldspar
 	primary(2) = 6.96 ! augite

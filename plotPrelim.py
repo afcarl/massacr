@@ -33,7 +33,7 @@ print "doing something..."
 
 steps = 100
 x = np.arange(steps)
-output = np.loadtxt('prelim.txt')
+output = np.loadtxt('pre13.txt')
 
 
 
@@ -152,6 +152,6 @@ plt.title('pH')
 
 
 
-plt.savefig('prelimC_334.png')
+plt.savefig('pre13.png')
 
 print output[45,:]
