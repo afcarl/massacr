@@ -319,13 +319,14 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
 
  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
- &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
+! &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
- &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
- &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
+! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+! &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
  
 &"SAVE solution 1" // trim(s_siderite) //NEW_LINE('')// &
+&"SAVE equilibrium_phases 1" // trim(s_siderite) //NEW_LINE('')// &
 &"END" // trim(s_siderite) //NEW_LINE('')// &
 
 
@@ -374,7 +375,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
 &"Use solution 1" //NEW_LINE('')// &
-
+&"Use equilibrium_phases 1" //NEW_LINE('')// &
 
     
 ! ----------------------------------%%

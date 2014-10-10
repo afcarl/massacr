@@ -31,7 +31,7 @@ print "doing something..."
 #####################
 
 
-steps = 1000
+steps = 100
 x = np.arange(steps)
 output = np.loadtxt('c230_t22_ff1n.txt')
 

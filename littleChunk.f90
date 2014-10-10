@@ -42,7 +42,7 @@ PROGRAM main
 	integer :: i, j, steps
 	real(8) ::  alt0(1,85) 
 	real(8) :: out(100,85)
-	real(8) :: yep, mix1= 0.99, mix2=0.01
+	real(8) :: yep, mix1= 0.9, mix2=0.1
 
 
 	! command line arguments
@@ -62,7 +62,7 @@ PROGRAM main
 	! initial conditions
 	!infile = "prelim.txt"
 	steps = 100
-	timestep = 3.14e9
+	timestep = 3.14e8
 	!temp = 2.0
 
 	
