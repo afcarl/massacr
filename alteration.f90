@@ -260,10 +260,10 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
 &"    C " // trim(s_co2) //NEW_LINE('')// &
 !&"    C " // trim(s_hco3) // "as HCO3-" //NEW_LINE('')// &
-!&"    Alkalinity " // trim(s_alk) // " as CaCO3" //NEW_LINE('')// &
+!&"    Alkalinity " // trim(s_alk) // " as HCO3-" //NEW_LINE('')// &
 !&"    -water		5.0	# kg" //NEW_LINE('')// &
 &"    -water "// trim(s_water) //NEW_LINE('')// &
-&"END" //NEW_LINE('')// &
+
 
 ! inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! &"    pH 8.22" //NEW_LINE('')// &
@@ -318,12 +318,108 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
  &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
 
-!  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
-!  &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
-!  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
-!  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
-!  &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
-!  &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
+ &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
+ &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
+ &"    Quartz 0.0 0.0" //NEW_LINE('')// &
+ &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
+ &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+ &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
+ 
+&"SAVE solution 1" // trim(s_siderite) //NEW_LINE('')// &
+&"END" // trim(s_siderite) //NEW_LINE('')// &
+
+
+! ----------------------------------%%
+! PRIMARY (KINETIC) CONSTITUENTS
+! ----------------------------------%%
+
+
+&"KINETICS" //NEW_LINE('')// &
+&"Plagioclase" //NEW_LINE('')// &
+&"-m0 " // trim(s_feldspar) //NEW_LINE('')// &
+&"Augite" //NEW_LINE('')// &
+&"-m0 " // trim(s_augite) //NEW_LINE('')// &
+&"Pigeonite" //NEW_LINE('')// &
+&"-m0 " // trim(s_pigeonite) //NEW_LINE('')// &
+&"Magnetite" //NEW_LINE('')// &
+&"-m0 " // trim(s_magnetite) //NEW_LINE('')// &
+&"BGlass" //NEW_LINE('')// &
+
+! !pham phudge
+! &"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
+! & "Na2O 0.0125 K2O 0.005 Al2O3 0.0525 SiO2 0.5" //NEW_LINE('')// &
+
+! ! pham
+! &"-f Ca 0.015 Fe 0.0095 Mg 0.065 " //&
+! & "Na 0.025 K 0.001 Al 0.105 Si 0.5 O 1.35" //NEW_LINE('')// &
+
+! ! pham
+! &"-f Ca 0.015 Fe 0.0095 Mg 0.065 " //&
+! &"Na 0.025 K 0.001 Al 0.105 " //&
+! & "S 0.003 Si 0.5 O 1.35" //NEW_LINE('')// &
+
+! ! grove and kinzler 1992 (thomspon et al 1980)
+! &"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&
+! & "FeO 0.121 MgO 0.195 K2O 0.00265 " //&
+! & "Na2O 0.0573" //NEW_LINE('')// &
+
+! grove and kinzler 1992 (thomspon et al 1980)
+&"-f Ca 0.182 Si 0.861 Al 0.32 " //&
+& "Fe 0.121 Mg 0.195 K 0.0053 " //&
+& "Na 0.1146 O 2.75995" //NEW_LINE('')// &
+
+&"-m0 " // trim(s_glass) //NEW_LINE('')// &
+
+&"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
+
+&"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
+&"Use solution 1" //NEW_LINE('')// &
+
+
+    
+! ----------------------------------%%
+! KINETIC DISSOLUTION RATE LAWS
+! ----------------------------------%%
+	
+&"RATES" //NEW_LINE('')// &
+
+&"BGlass" //NEW_LINE('')// &
+&"-start" //NEW_LINE('')// &
+!CALC_VALUE('R(s_sp)')
+&"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.1*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
+&"*(((ACT('H+')^3)/(ACT('Al+3')))^.333)" //NEW_LINE('')// &
+&"    20 save rate0 * time" //NEW_LINE('')// &
+&"-end" //NEW_LINE('')// &
+
+&"Plagioclase" //NEW_LINE('')// &
+&"-start" //NEW_LINE('')// &
+!(1-SR('Plagioclase'))*
+&"    10 rate = (1-SR('Plagioclase'))*M*270.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-9)"//&
+&"*exp(-53.5/(.008314*TK))*(ACT('H+')^0.541) +(3.39e-12)*exp(-57.4/(.008314*TK)) +"//&
+&"(4.78e-15)*exp(-59.0/(.008314*TK))*(ACT('H+'))^-0.57))"//NEW_LINE('')//&
+&"    20 save rate * time"//NEW_LINE('')//&
+&"-end" //NEW_LINE('')// &
+
+&"Augite" //NEW_LINE('')// &
+&"-start" //NEW_LINE('')// &
+&"    10 rate0 = (1-SR('Augite'))*M*230.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
+&"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))" //NEW_LINE('')// & 
+&"    20 save rate0 * time" //NEW_LINE('')// &
+&"-end" //NEW_LINE('')// &
+
+&"Pigeonite" //NEW_LINE('')// &
+&"-start" //NEW_LINE('')// &
+&"    10 rate0 = (1-SR('Pigeonite'))*M*236.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
+&"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))"//NEW_LINE('')// &
+&"    20 save rate0 * time" //NEW_LINE('')// &
+&"-end" //NEW_LINE('')// &
+
+&"Magnetite" //NEW_LINE('')// &
+&"-start" //NEW_LINE('')// &
+&"    10 rate0 = (1-SR('Magnetite'))*M*231.0*CALC_VALUE('R(s_sp)')*0.1*(((2.57e-9)" // &
+&"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-11)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
+&"    20 save rate0 * time" //NEW_LINE('')// &
+&"-end" //NEW_LINE('')// &
 
 ! ----------------------------------%%
 ! CALCULATE POROSITY AND STUFF
@@ -406,100 +502,11 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
 
 ! ----------------------------------%%
-! PRIMARY (KINETIC) CONSTITUENTS
-! ----------------------------------%%
-
-&"KINETICS" //NEW_LINE('')// &
-&"Plagioclase" //NEW_LINE('')// &
-&"-m0 " // trim(s_feldspar) //NEW_LINE('')// &
-&"Augite" //NEW_LINE('')// &
-&"-m0 " // trim(s_augite) //NEW_LINE('')// &
-&"Pigeonite" //NEW_LINE('')// &
-&"-m0 " // trim(s_pigeonite) //NEW_LINE('')// &
-&"Magnetite" //NEW_LINE('')// &
-&"-m0 " // trim(s_magnetite) //NEW_LINE('')// &
-&"BGlass" //NEW_LINE('')// &
-
-! !pham phudge
-! &"-f CaO 0.025 Fe2O3 0.0475 MgO 0.065 " //&
-! & "Na2O 0.0125 K2O 0.005 Al2O3 0.0525 SiO2 0.5" //NEW_LINE('')// &
-
-! ! pham
-! &"-f Ca 0.015 Fe 0.0095 Mg 0.065 " //&
-! & "Na 0.025 K 0.001 Al 0.105 Si 0.5 O 1.35" //NEW_LINE('')// &
-
-! ! pham
-! &"-f Ca 0.015 Fe 0.0095 Mg 0.065 " //&
-! &"Na 0.025 K 0.001 Al 0.105 " //&
-! & "S 0.003 Si 0.5 O 1.35" //NEW_LINE('')// &
-
-! ! grove and kinzler 1992 (thomspon et al 1980)
-! &"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&
-! & "FeO 0.121 MgO 0.195 K2O 0.00265 " //&
-! & "Na2O 0.0573" //NEW_LINE('')// &
-
-! grove and kinzler 1992 (thomspon et al 1980)
-&"-f Ca 0.182 Si 0.861 Al 0.32 " //&
-& "Fe 0.121 Mg 0.195 K 0.0053 " //&
-& "Na 0.1146 O 2.75995" //NEW_LINE('')// &
-
-&"-m0 " // trim(s_glass) //NEW_LINE('')// &
-
-&"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
-
-&"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
-
-&"Use solution 1" //NEW_LINE('')// &
-
-    
-! ----------------------------------%%
-! KINETIC DISSOLUTION RATE LAWS
-! ----------------------------------%%
-	
-&"RATES" //NEW_LINE('')// &
-
-&"BGlass" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
-!CALC_VALUE('R(s_sp)')
-&"    10 rate0=M*46.5*CALC_VALUE('R(s_sp)')*0.1*(1e4)*(2.51189e-6)*exp(-25.5/(.008314*TK))" // &
-&"*(((ACT('H+')^3)/(ACT('Al+3')))^.333)" //NEW_LINE('')// &
-&"    20 save rate0 * time" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
-
-&"Plagioclase" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
-!(1-SR('Plagioclase'))*
-&"    10 rate = (1-SR('Plagioclase'))*M*270.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-9)"//&
-&"*exp(-53.5/(.008314*TK))*(ACT('H+')^0.541) +(3.39e-12)*exp(-57.4/(.008314*TK)) +"//&
-&"(4.78e-15)*exp(-59.0/(.008314*TK))*(ACT('H+'))^-0.57))"//NEW_LINE('')//&
-&"    20 save rate * time"//NEW_LINE('')//&
-&"-end" //NEW_LINE('')// &
-
-&"Augite" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
-&"    10 rate0 = (1-SR('Augite'))*M*230.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
-&"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))" //NEW_LINE('')// & 
-&"    20 save rate0 * time" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
-
-&"Pigeonite" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
-&"    10 rate0 = (1-SR('Pigeonite'))*M*236.0*CALC_VALUE('R(s_sp)')*0.1*(((1.58e-7)" // &
-&"*exp(-78.0/(.008314*TK))*(ACT('H+')^0.7)+(1.07e-12)*exp(-78.0/(.008314*TK))))"//NEW_LINE('')// &
-&"    20 save rate0 * time" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
-
-&"Magnetite" //NEW_LINE('')// &
-&"-start" //NEW_LINE('')// &
-&"    10 rate0 = (1-SR('Magnetite'))*M*231.0*CALC_VALUE('R(s_sp)')*0.1*(((2.57e-9)" // &
-&"*exp(-18.6/(.008314*TK))*(ACT('H+')^0.279)+(1.66e-11)*exp(-18.6/(.008314*TK))))" //NEW_LINE('')// &
-&"    20 save rate0 * time" //NEW_LINE('')// &
-&"-end" //NEW_LINE('')// &
-
-! ----------------------------------%%
 ! KNOBS FOR SOLVERS AND STUFF
 ! ----------------------------------%%
 	
+	
+!&"END" //NEW_LINE('')// &
 ! &"KNOBS" //NEW_LINE('')// &
 ! &"-diagonal_scale true" //NEW_LINE('')// &
 
@@ -530,7 +537,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -p Nontronite-Ca muscovite mesolite hematite diaspore" //NEW_LINE('')// &
   &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
-  &"END"
+&"END"
   
   
 ! INITIALIZE STUFF

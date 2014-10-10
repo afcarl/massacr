@@ -1,5 +1,5 @@
 SOLUTION_RAW                 1 
-  -temp                      2
+  -temp                      22
   -pressure                  1
   -total_h                   nan
   -total_o                   nan
@@ -8,7 +8,7 @@ SOLUTION_RAW                 1
   -totals
     H(0)                     nan
     O(0)                     nan
-  -pH                        0
+  -pH                        0.0043648011
   -pe                        4
   -mu                        nan
   -ah2o                      1
@@ -98,7 +98,7 @@ KINETICS_RAW                 1
   -equal_increments           1
   -count                     1
   -steps             
-    1000000000 
+    314000000 
   # KINETICS workspace variables #
   -totals                    
 EQUILIBRIUM_PHASES_RAW       1 
@@ -152,7 +152,31 @@ EQUILIBRIUM_PHASES_RAW       1
       -delta                 0
       -initial_moles         0
       -totals                
+  -component                 Dawsonite
+      # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
+      -si                    0
+      -moles                 0
+      -force_equality        0
+      -dissolve_only         0
+      -precipitate_only      0
+      # PPassemblage workspace variables #
+      -si_org                0
+      -delta                 0
+      -initial_moles         0
+      -totals                
   -component                 Diaspore
+      # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
+      -si                    0
+      -moles                 0
+      -force_equality        0
+      -dissolve_only         0
+      -precipitate_only      0
+      # PPassemblage workspace variables #
+      -si_org                0
+      -delta                 0
+      -initial_moles         0
+      -totals                
+  -component                 Dolomite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
       -moles                 0
@@ -201,6 +225,18 @@ EQUILIBRIUM_PHASES_RAW       1
       -initial_moles         0
       -totals                
   -component                 Kaolinite
+      # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
+      -si                    0
+      -moles                 0
+      -force_equality        0
+      -dissolve_only         0
+      -precipitate_only      0
+      # PPassemblage workspace variables #
+      -si_org                0
+      -delta                 0
+      -initial_moles         0
+      -totals                
+  -component                 Magnesite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
       -moles                 0
@@ -368,6 +404,30 @@ EQUILIBRIUM_PHASES_RAW       1
       -delta                 0
       -initial_moles         0
       -totals                
+  -component                 Siderite
+      # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
+      -si                    0
+      -moles                 0
+      -force_equality        0
+      -dissolve_only         0
+      -precipitate_only      0
+      # PPassemblage workspace variables #
+      -si_org                0
+      -delta                 0
+      -initial_moles         0
+      -totals                
+  -component                 Smectite-high-Fe-Mg
+      # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
+      -si                    0
+      -moles                 0
+      -force_equality        0
+      -dissolve_only         0
+      -precipitate_only      0
+      # PPassemblage workspace variables #
+      -si_org                0
+      -delta                 0
+      -initial_moles         0
+      -totals                
   -component                 Stilbite
       # EQUILIBRIUM_PHASES_MODIFY candidate identifiers #
       -si                    0
@@ -381,16 +441,16 @@ EQUILIBRIUM_PHASES_RAW       1
       -initial_moles         0
       -totals                
   -eltList                   # List of all elements in phases and alternate reactions
-    Al                       20.6
-    C                        1
-    Ca                       4.5745
-    Fe                       14.017
-    H                        68.128
-    K                        3.336
-    Mg                       7.66
-    Na                       2.802
-    O                        243.899
+    Al                       22.85
+    C                        6
+    Ca                       5.5995
+    Fe                       15.717
+    H                        72.128
+    K                        3.536
+    Mg                       10.81
+    Na                       3.902
+    O                        272.899
     S                        2
-    Si                       71.053
+    Si                       74.553
   # PPassemblage workspace variables #
   -assemblage_totals

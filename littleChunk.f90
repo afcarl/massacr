@@ -42,7 +42,7 @@ PROGRAM main
 	integer :: i, j, steps
 	real(8) ::  alt0(1,85) 
 	real(8) :: out(100,85)
-	real(8) :: yep, mix1= 0.9, mix2=0.1
+	real(8) :: yep, mix1= 0.99, mix2=0.01
 
 
 	! command line arguments
@@ -58,10 +58,11 @@ PROGRAM main
 	print *,temp
 	
 	
+	
 	! initial conditions
 	!infile = "prelim.txt"
 	steps = 100
-	timestep = 1000000000.0
+	timestep = 3.14e9
 	!temp = 2.0
 
 	
@@ -93,8 +94,8 @@ PROGRAM main
 	! today
 	solute(1) = 7.8 ! ph
 	solute(2) = 8.4 ! pe
-	solute(3) = .00234 ! Alk 1.6e-3
-	solute(4) = .00334 !1.2e-2 ! H2CO3
+	solute(3) = .0023 ! Alk 1.6e-3
+	solute(4) = .0023 !1.2e-2 ! H2CO3
 	solute(5) = .0105 ! Ca
 	solute(6) = .0533 ! Mg
 	solute(7) = .468 ! Na
@@ -156,7 +157,7 @@ medium(3) = .385 ! water_volume
 		
 		write(*,*) "altering"
 		
-		write(*,*) solute(4)
+		write(*,*) medium(3)
 		
 		alt0 = alter(temp,timestep,primary,secondary,solute,medium)
 		!write(*,*) alt0
@@ -206,7 +207,7 @@ medium(3) = .385 ! water_volume
 		
 		
 		
-		write(*,*) solute(4)
+		write(*,*) medium(3)
 		
 		!alt0(1,2:16) = solute
 		
