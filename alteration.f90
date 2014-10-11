@@ -314,12 +314,12 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"    Nontronite-H 0.0 " // trim(s_nont_h) //NEW_LINE('')// &
  &"    Nontronite-Ca 0.0 " // trim(s_nont_ca) //NEW_LINE('')// &
  &"    Muscovite 0.0 " // trim(s_muscovite) //NEW_LINE('')// &
- &"    Mesolite 0.0 " // trim(s_mesolite) //NEW_LINE('')// &
+! &"    Mesolite 0.0 " // trim(s_mesolite) //NEW_LINE('')// & !!!!!!!!
  &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
  &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
 
  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
-! &"    Magnesite 0.0 " // trim(s_magnesite) //NEW_LINE('')// &
+ &"    Anhydrite 0.0 " // trim(s_magnesite) //NEW_LINE('')// & ! formerly magnesite
  &"    Quartz 0.0 0.0" //NEW_LINE('')// &
  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
 ! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
@@ -360,15 +360,20 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! & "S 0.003 Si 0.5 O 1.35" //NEW_LINE('')// &
 
 ! ! grove and kinzler 1992 (thomspon et al 1980)
-! &"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&
-! & "FeO 0.121 MgO 0.195 K2O 0.00265 " //&
-! & "Na2O 0.0573" //NEW_LINE('')// &
+&"-f CaO 0.182 SiO2 0.861 Al2O3 0.16 " //&
+& "FeO .121 MgO 0.195 K2O 0.00265 " //&
+& "Na2O 0.0573" //NEW_LINE('')// &
+!
+
+
 
 ! grove and kinzler 1992 (thomspon et al 1980)
-&"-f Ca 0.182 Si 0.861 Al 0.32 " //&
-& "Fe 0.121 Mg 0.195 K 0.0053 " //&
-& "Na 0.1146 O 2.75995" //NEW_LINE('')// &
-
+! &"-f Ca 0.182 Si 0.861 Al 0.32 " //&
+! & "Fe 0.121 Mg 0.195 K 0.0053 " //&
+! & "Na 0.1146 O 2.88095" //NEW_LINE('')// &
+!2.88095
+!2.75995
+!2.63895
 &"-m0 " // trim(s_glass) //NEW_LINE('')// &
 
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
@@ -436,7 +441,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ EQUI('Clinoptilolite-Ca')*1344.49/2.62 + EQUI('Pyrite')*120.0/4.84" // &
 &"+ EQUI('Montmor-Na')*103.8/5.3 + EQUI('Goethite')*88.8/3.8" // &
 &"+ EQUI('Dolomite')*184.3/2.84 + EQUI('Smectite-high-Fe-Mg')*425.7/2.7" // &
-&"+ EQUI('Dawsonite')*144.0/2.42 + EQUI('Magnesite')*84.3/3.0" // &
+&"+ EQUI('Dawsonite')*144.0/2.42 + EQUI('Anhydrite')*84.3/3.0" // &
 &"+ EQUI('Siderite')*115.8/3.96 + EQUI('Calcite')*100.0/2.71" // &
 &"+ EQUI('Quartz')*60.0/2.62 + EQUI('K-Feldspar')*193.0/2.56" // &
 &"+ KIN('Plagioclase')*270.0/2.68 + KIN('Augite')*230.0/3.4" // &
@@ -471,7 +476,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ EQUI('Clinoptilolite-Ca')*2.62 + EQUI('Pyrite')*4.84" // &
 &"+ EQUI('Montmor-Na')*5.3 + EQUI('Goethite')*3.8" // &
 &"+ EQUI('Dolomite')*2.84 + EQUI('Smectite-high-Fe-Mg')*2.7" // &
-&"+ EQUI('Dawsonite')*2.42 + EQUI('Magnesite')*3.0" // &
+&"+ EQUI('Dawsonite')*2.42 + EQUI('Anhydrite')*3.0" // &
 &"+ EQUI('Siderite')*3.96 + EQUI('Calcite')*2.71" // &
 &"+ EQUI('Quartz')*2.62 + EQUI('k-Feldspar')*2.56" // &
 &"+ KIN('Plagioclase')*2.68 + KIN('Augite')*3.4" // &
@@ -483,7 +488,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"+ EQUI('Clinoptilolite-Ca') + EQUI('Pyrite')" // &
 &"+ EQUI('Montmor-Na') + EQUI('Goethite')" // &
 &"+ EQUI('Dolomite') + EQUI('Smectite-high-Fe-Mg')" // &
-&"+ EQUI('Dawsonite') + EQUI('Magnesite')" // &
+&"+ EQUI('Dawsonite') + EQUI('Anhydrite')" // &
 &"+ EQUI('Siderite') + EQUI('Calcite')" // &
 &"+ EQUI('Quartz') + EQUI('K-Feldspar')" // &
 &"+ KIN('Plagioclase') + KIN('Augite')" // &
@@ -496,8 +501,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   
 &"R(s_sp)" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
-!&"10 s_sp = 1.53e-5" //&
+!&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
+&"10 s_sp = 1.53e-5" //&
 &"" //NEW_LINE('')// &
 &"100 SAVE s_sp" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
@@ -533,7 +538,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -alkalinity" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite Montmor-Na goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
-  &"    -p magnesite siderite calcite quartz k-feldspar" //NEW_LINE('')// &
+  &"    -p Anhydrite siderite calcite quartz k-feldspar" //NEW_LINE('')// &
   &"    -p saponite-na Nontronite-Na Nontronite-Mg Nontronite-K Nontronite-H " //NEW_LINE('')// &
   &"    -p Nontronite-Ca muscovite mesolite hematite diaspore" //NEW_LINE('')// &
   &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &

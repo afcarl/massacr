@@ -209,7 +209,7 @@ medium(3) = .385 ! water_volume
 		
 		write(*,*) medium(3)
 		
-		!alt0(1,2:16) = solute
+		alt0(1,2:16) = solute
 		
 		out(i,:) = alt0(1,:)
 		
