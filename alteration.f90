@@ -254,7 +254,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Na " // trim(s_na) //NEW_LINE('')// &
 &"    K " // trim(s_k) //NEW_LINE('')// &
 &"    Fe " // trim(s_fe) //NEW_LINE('')// &
-&"    S "// trim(s_s)  //NEW_LINE('')// &
+&"    S(6) "// trim(s_s)  //NEW_LINE('')// &
 &"    Si " // trim(s_si) //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
@@ -320,7 +320,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
  &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
  &"    Anhydrite 0.0 " // trim(s_magnesite) //NEW_LINE('')// & ! formerly magnesite
- &"    Quartz 0.0 0.0" //NEW_LINE('')// &
+!!!! &"    Quartz 0.0 0.0" //NEW_LINE('')// &
  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
 ! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
 ! &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
