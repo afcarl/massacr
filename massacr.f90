@@ -211,24 +211,24 @@ primary(:,:,5) = 96.77 ! basaltic glass
 ! secondary minerals [mol]
 secondary(:,:,:) = 0.0
 
-!columbia river composition
-! hydrothermal solute concentrations [mol/kgw]
-solute(:,:,1) = 7.8 ! ph
-solute(:,:,2) = 8.451 ! pe
-solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3
-solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
-solute(:,:,5) = 6.0e-3 ! Ca
-!solute(:,:,5) = 0.0e-3 ! Ca
-solute(:,:,6) = 2.0e-5 ! Mg
-solute(:,:,7) = 1.0e-3 ! Na
-solute(:,:,8) = 1.0e-4 ! K
-solute(:,:,9) = 1.2e-6 ! Fe
-solute(:,:,10) = 0.0 !1.0e-4 ! S(6)
-solute(:,:,11) = 2.0e-4 ! Si
-solute(:,:,12) = 3.0e-4 ! Cl
-solute(:,:,13) = 1.0e-6 ! Al
-solute(:,:,14) = 2.200e-3 ! HCO3-
-solute(:,:,15) = 0.0 ! CO3-2
+! !columbia river composition
+! ! hydrothermal solute concentrations [mol/kgw]
+! solute(:,:,1) = 7.8 ! ph
+! solute(:,:,2) = 8.451 ! pe
+! solute(:,:,3) = 2.3e-3 ! Alk 1.6e-3
+! solute(:,:,4) = 2.200e-3 !1.2e-2 ! H2CO3
+! solute(:,:,5) = 6.0e-3 ! Ca
+! !solute(:,:,5) = 0.0e-3 ! Ca
+! solute(:,:,6) = 2.0e-5 ! Mg
+! solute(:,:,7) = 1.0e-3 ! Na
+! solute(:,:,8) = 1.0e-4 ! K
+! solute(:,:,9) = 1.2e-6 ! Fe
+! solute(:,:,10) = 0.0 !1.0e-4 ! S(6)
+! solute(:,:,11) = 2.0e-4 ! Si
+! solute(:,:,12) = 3.0e-4 ! Cl
+! solute(:,:,13) = 1.0e-6 ! Al
+! solute(:,:,14) = 2.200e-3 ! HCO3-
+! solute(:,:,15) = 0.0 ! CO3-2
 
 ! ! hydrothermal solute concentrations [mol/kgw]
 ! solute(:,:,1) = 7.8 ! ph
@@ -246,6 +246,23 @@ solute(:,:,15) = 0.0 ! CO3-2
 ! solute(:,:,13) = 0.0 ! Al
 ! solute(:,:,14) = 2.200e-3 ! HCO3-
 ! solute(:,:,15) = 0.0 ! CO3-2
+
+! today
+solute(:,:,1) = 7.8 ! ph
+solute(:,:,2) = 8.4 ! pe
+solute(:,:,3) = .0023 ! Alk 1.6e-3
+solute(:,:,4) = .0023 !1.2e-2 ! H2CO3
+solute(:,:,5) = .0105 ! Ca
+solute(:,:,6) = .0533 ! Mg
+solute(:,:,7) = .468 ! Na
+solute(:,:,8) = .00997 ! K
+solute(:,:,9) = 0.0 !1.2e-6 ! Fe
+solute(:,:,10) = .0281 ! 1.0e-4 ! S(6)
+solute(:,:,11) = 0.0 !2.0e-4 ! Si
+solute(:,:,12) = .546 ! Cl
+solute(:,:,13) = 1.0e-10 ! Al
+solute(:,:,14) = .00234 ! HCO3-
+solute(:,:,15) = 0.0 ! CO3-2
 
 ! seawater solute concentrations [mol/kgw]
 soluteOcean = (/ solute(1,1,1), solute(1,1,2), solute(1,1,3), solute(1,1,4), solute(1,1,5), & 
@@ -358,7 +375,9 @@ psi = transpose(psi)
 do j = 2, tn
 	
 	! print current timestep
-	write(*,*) j
+	if (mod(j,mstep/10) .eq. 0) then
+		write(*,*) j
+	end if
 
 	! HEAT FLUX BOUNDARY CONDITIONS
 	
@@ -584,7 +603,9 @@ do j = 2, tn
 
 
 
-
+!!!!!!!!!! CURRENTLY FORGETTING ABOUT TRANSPORT STEP I THINK ????
+!!!!!!!!!! should have marked down where i left off.
+!!!!!!!!!! ACTUALLY IT HAPPENS DOWN BELOW...
 			
 ! 			! convert pH, pe to concentrations
 ! 			do i=1,xn/cell
@@ -675,7 +696,14 @@ do j = 2, tn
 		
 		
 		hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
-		!hLong = 285.0
+		do i = 1,(xn/cell)*(yn/cell)
+			if (hLong(i) .gt. 305.0) then
+				!write(*,*) "old temp:"
+				!write(*,*) hLong(i)
+				!hLong(i) = 315.0
+			end if
+		end do
+
 		!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
 		priLong = reshape(primary, (/(xn/cell)*(yn/cell), g_pri/))
 		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), g_sec/))
@@ -1070,7 +1098,7 @@ else
 
 			priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
 
-			medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,85)/)
+			medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,4)/)
 
 			! print something you want to look at
 			!write(*,*) medLocal(m,3) ! water

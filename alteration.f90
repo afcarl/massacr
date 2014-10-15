@@ -124,8 +124,8 @@ function alter ( temp, timestep, primary, secondary, solute, medium)
 implicit none
 INTEGER(KIND=4) :: id, all=85
 INTEGER(KIND=4) :: i, order
-CHARACTER(LEN=61200) :: line
-character(len=61200) :: inputz0
+CHARACTER(LEN=63200) :: line
+character(len=63200) :: inputz0
 character(len=4) :: fake_in
 real(8) :: alter(1,85)
 real(8), allocatable :: outmat(:,:)
@@ -168,7 +168,7 @@ character(len=50) :: s_feldspar, s_pigeonite, s_augite, s_glass, s_magnetite ! p
 character(len=50) :: s_temp, s_timestep ! important information
 character(len=50) :: s_ph, s_ca, s_mg, s_na, s_k, s_fe, s_s, s_si, s_cl, s_al, s_alk, s_co2 ! solutes
 character(len=50) :: s_hco3, s_co3, s_pe
-character(len=50) :: s_water ! medium
+character(len=50) :: s_water, s_w ! medium
 real(8) :: water
 
 glass = 2.0
@@ -176,8 +176,8 @@ siderite = 0.0
 
 ! SOLUTES TO STRINGS
 write(s_ph,'(F25.10)') solute(1)
-write(s_pe,'(F25.10)') solute(2)
-write(s_alk,'(F25.10)') solute(3)
+write(s_alk,'(F25.10)') solute(2)
+write(s_w,'(F25.10)') solute(3)
 write(s_co2,'(F25.10)') solute(4)
 write(s_ca,'(F25.10)') solute(5)
 write(s_mg,'(F25.10)') solute(6)
@@ -318,16 +318,18 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
  &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
 
- &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
- &"    Anhydrite 0.0 " // trim(s_magnesite) //NEW_LINE('')// & ! formerly magnesite
+! &"    Dawsonite 0.0 " // trim(s_dawsonite) //NEW_LINE('')// &
+! &"    Anhydrite 0.0 " // trim(s_magnesite) //NEW_LINE('')// & ! formerly magnesite
+
+
 !!!! &"    Quartz 0.0 0.0" //NEW_LINE('')// &
  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
 ! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
 ! &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
  
-&"SAVE solution 1" // trim(s_siderite) //NEW_LINE('')// &
-&"SAVE equilibrium_phases 1" // trim(s_siderite) //NEW_LINE('')// &
-&"END" // trim(s_siderite) //NEW_LINE('')// &
+!&"SAVE solution 1" // trim(s_siderite) //NEW_LINE('')// &
+!&"SAVE equilibrium_phases 1" // trim(s_siderite) //NEW_LINE('')// &
+!&"END" // trim(s_siderite) //NEW_LINE('')// &
 
 
 ! ----------------------------------%%
@@ -364,6 +366,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 & "FeO .121 MgO 0.195 K2O 0.00265 " //&
 & "Na2O 0.0573" //NEW_LINE('')// &
 !
+! Al2O3
 
 
 
@@ -379,8 +382,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
 
 &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
-&"Use solution 1" //NEW_LINE('')// &
-&"Use equilibrium_phases 1" //NEW_LINE('')// &
+!&"Use solution 1" //NEW_LINE('')// &
+!&"Use equilibrium_phases 1" //NEW_LINE('')// &
 
     
 ! ----------------------------------%%
@@ -461,8 +464,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 &"R(water_volume)" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-&"10 water_volume = TOT('water')" //&
-&"" //NEW_LINE('')// &
+!&"10 water_volume = TOT('water')" //&
+&"10 water_volume = 0.3" //NEW_LINE('')// &
 &"100 SAVE water_volume" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
   
@@ -501,8 +504,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   
 &"R(s_sp)" //NEW_LINE('')// &
 &"-start" //NEW_LINE('')// &
-!&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
-&"10 s_sp = 1.53e-5" //&
+&"10 s_sp = (CALC_VALUE('R(phi)')/(1.0-CALC_VALUE('R(phi)')))*400.0/CALC_VALUE('R(rho_s)')" //&
+!&"10 s_sp = 1.53e-5" //&
 &"" //NEW_LINE('')// &
 &"100 SAVE s_sp" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
@@ -530,11 +533,12 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 !  &"    -high_precision true" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
-  &"    -pe" //NEW_LINE('')// &
+  &"    -pe false" //NEW_LINE('')// &
 !  &"    -molalities Ca+2 Mg+2 Na+ K+ Fe+3 SO4-2 SiO2 Cl- Al+3 HCO3-" //NEW_LINE('')// &
   &"    -totals C" //NEW_LINE('')// &
   &"    -totals Ca Mg Na K Fe S Si Cl Al " //NEW_LINE('')// &
   &"    -molalities HCO3-" //NEW_LINE('')// &
+  &"    -water" //NEW_LINE('')// &
   &"    -alkalinity" //NEW_LINE('')// &
   &"    -p stilbite sio2(am) kaolinite albite saponite-mg celadonite Clinoptilolite-Ca" //NEW_LINE('')// &
   &"    -p pyrite Montmor-Na goethite dolomite Smectite-high-Fe-Mg Dawsonite" //NEW_LINE('')// &
@@ -578,7 +582,10 @@ IF (RunString(id, inputz0).NE.0) THEN
 	write(*,*) solute
 	write(*,*) "medium"
 	write(*,*) medium
+	write(*,*) "temp"
+	write(*,*) temp
 	!STOP
+	! if errror run a different equilibrium phases scenario?
 END IF
   
 ! PRINT DUMP/OUTPUT
