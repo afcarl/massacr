@@ -122,12 +122,12 @@ contains
 function alter ( temp, timestep, primary, secondary, solute, medium)
 
 implicit none
-INTEGER(KIND=4) :: id, all=85
+INTEGER(KIND=4) :: id, all=147
 INTEGER(KIND=4) :: i, order
 CHARACTER(LEN=63200) :: line
 character(len=63200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,85)
+real(8) :: alter(1,147)
 real(8), allocatable :: outmat(:,:)
 
 
@@ -156,9 +156,17 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(28), solute(15), medium(7) ! important information
+real(8) :: temp, timestep, primary(5), secondary(59), solute(15), medium(7) ! important information
 
 ! STRINGS
+
+character(len=50) :: s_akermanite, s_analcime, s_annite, s_clinozoisite, s_dicalcium_silicate
+character(len=50) :: s_diopside, s_epidote, s_ettringite, s_ferrite_ca, s_foshagite
+character(len=50) :: s_gismondine, s_gyrolite, s_hedenbergite, s_hillebrandite, s_larnite
+character(len=50) :: s_laumontite, s_lawsonite, s_merwinite, s_monticellite, s_natrolite
+character(len=50) :: s_okenite, s_phlogopite, s_prehnite, s_pseudowollastonite, s_rankinite 
+character(len=50) :: s_scolecite, s_tobermorite_9a, s_tremolite, s_wollastonite, s_xonotlite 
+character(len=50) :: s_zoisite
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
 character(len=50) :: s_sio2, s_albite, s_calcite, s_mont_na, s_smectite, s_saponite ! secondary
 character(len=50) :: s_stilbite, s_dawsonite, s_magnesite, s_clinoptilolite, s_pyrite ! secondary
@@ -231,6 +239,38 @@ write(s_muscovite,'(F25.10)') secondary(25)
 write(s_mesolite,'(F25.10)') secondary(26)
 write(s_hematite,'(F25.10)') secondary(27)
 write(s_diaspore,'(F25.10)') secondary(28)
+! MINERALS ADDED 10/18/2104
+write(s_akermanite,'(F25.10)') secondary(29)
+write(s_analcime,'(F25.10)') secondary(30)
+write(s_annite,'(F25.10)') secondary(31)
+write(s_clinozoisite,'(F25.10)') secondary(32)
+write(s_dicalcium_silicate,'(F25.10)') secondary(33)
+write(s_diopside,'(F25.10)') secondary(34)
+write(s_epidote,'(F25.10)') secondary(35)
+write(s_ettringite,'(F25.10)') secondary(36)
+write(s_ferrite_ca,'(F25.10)') secondary(37)
+write(s_foshagite,'(F25.10)') secondary(38)
+write(s_gismondine,'(F25.10)') secondary(39)
+write(s_gyrolite,'(F25.10)') secondary(40)
+write(s_hedenbergite,'(F25.10)') secondary(41)
+write(s_hillebrandite,'(F25.10)') secondary(42)
+write(s_larnite,'(F25.10)') secondary(43)
+write(s_laumontite,'(F25.10)') secondary(44)
+write(s_lawsonite,'(F25.10)') secondary(45)
+write(s_merwinite,'(F25.10)') secondary(46)
+write(s_monticellite,'(F25.10)') secondary(47)
+write(s_natrolite,'(F25.10)') secondary(48)
+write(s_okenite,'(F25.10)') secondary(49)
+write(s_phlogopite,'(F25.10)') secondary(50)
+write(s_prehnite,'(F25.10)') secondary(51)
+write(s_pseudowollastonite,'(F25.10)') secondary(52)
+write(s_rankinite,'(F25.10)') secondary(53)
+write(s_scolecite,'(F25.10)') secondary(54)
+write(s_tobermorite_9a,'(F25.10)') secondary(55)
+write(s_tremolite,'(F25.10)') secondary(56)
+write(s_wollastonite,'(F25.10)') secondary(57)
+write(s_xonotlite,'(F25.10)') secondary(58)
+write(s_zoisite,'(F25.10)') secondary(59)
 
 
 ! OTHER INFORMATION TO STRINGS
@@ -314,7 +354,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"    Nontronite-H 0.0 " // trim(s_nont_h) //NEW_LINE('')// &
  &"    Nontronite-Ca 0.0 " // trim(s_nont_ca) //NEW_LINE('')// &
  &"    Muscovite 0.0 " // trim(s_muscovite) //NEW_LINE('')// &
-! &"    Mesolite 0.0 " // trim(s_mesolite) //NEW_LINE('')// & !!!!!!!!
+ &"    Mesolite 0.0 " // trim(s_mesolite) //NEW_LINE('')// & !!!!!!!!
  &"    Hematite 0.0 " // trim(s_hematite) //NEW_LINE('')// &
  &"    Diaspore 0.0 " // trim(s_diaspore) //NEW_LINE('')// &
 
@@ -324,8 +364,43 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 !!!! &"    Quartz 0.0 0.0" //NEW_LINE('')// &
  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
-! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+ &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
 ! &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
+
+!! MINERALS ADDED 10/18/2014
+ &"    Akermanite 0.0 " // trim(s_akermanite) //NEW_LINE('')// &
+ &"    Analcime 0.0 " // trim(s_analcime) //NEW_LINE('')// &
+ &"    Annite 0.0 " // trim(s_annite) //NEW_LINE('')// &
+ &"    Clinozoisite 0.0 " // trim(s_clinozoisite) //NEW_LINE('')// &
+ &"    Dicalcium_silicate 0.0 " // trim(s_dicalcium_silicate) //NEW_LINE('')// &
+ &"    Diopside 0.0 " // trim(s_diopside) //NEW_LINE('')// &
+ &"    Epidote  0.0 " // trim(s_epidote ) //NEW_LINE('')// &
+ &"    Ettringite 0.0 " // trim(s_ettringite) //NEW_LINE('')// &
+ &"    Ferrite-Ca 0.0 " // trim(s_ferrite_ca) //NEW_LINE('')// &
+ &"    Foshagite 0.0 " // trim(s_foshagite) //NEW_LINE('')// &
+ &"    Gismondine 0.0 " // trim(s_gismondine) //NEW_LINE('')// &
+ &"    Gyrolite 0.0 " // trim(s_gyrolite) //NEW_LINE('')// &
+ &"    Hedenbergite 0.0 " // trim(s_hedenbergite) //NEW_LINE('')// &
+ &"    Hillebrandite 0.0 " // trim(s_hillebrandite) //NEW_LINE('')// &
+ &"    Larnite 0.0 " // trim(s_Larnite) //NEW_LINE('')// &
+ &"    Laumontite 0.0 " // trim(s_laumontite) //NEW_LINE('')// &
+ &"    Lawsonite 0.0 " // trim(s_lawsonite) //NEW_LINE('')// &
+ &"    Merwinite 0.0 " // trim(s_merwinite) //NEW_LINE('')// &
+ &"    Monticellite 0.0 " // trim(s_monticellite) //NEW_LINE('')// &
+ &"    Natrolite 0.0 " // trim(s_natrolite) //NEW_LINE('')// &
+ &"    Okenite 0.0 " // trim(s_okenite) //NEW_LINE('')// &
+ &"    Phlogopite 0.0 " // trim(s_phlogopite) //NEW_LINE('')// &
+ &"    Prehnite 0.0 " // trim(s_prehnite) //NEW_LINE('')// &
+ &"    Pseudowollastonite 0.0 " // trim(s_pseudowollastonite) //NEW_LINE('')// &
+ &"    Rankinite 0.0 " // trim(s_rankinite) //NEW_LINE('')// &
+ &"    Scolecite 0.0 " // trim(s_scolecite) //NEW_LINE('')// &
+ &"    Tobermorite-9A 0.0 " // trim(s_tobermorite_9a) //NEW_LINE('')// &
+ &"    Tremolite 0.0 " // trim(s_tremolite) //NEW_LINE('')// &
+ &"    Wollastonite 0.0 " // trim(s_wollastonite) //NEW_LINE('')// &
+ &"    Xonotlite 0.0 " // trim(s_xonotlite) //NEW_LINE('')// &
+ &"    Zoisite 0.0 " // trim(s_zoisite) //NEW_LINE('')// &
+
+ 
  
 &"SAVE solution 1"  //NEW_LINE('')// &
 &"SAVE equilibrium_phases 1"  //NEW_LINE('')// &
@@ -549,6 +624,13 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -p Anhydrite siderite calcite quartz k-feldspar" //NEW_LINE('')// &
   &"    -p saponite-na Nontronite-Na Nontronite-Mg Nontronite-K Nontronite-H " //NEW_LINE('')// &
   &"    -p Nontronite-Ca muscovite mesolite hematite diaspore" //NEW_LINE('')// &
+  ! NEW MINERALS ADDED 10/18/2014
+  &"    -p Akermanite Analcime Annite Clinozoisite Dicalcium_silicate" //NEW_LINE('')// &
+  &"    -p Diopside Epidote Ettringite Ferrite-Ca Foshagite Gismondine" //NEW_LINE('')// &
+  &"    -p Gyrolite Hedenbergite Hillebrandite Larnite Laumontite" //NEW_LINE('')// &
+  &"    -p Lawsonite Merwinite Monticellite Natrolite Okenite" //NEW_LINE('')// &
+  &"    -p Phlogopite Prehnite Pseudowollastonite Rankinite Scolecite" //NEW_LINE('')// &
+  &"    -p Tobermorite-9A Tremolite Wollastonite Xonotlite  Zoisite" //NEW_LINE('')// &
   &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
 &"END"
@@ -600,8 +682,15 @@ IF (RunString(id, inputz0).NE.0) THEN
 	write(*,*) "temp"
 	write(*,*) temp
 	!STOP
-	! if errror run a different equilibrium phases scenario?
 END IF
+
+! if errror print dump. look for other phases.
+! if (temp .LT. 8.0) then
+! 	DO i=1,GetOutputStringLineCount(id)
+! 		call GetOutputStringLine(id, i, line)
+! 		write(*,*) trim(line)
+! 	END DO
+! end if
   
 ! PRINT DUMP/OUTPUT
 DO i=1,GetOutputStringLineCount(id)
