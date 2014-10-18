@@ -26,8 +26,8 @@ print "doing something..."
 cell = 4
 steps = 400
 
-path = "output/lowCa/"
-#path = ""
+path = "output/big/"
+path = ""
 
 
 #htest = np.loadtxt(path + 'steady_h.txt')
@@ -70,7 +70,7 @@ xg, yg = np.meshgrid(x[:],y[:])
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sol_c.txt')
+geo0 = np.loadtxt(path + 'pri_glass.txt')
 
 # format output
 geo00 = np.zeros(steps)
@@ -172,8 +172,12 @@ for i in range(0,steps,5):
     ax1=fig.add_subplot(1,1,1, aspect='equal')
 
     #contours = np.round(np.arange(0.0,np.max(ca0),np.max(ca0)/10.0),6)
+
+    
     geoContours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
-                         (np.max(geo00)-np.min(geo0))/10.0)
+                        (np.max(geo00)-np.min(geo0))/10.0)
+
+    
     #ticks=np.arange(0.000,0.0028,.0004)
     #contours = np.arange(0.0020,0.0032,0.0004)
     #contours = np.arange(0.0,.162,0.02)
@@ -183,14 +187,14 @@ for i in range(0,steps,5):
     print yCell[:-1].shape
 
     # plot chem
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, geoContours, cmap=cm.YlOrRd)
+    pGlass = plt.contourf(xCell, yCell[:-1], geo, 10, cmap=cm.YlOrRd)
     contoursPsi = np.arange(np.min(steady_psi),np.max(steady_psi)+(np.max(steady_psi)-np.min(steady_psi))/10.0,
                          (np.max(steady_psi)-np.min(steady_psi))/10.0)
     CS = plt.contour(xg, yg, steady_psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))
 
 
     # formatting
-    theTicks = geoContours
+    #theTicks = geoContours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
     cbar.ax.set_xlabel('DISSOLVED INORGANIC CARBON [mol/kgw]')
     plt.xlabel('x [m]')
@@ -199,7 +203,7 @@ for i in range(0,steps,5):
     plt.title('t = ' + str(i*16) + ' years')
 
     
-    plt.savefig(path + 'plot_geochem' + str(i) + '.png')
+    plt.savefig(path + 'plot_geochem_' + str(i) + '.png')
 
 
 

@@ -262,7 +262,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 !&"    C " // trim(s_hco3) // "as HCO3-" //NEW_LINE('')// &
 !&"    Alkalinity " // trim(s_alk) // " as HCO3-" //NEW_LINE('')// &
 !&"    -water		5.0	# kg" //NEW_LINE('')// &
-&"    -water "// trim(s_water) //NEW_LINE('')// &
+&"    -water "// trim(s_w) //NEW_LINE('')// &
 
 
 ! inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
@@ -290,7 +290,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   
 &"EQUILIBRIUM_PHASES 1" //NEW_LINE('')// &
 !&"    CO2(g) -3.25 1000" //NEW_LINE('')// &
-&"    Kaolinite 0.0 " // trim(s_kaolinite) //NEW_LINE('')// &
+&"    Kaolinite 0.0 " // trim(s_kaolinite)  //NEW_LINE('')// &
 &"    Goethite 0.0 " // trim(s_goethite) //NEW_LINE('')// &
 &"    Celadonite 0.0 " // trim(s_celadonite) //NEW_LINE('')// &
 &"    SiO2(am) 0.0 " // trim(s_sio2) //NEW_LINE('')// &
@@ -327,16 +327,17 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 ! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
 ! &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
  
-!&"SAVE solution 1" // trim(s_siderite) //NEW_LINE('')// &
-!&"SAVE equilibrium_phases 1" // trim(s_siderite) //NEW_LINE('')// &
-!&"END" // trim(s_siderite) //NEW_LINE('')// &
+&"SAVE solution 1"  //NEW_LINE('')// &
+&"SAVE equilibrium_phases 1"  //NEW_LINE('')// &
+&"END"  //NEW_LINE('')// &
 
 
 ! ----------------------------------%%
 ! PRIMARY (KINETIC) CONSTITUENTS
 ! ----------------------------------%%
 
-
+&"Use solution 1" //NEW_LINE('')// &
+&"Use equilibrium_phases 1" //NEW_LINE('')// &
 &"KINETICS" //NEW_LINE('')// &
 &"Plagioclase" //NEW_LINE('')// &
 &"-m0 " // trim(s_feldspar) //NEW_LINE('')// &
@@ -382,8 +383,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    -step " // trim(s_timestep) // " in 1" //NEW_LINE('')// &
 
 &"INCREMENTAL_REACTIONS true" //NEW_LINE('')// &
-!&"Use solution 1" //NEW_LINE('')// &
-!&"Use equilibrium_phases 1" //NEW_LINE('')// &
+
 
     
 ! ----------------------------------%%
@@ -510,6 +510,10 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"100 SAVE s_sp" //NEW_LINE('')// &
 &"-end" //NEW_LINE('')// &
 
+
+!&"END" //NEW_LINE('')// &
+
+
 ! ----------------------------------%%
 ! KNOBS FOR SOLVERS AND STUFF
 ! ----------------------------------%%
@@ -548,6 +552,17 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
 &"END"
+  
+! write(*,*) "primary"
+! write(*,*) primary
+! write(*,*) "secondary"
+! write(*,*) secondary
+! write(*,*) "solute"
+! write(*,*) solute
+! write(*,*) "medium"
+! write(*,*) medium
+! write(*,*) "temp"
+! write(*,*) temp
   
   
 ! INITIALIZE STUFF

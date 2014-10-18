@@ -202,11 +202,11 @@ real(8) :: medLongBit((xn/cell)*(yn/cell)), medLocalBit((xn/cell)*(yn/cell))
 
 ! primary minerals [mol]
 primary(:,:,:) = 0.0
-primary(:,:,1) = 12.96 ! feldspar
-primary(:,:,2) = 6.96 ! augite
-primary(:,:,3) = 1.26 ! pigeonite
-primary(:,:,4) = .4 ! magnetite
-primary(:,:,5) = 96.77 ! basaltic glass
+primary(:,:,1) = 129600.0 ! feldspar
+primary(:,:,2) = 69600.0 ! augite
+primary(:,:,3) = 12600.0 ! pigeonite
+primary(:,:,4) = 4000.0 ! magnetite
+primary(:,:,5) = 967700.0 ! basaltic glass
 
 ! secondary minerals [mol]
 secondary(:,:,:) = 0.0
@@ -249,8 +249,8 @@ secondary(:,:,:) = 0.0
 
 ! today
 solute(:,:,1) = 7.8 ! ph
-solute(:,:,2) = 8.4 ! pe
-solute(:,:,3) = .0023 ! Alk 1.6e-3
+solute(:,:,2) = .0023 ! Alk 1.6e-3
+solute(:,:,3) = 3860.0 ! water mass
 solute(:,:,4) = .0023 !1.2e-2 ! H2CO3
 solute(:,:,5) = .0105 ! Ca
 solute(:,:,6) = .0533 ! Mg
@@ -273,10 +273,14 @@ soluteOcean = (/ solute(1,1,1), solute(1,1,2), solute(1,1,3), solute(1,1,4), sol
 medium(:,:,1) = 0.0 ! phi 
 medium(:,:,2) = 0.0 ! s_sp
 !medium(:,:,3) = .386 ! water_volume
-medium(:,:,3) = .386 ! water_volume
+medium(:,:,3) = 3860.0 ! water_volume
 !medium(:,1:(xn/cell)*(5/13),3) = .03 ! water_volume
 medium(:,:,4) = 0.0 ! rho_s
 medium(:,:,5) = 1.0 ! rxn toggle
+!medium(1,:,5) = 0.0
+!medium(xn/cell,:,5) = 0.0
+!medium(:,1,5) = 0.0
+!medium(:,yn/cell,5) = 0.0
 medium(:,:,6) = 0.0 ! x-coord
 medium(:,:,7) = 0.0 ! y-coord
 
@@ -827,50 +831,50 @@ do j = 2, tn
 					solute(i,yn/cell,n) = (soluteOcean(n))
 				end if
 			end do
-			solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
-			solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
-								& (1.0/3.0)*solute(3,:,n)  ! left
-			solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
-								& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
+! 			solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
+! 			solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
+! 								& (1.0/3.0)*solute(3,:,n)  ! left
+! 			solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
+! 								& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
 		end do
-		
-		n=1 ! ph
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=2 ! pe
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=4 ! c
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=5 ! ca
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=6 ! mg
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=7 ! na
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=8 ! k
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=9 ! fe
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=10 ! s issues
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=11 ! si
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=12 ! cl
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		n=13 ! al
- 		solTemp = solute(:,:,n)
- 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-		
+		!
+! 		n=1 ! ph
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=2 ! pe
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=4 ! c
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=5 ! ca
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=6 ! mg
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=7 ! na
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=8 ! k
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=9 ! fe
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=10 ! s issues
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=11 ! si
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=12 ! cl
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 		n=13 ! al
+!  		solTemp = solute(:,:,n)
+!  		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+!
 
 		
 	
@@ -1080,6 +1084,12 @@ else
 			
 			if (medLocal(m,5) .eq. 1.0) then
 				! run the phreeqc alteration model
+! 				write(*,*) "pri local"
+! 				write(*,*) priLocal(m,:)
+! 				write(*,*) "sec local"
+! 				write(*,*) secLocal(m,:)
+! 				write(*,*) "sol local"
+! 				write(*,*) solLocal(m,:)
 				alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
 						    secLocal(m,:),solLocal(m,:),medLocal(m,:))
 			end if
@@ -1102,6 +1112,8 @@ else
 
 			! print something you want to look at
 			!write(*,*) medLocal(m,3) ! water
+			
+			!write(*,*) alt0
 			
 		end do
 		
