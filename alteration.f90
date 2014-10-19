@@ -122,12 +122,12 @@ contains
 function alter ( temp, timestep, primary, secondary, solute, medium)
 
 implicit none
-INTEGER(KIND=4) :: id, all=147
+INTEGER(KIND=4) :: id, all=167
 INTEGER(KIND=4) :: i, order
 CHARACTER(LEN=63200) :: line
 character(len=63200) :: inputz0
 character(len=4) :: fake_in
-real(8) :: alter(1,147)
+real(8) :: alter(1,167)
 real(8), allocatable :: outmat(:,:)
 
 
@@ -156,7 +156,7 @@ real(8), allocatable :: outmat(:,:)
 ! REAL GRABS
 real(8) :: glass ! primary
 real(8) :: siderite ! secondary
-real(8) :: temp, timestep, primary(5), secondary(59), solute(15), medium(7) ! important information
+real(8) :: temp, timestep, primary(5), secondary(69), solute(15), medium(7) ! important information
 
 ! STRINGS
 
@@ -167,6 +167,8 @@ character(len=50) :: s_laumontite, s_lawsonite, s_merwinite, s_monticellite, s_n
 character(len=50) :: s_okenite, s_phlogopite, s_prehnite, s_pseudowollastonite, s_rankinite 
 character(len=50) :: s_scolecite, s_tobermorite_9a, s_tremolite, s_wollastonite, s_xonotlite 
 character(len=50) :: s_zoisite
+character(len=50) :: s_andradite, s_troilite, s_pyrrhotite, s_minnesotaite, s_fayalite, s_daphnite_7a
+character(len=50) :: s_daphnite_14a, s_cronstedtite_7a, s_greenalite, s_aragonite
 character(len=50) :: s_siderite, s_kaolinite, s_goethite, s_dolomite, s_celadonite ! secondary
 character(len=50) :: s_sio2, s_albite, s_calcite, s_mont_na, s_smectite, s_saponite ! secondary
 character(len=50) :: s_stilbite, s_dawsonite, s_magnesite, s_clinoptilolite, s_pyrite ! secondary
@@ -271,6 +273,17 @@ write(s_tremolite,'(F25.10)') secondary(56)
 write(s_wollastonite,'(F25.10)') secondary(57)
 write(s_xonotlite,'(F25.10)') secondary(58)
 write(s_zoisite,'(F25.10)') secondary(59)
+!! NEXT ROUND
+write(s_andradite,'(F25.10)') secondary(60)
+write(s_troilite,'(F25.10)') secondary(61)
+write(s_pyrrhotite,'(F25.10)') secondary(62)
+write(s_minnesotaite,'(F25.10)') secondary(63)
+write(s_fayalite,'(F25.10)') secondary(64)
+write(s_daphnite_7a,'(F25.10)') secondary(65)
+write(s_daphnite_14a,'(F25.10)') secondary(66)
+write(s_cronstedtite_7a,'(F25.10)') secondary(67)
+write(s_greenalite,'(F25.10)') secondary(68)
+write(s_aragonite,'(F25.10)') secondary(69)
 
 
 ! OTHER INFORMATION TO STRINGS
@@ -399,8 +412,17 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"    Wollastonite 0.0 " // trim(s_wollastonite) //NEW_LINE('')// &
  &"    Xonotlite 0.0 " // trim(s_xonotlite) //NEW_LINE('')// &
  &"    Zoisite 0.0 " // trim(s_zoisite) //NEW_LINE('')// &
-
- 
+ !! NEXT ROUND
+ &"   Andradite 0.0 " // trim(s_andradite) //NEW_LINE('')// &
+ &"   Troilite 0.0 " // trim(s_troilite) //NEW_LINE('')// &
+ &"   Pyrrhotite 0.0 " // trim(s_pyrrhotite) //NEW_LINE('')// &
+ &"   Minnesotaite 0.0 " // trim(s_minnesotaite) //NEW_LINE('')// &
+ &"   Fayalite 0.0 " // trim(s_fayalite) //NEW_LINE('')// &
+ &"   Daphnite-7a 0.0 " // trim(s_daphnite_7a) //NEW_LINE('')// &
+ &"   Daphnite-14a 0.0 " // trim(s_daphnite_14a) //NEW_LINE('')// &
+ &"   Cronstedtite-7a 0.0 " // trim(s_cronstedtite_7a) //NEW_LINE('')// &
+ &"   Greenalite 0.0 " // trim(s_greenalite) //NEW_LINE('')// &
+ &"   Aragonite 0.0 " // trim(s_aragonite) //NEW_LINE('')// &
  
 &"SAVE solution 1"  //NEW_LINE('')// &
 &"SAVE equilibrium_phases 1"  //NEW_LINE('')// &
@@ -631,6 +653,9 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
   &"    -p Lawsonite Merwinite Monticellite Natrolite Okenite" //NEW_LINE('')// &
   &"    -p Phlogopite Prehnite Pseudowollastonite Rankinite Scolecite" //NEW_LINE('')// &
   &"    -p Tobermorite-9A Tremolite Wollastonite Xonotlite  Zoisite" //NEW_LINE('')// &
+  ! NEXT ROUND
+  &"    -p Andradite Troilite Pyrrhotite Minnesotaite Fayalite Daphnite-7A" //NEW_LINE('')// &
+  &"    -p Daphnite-14A Cronstedtite-7A Greenalite Aragonite" //NEW_LINE('')// &
   &"    -calculate_values R(phi) R(s_sp) R(water_volume) R(rho_s)" //NEW_LINE('')// &
   &"    -time" //NEW_LINE('')// &
 &"END"
@@ -684,8 +709,8 @@ IF (RunString(id, inputz0).NE.0) THEN
 	!STOP
 END IF
 
-! if errror print dump. look for other phases.
-! if (temp .LT. 8.0) then
+! ! !if errror print dump. look for other phases.
+! if ((temp .GT. 35.0) .and. (temp .LT. 40.0)) then
 ! 	DO i=1,GetOutputStringLineCount(id)
 ! 		call GetOutputStringLine(id, i, line)
 ! 		write(*,*) trim(line)

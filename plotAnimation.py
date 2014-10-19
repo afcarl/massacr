@@ -24,7 +24,8 @@ print "doing something..."
 #####################
 
 cell = 4
-steps = 400
+#steps = 400
+steps = 10
 
 path = "output/big/"
 path = ""
@@ -70,7 +71,7 @@ xg, yg = np.meshgrid(x[:],y[:])
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'pri_glass.txt')
+geo0 = np.loadtxt(path + 'sol_mg.txt')
 
 # format output
 geo00 = np.zeros(steps)
@@ -124,7 +125,7 @@ plt.xlim(np.min(x), np.max(x))
 plt.savefig(path + 'plot_circulation.png')
 
     
-for i in range(0,steps,5): 
+for i in range(0,steps,1): 
     #i=1
 
 
@@ -187,7 +188,7 @@ for i in range(0,steps,5):
     print yCell[:-1].shape
 
     # plot chem
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, 10, cmap=cm.YlOrRd)
+    pGlass = plt.contourf(xCell, yCell[:-1], geo, geoContours, cmap=cm.YlOrRd)
     contoursPsi = np.arange(np.min(steady_psi),np.max(steady_psi)+(np.max(steady_psi)-np.min(steady_psi))/10.0,
                          (np.max(steady_psi)-np.min(steady_psi))/10.0)
     CS = plt.contour(xg, yg, steady_psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))

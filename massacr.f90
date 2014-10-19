@@ -85,8 +85,8 @@ interface
 		! declare yo shit
 		integer :: order
 		real(8) :: temp, timestep
-		real(8) :: alt_next(1,147)
-		real(8) :: alter0(1,147)
+		real(8) :: alt_next(1,167)
+		real(8) :: alter0(1,167)
 		real(8) :: primaryList(g_pri), secondaryList(g_sec), soluteList(g_sol), mediumList(g_med)
 	end function alt_next
 
@@ -1109,13 +1109,15 @@ else
 			alt0(1,86), alt0(1,88), alt0(1,90), alt0(1,92), alt0(1,94), alt0(1,96), alt0(1,98), &
 			alt0(1,100), alt0(1,102), alt0(1,104), alt0(1,106), alt0(1,108), alt0(1,110), alt0(1,112), &
 			alt0(1,114), alt0(1,116), alt0(1,118), alt0(1,120), alt0(1,122), alt0(1,124), alt0(1,126), &
-			alt0(1,128), alt0(1,130), alt0(1,132) /)
+			alt0(1,128), alt0(1,130), alt0(1,132), &
+			alt0(1,134), alt0(1,136), alt0(1,138), alt0(1,140), alt0(1,142), alt0(1,144), alt0(1,146), &
+			alt0(1,148), alt0(1,150), alt0(1,152) /)
 
 			!priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
-			priLocal(m,:) = (/ alt0(1,134), alt0(1,136), alt0(1,138), alt0(1,140), alt0(1,142)/)
+			priLocal(m,:) = (/ alt0(1,154), alt0(1,156), alt0(1,158), alt0(1,160), alt0(1,162)/)
 			
 			!medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,4)/)
-			medLocal(m,1:4) = (/ alt0(1,144), alt0(1,145), alt0(1,146), alt0(1,4)/)
+			medLocal(m,1:4) = (/ alt0(1,164), alt0(1,165), alt0(1,166), alt0(1,4)/)
 
 			! print something you want to look at
 			!write(*,*) medLocal(m,3) ! water
@@ -1881,8 +1883,8 @@ end interface
 
 integer :: order
 real(8) :: temp, timestep
-real(8) :: alt_next(1,147)
-real(8) :: alter0(1,147)
+real(8) :: alt_next(1,167)
+real(8) :: alter0(1,167)
 real(8) :: primaryList(g_pri), secondaryList(g_sec), soluteList(g_sol), mediumList(g_med)
 
 ! use the alteration module
