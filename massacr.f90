@@ -628,7 +628,7 @@ do j = 2, tn
 		! actual boundary conditions
 		do n=1,g_sol
 			!solute(:,yn/cell,n) = (soluteOcean(n)) ! top
-			do i=1,(yn/cell)
+			do i=2,(yn/cell)-1
 				if (vTransport(i,yn/cell) .lt. 0.0) then
 					solute(i,yn/cell,n) = (soluteOcean(n)) * 1.2
 					! trying this...
@@ -1096,34 +1096,34 @@ else
 ! 				write(*,*) secLocal(m,:)
 ! 				write(*,*) "sol local"
 ! 				write(*,*) solLocal(m,:)
-! 				alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
-! 						    secLocal(m,:),solLocal(m,:),medLocal(m,:))
+ 				alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
+ 						    secLocal(m,:),solLocal(m,:),medLocal(m,:))
 			end if
 
 
-! 			! parse the phreeqc output
-! 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
-! 			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
-! 			alt0(1,13), alt0(1,14), alt0(1,15), 0.0D+00/)
-!
-! 			secLocal(m,:) = (/ alt0(1,16), alt0(1,18), alt0(1,20), &
-! 			alt0(1,22), alt0(1,24), alt0(1,26), alt0(1,28), alt0(1,30), alt0(1,32), alt0(1,34), &
-! 			alt0(1,36), alt0(1,38), alt0(1,40), alt0(1,42), alt0(1,44), alt0(1,46), alt0(1,48), &
-! 			alt0(1,50), alt0(1,52), alt0(1,54), alt0(1,56), alt0(1,58), alt0(1,60), alt0(1,62), &
-! 			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70), &
-! 			alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80), alt0(1,82), alt0(1,84), &
-! 			alt0(1,86), alt0(1,88), alt0(1,90), alt0(1,92), alt0(1,94), alt0(1,96), alt0(1,98), &
-! 			alt0(1,100), alt0(1,102), alt0(1,104), alt0(1,106), alt0(1,108), alt0(1,110), alt0(1,112), &
-! 			alt0(1,114), alt0(1,116), alt0(1,118), alt0(1,120), alt0(1,122), alt0(1,124), alt0(1,126), &
-! 			alt0(1,128), alt0(1,130), alt0(1,132), &
-! 			alt0(1,134), alt0(1,136), alt0(1,138), alt0(1,140), alt0(1,142), alt0(1,144), alt0(1,146), &
-! 			alt0(1,148), alt0(1,150), alt0(1,152) /)
-!
-! 			!priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
-! 			priLocal(m,:) = (/ alt0(1,154), alt0(1,156), alt0(1,158), alt0(1,160), alt0(1,162)/)
-!
-! 			!medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,4)/)
-! 			medLocal(m,1:4) = (/ alt0(1,164), alt0(1,165), alt0(1,166), alt0(1,4)/)
+			! parse the phreeqc output
+			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
+			alt0(1,13), alt0(1,14), alt0(1,15), 0.0D+00/)
+
+			secLocal(m,:) = (/ alt0(1,16), alt0(1,18), alt0(1,20), &
+			alt0(1,22), alt0(1,24), alt0(1,26), alt0(1,28), alt0(1,30), alt0(1,32), alt0(1,34), &
+			alt0(1,36), alt0(1,38), alt0(1,40), alt0(1,42), alt0(1,44), alt0(1,46), alt0(1,48), &
+			alt0(1,50), alt0(1,52), alt0(1,54), alt0(1,56), alt0(1,58), alt0(1,60), alt0(1,62), &
+			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70), &
+			alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80), alt0(1,82), alt0(1,84), &
+			alt0(1,86), alt0(1,88), alt0(1,90), alt0(1,92), alt0(1,94), alt0(1,96), alt0(1,98), &
+			alt0(1,100), alt0(1,102), alt0(1,104), alt0(1,106), alt0(1,108), alt0(1,110), alt0(1,112), &
+			alt0(1,114), alt0(1,116), alt0(1,118), alt0(1,120), alt0(1,122), alt0(1,124), alt0(1,126), &
+			alt0(1,128), alt0(1,130), alt0(1,132), &
+			alt0(1,134), alt0(1,136), alt0(1,138), alt0(1,140), alt0(1,142), alt0(1,144), alt0(1,146), &
+			alt0(1,148), alt0(1,150), alt0(1,152) /)
+
+			!priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
+			priLocal(m,:) = (/ alt0(1,154), alt0(1,156), alt0(1,158), alt0(1,160), alt0(1,162)/)
+
+			!medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,4)/)
+			medLocal(m,1:4) = (/ alt0(1,164), alt0(1,165), alt0(1,166), alt0(1,4)/)
 
 			! print something you want to look at
 			!write(*,*) medLocal(m,3) ! water

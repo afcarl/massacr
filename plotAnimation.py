@@ -25,7 +25,7 @@ print "doing something..."
 
 cell = 4
 #steps = 400
-steps =40
+steps =50
 
 path = "output/big/"
 path = ""
@@ -125,7 +125,7 @@ plt.xlim(np.min(x), np.max(x))
 plt.savefig(path + 'plot_circulation.png')
 
     
-for i in range(0,steps,1): 
+for i in range(0,steps,5): 
     #i=1
 
 
@@ -177,6 +177,7 @@ for i in range(0,steps,1):
     
     geoContours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/20.0,
                         (np.max(geo00)-np.min(geo0))/20.0)
+    geoContours = np.linspace(0.0,0.0023,20)
 
     
     #ticks=np.arange(0.000,0.0028,.0004)
@@ -188,7 +189,7 @@ for i in range(0,steps,1):
     print yCell[:-1].shape
 
     # plot chem
-    pGlass = plt.contourf(xCell, yCell[:-1], geo, geoContours, cmap=cm.YlOrRd)
+    pGlass = plt.contourf(xCell, yCell[:-1], geo, geoContours, cmap=cm.bone)
     contoursPsi = np.arange(np.min(steady_psi),np.max(steady_psi)+(np.max(steady_psi)-np.min(steady_psi))/10.0,
                          (np.max(steady_psi)-np.min(steady_psi))/10.0)
     CS = plt.contour(xg, yg, steady_psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))
@@ -201,10 +202,10 @@ for i in range(0,steps,1):
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     
-    plt.title('t = ' + str(i*16) + ' years')
+    plt.title('t = ' + str(i*160) + ' years')
 
     
-    plt.savefig(path + 'plot_l_' + str(i) + '.png')
+    plt.savefig(path + 'plot_n_' + str(i) + '.png')
 
 
 
