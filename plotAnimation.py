@@ -25,7 +25,7 @@ print "doing something..."
 
 cell = 4
 #steps = 400
-steps = 10
+steps =40
 
 path = "output/big/"
 path = ""
@@ -71,7 +71,7 @@ xg, yg = np.meshgrid(x[:],y[:])
 feldspar0 = np.loadtxt(path + 'pri_feldspar.txt') 
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
-geo0 = np.loadtxt(path + 'sol_mg.txt')
+geo0 = np.loadtxt(path + 'sol_c.txt')
 
 # format output
 geo00 = np.zeros(steps)
@@ -175,8 +175,8 @@ for i in range(0,steps,1):
     #contours = np.round(np.arange(0.0,np.max(ca0),np.max(ca0)/10.0),6)
 
     
-    geoContours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
-                        (np.max(geo00)-np.min(geo0))/10.0)
+    geoContours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/20.0,
+                        (np.max(geo00)-np.min(geo0))/20.0)
 
     
     #ticks=np.arange(0.000,0.0028,.0004)
@@ -204,7 +204,7 @@ for i in range(0,steps,1):
     plt.title('t = ' + str(i*16) + ' years')
 
     
-    plt.savefig(path + 'plot_geochem_' + str(i) + '.png')
+    plt.savefig(path + 'plot_l_' + str(i) + '.png')
 
 
 

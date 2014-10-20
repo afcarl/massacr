@@ -184,6 +184,10 @@ real(8) :: water
 glass = 2.0
 siderite = 0.0
 
+! if (solute(6) .lt. 1e-10) then
+! 	solute(6) = 1e-10
+! end if
+
 ! SOLUTES TO STRINGS
 write(s_ph,'(F25.10)') solute(1)
 write(s_alk,'(F25.10)') solute(2)
@@ -421,7 +425,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"   Daphnite-7a 0.0 " // trim(s_daphnite_7a) //NEW_LINE('')// &
  &"   Daphnite-14a 0.0 " // trim(s_daphnite_14a) //NEW_LINE('')// &
  &"   Cronstedtite-7a 0.0 " // trim(s_cronstedtite_7a) //NEW_LINE('')// &
- &"   Greenalite 0.0 " // trim(s_greenalite) //NEW_LINE('')// &
+! &"   Greenalite 0.0 " // trim(s_greenalite) //NEW_LINE('')// &
  &"   Aragonite 0.0 " // trim(s_aragonite) //NEW_LINE('')// &
  
 &"SAVE solution 1"  //NEW_LINE('')// &
@@ -631,7 +635,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
   &"SELECTED_OUTPUT" //NEW_LINE('')// &
   &"    -reset false" //NEW_LINE('')// &
-!  &"    -high_precision true" //NEW_LINE('')// &
+  &"    -high_precision true" //NEW_LINE('')// &
   &"    -k plagioclase augite pigeonite magnetite bglass" //NEW_LINE('')// &
   &"    -ph" //NEW_LINE('')// &
   &"    -pe false" //NEW_LINE('')// &
