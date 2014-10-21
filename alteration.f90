@@ -191,7 +191,7 @@ siderite = 0.0
 ! SOLUTES TO STRINGS
 write(s_ph,'(F25.10)') solute(1)
 write(s_alk,'(F25.10)') solute(2)
-write(s_w,'(F25.10)') solute(3)
+write(s_w,'(F25.10)') medium(3)
 write(s_co2,'(F25.10)') solute(4)
 write(s_ca,'(F25.10)') solute(5)
 write(s_mg,'(F25.10)') solute(6)
@@ -381,7 +381,7 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 
 !!!! &"    Quartz 0.0 0.0" //NEW_LINE('')// &
  &"    Smectite-high-Fe-Mg 0.0 " // trim(s_smectite) //NEW_LINE('')// &
- &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
+! &"    Dolomite 0.0 " // trim(s_dolomite) //NEW_LINE('')// &
 ! &"    Siderite 0.0 " // trim(s_siderite) //NEW_LINE('')// &
 
 !! MINERALS ADDED 10/18/2014
@@ -426,8 +426,8 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
  &"   Daphnite-14a 0.0 " // trim(s_daphnite_14a) //NEW_LINE('')// &
  &"   Cronstedtite-7a 0.0 " // trim(s_cronstedtite_7a) //NEW_LINE('')// &
 ! &"   Greenalite 0.0 " // trim(s_greenalite) //NEW_LINE('')// &
- &"   Aragonite 0.0 " // trim(s_aragonite) //NEW_LINE('')// &
- 
+! &"   Aragonite 0.0 " // trim(s_aragonite) //NEW_LINE('')// &
+! no dolomite, aragonite
 &"SAVE solution 1"  //NEW_LINE('')// &
 &"SAVE equilibrium_phases 1"  //NEW_LINE('')// &
 &"END"  //NEW_LINE('')// &

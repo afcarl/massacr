@@ -1,10 +1,10 @@
 module globals
 save
 
-integer, parameter :: testInt = 31, xn =60, yn = 60, altnum = 167, mstep = 25000, cell = 4
-integer, parameter :: tn = 2000000, g_pri = 5, g_sec = 69, g_sol = 15, g_med = 7
+integer, parameter :: testInt = 31, xn =60, yn = 60, altnum = 167, mstep = 25000, cell = 10
+integer, parameter :: tn = 100000, g_pri = 5, g_sec = 69, g_sol = 15, g_med = 7
 real(8) :: x_min = 0.0D+00, x_max = 3000.0D+00, y_min = -1300.0D+00, y_max = 0.0D+00
-real(8) :: t_min = 0.0D+00, t_max = 400000000000.0 
+real(8) :: t_min = 0.0D+00, t_max = 20000000000.0 
 real(8) :: dt, dx, dy, dt0 = 0.001
 real(8) :: dPsi, psiLast(xn,yn)
 
