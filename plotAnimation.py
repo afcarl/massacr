@@ -23,12 +23,12 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 10
+cell = 4
 #steps = 400
-steps =4
+steps = 50
 
-path = "output/big/"
-path = ""
+path = "output/shift/"
+#path = ""
 
 
 #htest = np.loadtxt(path + 'steady_h.txt')
@@ -75,6 +75,10 @@ feldspar0 = np.loadtxt(path + 'pri_feldspar.txt')
 glass0 = np.loadtxt(path + 'pri_glass.txt')
 perm0 = np.loadtxt(path + 'permeability.txt')
 geo0 = np.loadtxt(path + 'sol_c.txt')
+sol_w0 = np.loadtxt(path + 'sol_w.txt')
+geo0 = geo0 * sol_w0
+geo0 = np.loadtxt(path + 'sec_calcite.txt')
+
 
 # format output
 geo00 = np.zeros(steps)
@@ -167,6 +171,10 @@ for i in range(0,steps,1):
     geo = np.append(geo, geo[-1:,:], axis=0)
     geo = np.append(geo, geo[:,-1:], axis=1)
 
+    sol_w = sol_w0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell),:]
+    sol_w = np.append(sol_w, sol_w[-1:,:], axis=0)
+    sol_w = np.append(sol_w, sol_w[:,-1:], axis=1)
+
 
     ###############
     # SECOND PLOT #
@@ -180,7 +188,9 @@ for i in range(0,steps,1):
     
     #geoContours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/20.0,
                     #(np.max(geo00)-np.min(geo0))/20.0)
-    #geoContours = np.linspace(0.00,0.0023,20)
+    geoContours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
+                    (np.max(geo00)-np.min(geo0))/10.0)
+    #geoContours = np.linspace(0.00,0.004,5)
 
     
     #ticks=np.arange(0.000,0.0028,.0004)
@@ -192,24 +202,31 @@ for i in range(0,steps,1):
     print geo.shape
     #print yCell[:-1].shape
 
+    print geo
     # plot chem
-    pGlass = plt.pcolor(xCell, yCell, geo, cmap=cm.autumn, linewidth=1.0, color='black')
+    
+    
+    pGlass = plt.pcolor(xCell, yCell, geo, vmin=np.min(geoContours), vmax=np.max(geoContours),
+                        cmap=cm.Spectral_r, linewidth=0.0, color='#444444')
+    #pGlass = plt.contourf(xCell, yCell, geo, geoContours,
+    #                    cmap=cm.Spectral_r, linewidth=1.0, color='black')
     contoursPsi = np.arange(np.min(steady_psi),np.max(steady_psi)+(np.max(steady_psi)-np.min(steady_psi))/10.0,
                          (np.max(steady_psi)-np.min(steady_psi))/10.0)
-    CS = plt.contour(xg, yg, steady_psi, contoursPsi, colors='#003399',linewidths=np.array([1.5]))
+    CS = plt.contour(xg, yg, steady_psi, contoursPsi, colors='black',linewidths=np.array([1.0]))
+    
 
 
     # formatting
     #theTicks = geoContours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('DISSOLVED INORGANIC CARBON CONCENTRATION [mol/kgw]')
+    cbar.ax.set_xlabel('CALCITE [mol]')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     
-    plt.title('t = ' + str(i*160) + ' years')
+    plt.title('t = ' + str(i*6400) + ' years')
 
     
-    plt.savefig(path + 'plot_e4_' + str(i) + '.png')
+    plt.savefig(path + 'plot_4y4_calcite_' + str(i) + '.png')
 
 
 

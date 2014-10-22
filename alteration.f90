@@ -311,13 +311,13 @@ inputz0 = "SOLUTION 1 " //NEW_LINE('')// &
 &"    Na " // trim(s_na) //NEW_LINE('')// &
 &"    K " // trim(s_k) //NEW_LINE('')// &
 &"    Fe " // trim(s_fe) //NEW_LINE('')// &
-&"    S(6) "// trim(s_s)  //NEW_LINE('')// &
+&"    S "// trim(s_s)  //NEW_LINE('')// &
 &"    Si " // trim(s_si) //NEW_LINE('')// &
 &"    Cl " // trim(s_cl) //NEW_LINE('')// &
 &"    Al " // trim(s_al) //NEW_LINE('')// &
 &"    C " // trim(s_co2) //NEW_LINE('')// &
 !&"    C " // trim(s_hco3) // "as HCO3-" //NEW_LINE('')// &
-!&"    Alkalinity " // trim(s_alk) // " as HCO3-" //NEW_LINE('')// &
+!&"    Alkalinity " // trim(s_alk) //NEW_LINE('')// &
 !&"    -water		5.0	# kg" //NEW_LINE('')// &
 &"    -water "// trim(s_w) //NEW_LINE('')// &
 
@@ -713,6 +713,8 @@ IF (RunString(id, inputz0).NE.0) THEN
 	!STOP
 END IF
 
+
+
 ! ! !if errror print dump. look for other phases.
 ! if ((temp .GT. 35.0) .and. (temp .LT. 40.0)) then
 ! 	DO i=1,GetOutputStringLineCount(id)
@@ -724,6 +726,9 @@ END IF
 ! PRINT DUMP/OUTPUT
 DO i=1,GetOutputStringLineCount(id)
 	call GetOutputStringLine(id, i, line)
+! 	if ((medium(6) .gt. 2800.0) .and. (medium(7) .lt. -1100.00)) then
+! 		write(*,*) trim(line)
+! 	end if
 	!write(*,*) trim(line)
 END DO
   
@@ -749,8 +754,12 @@ DO i=1,GetSelectedOutputStringLineCount(id)
 	end if
 	! MEAT
 	if (i .gt. 1) then
-		!write(*,*) trim(line)
+		if ((medium(6) .gt. 2800.0) .and. (medium(7) .lt. -1100.00)) then
+			!write(*,*) trim(line)
+		end if
+		
 		read(line,*) outmat(i,:)
+		
 		
 		!write(12,"(4F12.5)") outmat(i,:)
 		!!!!!write(12,*) outmat(i,:) ! this writes to file, which i don't need (USEFUL)

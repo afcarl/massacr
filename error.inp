@@ -1,5 +1,5 @@
 SOLUTION_RAW                 1 
-  -temp                      12.8904418945
+  -temp                      51.2341308594
   -pressure                  1
   -total_h                   nan
   -total_o                   nan
@@ -8,7 +8,7 @@ SOLUTION_RAW                 1
   -totals
     H(0)                     nan
     O(0)                     nan
-  -pH                        1.48531e-05
+  -pH                        11.0850614555
   -pe                        4
   -mu                        nan
   -ah2o                      1

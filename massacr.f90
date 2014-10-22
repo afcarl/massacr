@@ -630,7 +630,7 @@ do j = 2, tn
 			!solute(:,yn/cell,n) = (soluteOcean(n)) ! top
 			do i=1,(yn/cell)
 				if (vTransport(i,yn/cell) .lt. 0.0) then
-					!solute(i,yn/cell,n) = (soluteOcean(n)) ! last
+					solute(i,yn/cell,n) = (soluteOcean(n)) ! last
 					! trying this...
 ! 					solute(i,1,n) = (soluteOcean(n))
 ! 					solute(1,i,n) = (soluteOcean(n))
@@ -640,50 +640,50 @@ do j = 2, tn
 			!solute(:,1,n) = (soluteOcean(n)) ! last 
 			!solute(1,:,n) = (soluteOcean(n)) ! last 
 			!solute(yn/cell,:,n) = (soluteOcean(n)) ! last
-			! solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
-			! solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
-! 								& (1.0/3.0)*solute(3,:,n)  ! left
-! 			solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
-! 								& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
+			solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
+			solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
+								& (1.0/3.0)*solute(3,:,n)  ! left
+			solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
+								& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
 		end do
 		
 
-! 			n=1 ! ph
+			n=1 ! ph
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+! 			n=2 ! pe
 ! 	 		solTemp = solute(:,:,n)
 ! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! ! 			n=2 ! pe
-! ! 	 		solTemp = solute(:,:,n)
-! ! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=4 ! c
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=5 ! ca
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=6 ! mg
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=7 ! na
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=8 ! k
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=9 ! fe
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=10 ! s issues
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=11 ! si
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=12 ! cl
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
-! 			n=13 ! al
-! 	 		solTemp = solute(:,:,n)
-! 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=4 ! c
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=5 ! ca
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=6 ! mg
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=7 ! na
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=8 ! k
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=9 ! fe
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=10 ! s issues
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=11 ! si
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=12 ! cl
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
+			n=13 ! al
+	 		solTemp = solute(:,:,n)
+	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 
 ! 			! convert [H+], [e-] to pH, pe
 ! 			do i=1,xn/cell
@@ -722,7 +722,7 @@ write(*,*) maxval(solute(:,:,4))
 		! stretch everything out
 		
 		
-		hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
+		!hLong = reshape(h(1:xn-1:cell,1:yn-1:cell), (/(xn/cell)*(yn/cell)/)) ! for cell > 1
 		do i = 1,(xn/cell)*(yn/cell)
 			if (hLong(i) .gt. 305.0) then
 				!write(*,*) "old temp:"
@@ -731,7 +731,7 @@ write(*,*) maxval(solute(:,:,4))
 			end if
 		end do
 
-		!hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
+		hLong = reshape(h(1:xn:cell,1:yn:cell), (/(xn/cell)*(yn/cell)/)) ! for cell = 1
 		priLong = reshape(primary, (/(xn/cell)*(yn/cell), g_pri/))
 		secLong = reshape(secondary, (/(xn/cell)*(yn/cell), g_sec/))
 		solLong = reshape(solute, (/(xn/cell)*(yn/cell), g_sol/))
@@ -924,8 +924,8 @@ yep = write_matrix(xn/cell, yn*tn/(cell*mstep), real(secondaryMat(:,:,16),kind=4
 
 ! solute concentrations
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,1),kind=4), 'sol_ph.txt' )
-!yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,2),kind=4), 'sol_pe.txt' )
-yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,3),kind=4), 'sol_alk.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,3),kind=4), 'sol_w.txt' )
+yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,2),kind=4), 'sol_alk.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,4),kind=4), 'sol_c.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,5),kind=4), 'sol_ca.txt' )
 yep = write_matrix ( xn/cell, yn*tn/(cell*mstep), real(soluteMat(:,:,6),kind=4), 'sol_mg.txt' )
@@ -1066,6 +1066,7 @@ else
 
 
 			! parse the phreeqc output
+			! changed 5 -> 3
 			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
 			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
 			alt0(1,13), alt0(1,14), alt0(1,15), 0.0D+00/)
