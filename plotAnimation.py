@@ -25,9 +25,9 @@ print "doing something..."
 
 cell = 4
 #steps = 400
-steps = 50
+steps = 6
 
-path = "output/shift/"
+path = "output/shift4/"
 #path = ""
 
 
@@ -95,7 +95,7 @@ steady_h = np.loadtxt(path + 'steady_h.txt')
 steady_u = np.loadtxt(path + 'steady_u.txt')
 steady_v = np.loadtxt(path + 'steady_v.txt')
 steady_psi = np.loadtxt(path + 'steady_psi.txt')
-steady_permeability = np.loadtxt(path + 'steady_permeability.txt')
+#steady_permeability = np.loadtxt(path + 'steady_permeability.txt')
 
 ##############
 # FIRST PLOT #
@@ -105,7 +105,7 @@ fig=plt.figure()
 ax1=fig.add_subplot(1,1,1, aspect='equal')
 
 # plot permeability contours
-permC = plt.contour(xg, yg, np.log10(steady_permeability), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
+#permC = plt.contour(xg, yg, np.log10(steady_permeability), [-14.0,-14.1], colors='w',linewidths=np.array([2.0]))
 #plt.clabel(CS,  inline=0, fmt='>', fontsize=14)
 
 # plot streamfunctions
