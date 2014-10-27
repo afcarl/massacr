@@ -1,19 +1,14 @@
+
 module globals
 save
 
-integer, parameter :: testInt = 31, xn =60, yn = 60, altnum = 167, mstep = 100000, cell = 4
-integer, parameter :: tn = 6000000, g_pri = 5, g_sec = 69, g_sol = 15, g_med = 7
+integer, parameter :: testInt = 31, xn =60, yn = 60, altnum = 167, mstep = 50000, cell = 6
+integer, parameter :: tn = 10000000, g_pri = 5, g_sec = 69, g_sol = 15, g_med = 7
 real(8) :: x_min = 0.0D+00, x_max = 3000.0D+00, y_min = -1300.0D+00, y_max = 0.0D+00
-real(8) :: t_min = 0.0D+00, t_max = 1200000000000.0 
+real(8) :: t_min = 0.0D+00, t_max = 2500000000000.0 
 real(8) :: dt, dx, dy, dt0 = 0.001
 real(8) :: dPsi, psiLast(xn,yn)
 
-
-! tn = 20000
-! t_max = 4000000000.0
-! mstep = 1000
-
-!real(8) :: topo(xn), s(xn,yn), ds(xn)
 real(8) :: ki = .56, ra = 100.0, viscosity = 4.3e-4, cp = 4186.0, alpha =4.0e-4, k
 real(8) :: lambda = 2.6
 real(8) :: g = 9.8

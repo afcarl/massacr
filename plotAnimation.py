@@ -25,9 +25,9 @@ print "doing something..."
 
 cell = 4
 #steps = 400
-steps = 6
+steps = 240
 
-path = "output/shift4/"
+path = "output/shift12/"
 #path = ""
 
 
@@ -77,7 +77,7 @@ perm0 = np.loadtxt(path + 'permeability.txt')
 geo0 = np.loadtxt(path + 'sol_c.txt')
 sol_w0 = np.loadtxt(path + 'sol_w.txt')
 geo0 = geo0 * sol_w0
-geo0 = np.loadtxt(path + 'sec_calcite.txt')
+#geo0 = np.loadtxt(path + 'sec_calcite.txt')
 
 
 # format output
@@ -202,11 +202,11 @@ for i in range(0,steps,1):
     print geo.shape
     #print yCell[:-1].shape
 
-    print geo
+    print np.max(geo00)
     # plot chem
     
     
-    pGlass = plt.pcolor(xCell, yCell, geo, vmin=np.min(geoContours), vmax=np.max(geoContours),
+    pGlass = plt.pcolor(xCell, yCell, geo, vmin=np.min(geo00), vmax=np.max(geo00),
                         cmap=cm.Spectral_r, linewidth=0.0, color='#444444')
     #pGlass = plt.contourf(xCell, yCell, geo, geoContours,
     #                    cmap=cm.Spectral_r, linewidth=1.0, color='black')
@@ -219,14 +219,14 @@ for i in range(0,steps,1):
     # formatting
     #theTicks = geoContours
     cbar= plt.colorbar(pGlass, orientation='horizontal')
-    cbar.ax.set_xlabel('CALCITE [mol]')
+    cbar.ax.set_xlabel('C [mol]')
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     
     plt.title('t = ' + str(i*6400) + ' years')
 
     
-    plt.savefig(path + 'plot_4y4_calcite_' + str(i) + '.png')
+    plt.savefig(path + 'plot_4y4_c_' + str(i) + '.png')
 
 
 

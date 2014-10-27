@@ -107,6 +107,15 @@ interface
 		real(8) :: u0(xn,yn), v0(xn,yn)
 	end function velocities
 
+        ! calculates velocities from COARSE streamfunction values
+	function velocitiesCoarse(psiCoarse)
+		use globals
+		use initialize
+		implicit none
+		real(8) :: velocitiesCoarse(xn/cell,2*yn/cell), psiCoarse(xn/cell,yn/cell)
+		real(8) :: u0(xn/cell,yn/cell), v0(xn/cell,yn/cell)
+	end function velocitiesCoarse
+
 	! calculates partial derivative of any 1D or 2D array
 	function partial(array,rows,cols,d1,d2,dim)
 		use globals
@@ -174,6 +183,7 @@ real(8) :: medium(xn/cell,yn/cell,g_med), mediumMat(xn/cell,yn*tn/(cell*mstep),g
 real(8) :: uTransport(xn/cell,yn/cell), vTransport(xn/cell,yn/cell)
 real(8) :: uCoarse(xn/cell,yn/cell), vCoarse(xn/cell,yn/cell)
 real(8) :: solTemp(xn/cell,yn/cell), soluteOcean(g_sol)
+real(8) :: psiCoarse(xn/cell,yn/cell), velocitiesCoarse0(xn/cell,2*yn/cell)
 
 ! message passing stuff
 integer, parameter :: max_rows = 10000000
@@ -444,27 +454,44 @@ do j = 2, tn
 	do ii = 1,yn/cell
 		!uCoarse(i,ii) = (u(i*cell,ii*cell)+u(i*cell-1,ii*cell))/2
 		!vCoarse(i,ii) = (v(i*cell,ii*cell)+v(i*cell,ii*cell-1))/2
-! 		uCoarse(i,ii) = (u(i*cell,ii*cell) + u(i*cell-1,ii*cell) + u(i*cell,ii*cell-1) &
-! 						& + u(i*cell-1,ii*cell-1) + u(i*cell+1,ii*cell) + u(i*cell,ii*cell+1) &
-! 						& + u(i*cell+1,ii*cell+1) + u(i*cell-1,ii*cell+1) + u(i*cell+1,ii*cell-1))/9.0
-! 		vCoarse(i,ii) = (v(i*cell,ii*cell) + v(i*cell-1,ii*cell) + v(i*cell,ii*cell-1) &
-! 						& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
-! 						& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
 
+!		uCoarse(i,ii) = (u(i*cell,ii*cell) + (u(i*cell-1,ii*cell) + u(i*cell,ii*cell-1) &
+!						& + u(i*cell+1,ii*cell) + u(i*cell,ii*cell+1))*(2.0/3.0) &
+! 						& + (u(i*cell+1,ii*cell+1) + u(i*cell-1,ii*cell+1) + u(i*cell+1,ii*cell-1) &
+!                                                & + u(i*cell-1,ii*cell-1))*(1.0/6.0))/(10.0/3.0)
+!                vCoarse(i,ii) = (v(i*cell,ii*cell) + (v(i*cell-1,ii*cell) + v(i*cell,ii*cell-1) &
+!						& + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1))*(2.0/3.0) &
+! 						& + (v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1) &
+!                                                & + v(i*cell-1,ii*cell-1))*(1.0/6.0))/(10.0/3.0)
+
+ 		!vCoarse(i,ii) = (v(i*cell,ii*cell) + v(i*cell-1,ii*cell) + v(i*cell,ii*cell-1) &
+ 		!				& + v(i*cell-1,ii*cell-1) + v(i*cell+1,ii*cell) + v(i*cell,ii*cell+1) &
+ 		!				& + v(i*cell+1,ii*cell+1) + v(i*cell-1,ii*cell+1) + v(i*cell+1,ii*cell-1))/9.0
+                !uCoarse(i,ii) = sum(u(i*cell:i*cell+cell,ii*cell:ii*cell+cell))/(cell*cell)
+                !vCoarse(i,ii) = sum(v(i*cell:i*cell+cell,ii*cell:ii*cell+cell))/(cell*cell)
  		!uCoarse(i,ii) = u(i*cell,ii*cell)
  		!vCoarse(i,ii) = v(i*cell,ii*cell)
 		
- 		uCoarse(i,ii) = sum(u(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
- 		vCoarse(i,ii) = sum(v(i*cell-cell+1:i*cell,ii*cell-cell+1:ii*cell))/(cell*cell)
+ 		!uCoarse(i,ii) = sum(u(i*cell-cell:i*cell,ii*cell-cell:ii*cell))/(cell*cell)
+ 		!vCoarse(i,ii) = sum(v(i*cell-cell:i*cell,ii*cell-cell:ii*cell))/(cell*cell)
+                psiCoarse(i,ii) = psi(i*cell,ii*cell)
+
+
+
 	end do
 	end do
+
+        velocitiesCoarse0 = velocitiesCoarse(psiCoarse)
+        uCoarse = velocitiesCoarse0(1:xn/cell,1:yn/cell)
+        vCoarse = velocitiesCoarse0(1:xn/cell,yn/cell+1:2*yn/cell)
+
 	uTransport = uTransport + uCoarse
 	vTransport = vTransport + vCoarse
 	
 	! things only done every mth timestep go here
 	if (mod(j,mstep) .eq. 0) then
 	
-		yep = write_matrix( 2, 1, real((/j*1.0, 1.0/), kind = 4), 'upStep.txt' )
+		yep = write_matrix( 2, 1, real((/j*1.0, 1.0/), kind = 4), 'upStep1.txt' )
 	
 		! make coarse grid average velocities
 		uTransport = uTransport/mstep
@@ -612,40 +639,40 @@ do j = 2, tn
 !!!!!!!!!! ACTUALLY IT HAPPENS DOWN BELOW...
 			
 ! 			! convert pH, pe to concentrations
-! 			do i=1,xn/cell
-! 				do ii=1,yn/cell
-! 					solute(i,ii,1) = 10**(-solute(i,ii,1))
-! 					!solute(i,ii,2) = 10**(-solute(i,ii,2))
-! 				end do
-! 			end do
+ 			!do i=1,xn/cell
+ 			!	do ii=1,yn/cell
+ 			!		solute(i,ii,1) = 10**(-solute(i,ii,1))
+ 			!		!solute(i,ii,2) = 10**(-solute(i,ii,2))
+ 			!	end do
+ 			!end do
 
 	! 		! transport each solute
 	! 		do n=5,g_sol
 	! 			solTemp = solute(:,:,n)
 	! 			solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 	! 		end do
-	
-		! actual boundary conditions
+
+                        ! actual boundary conditions
 		do n=1,g_sol
 			!solute(:,yn/cell,n) = (soluteOcean(n)) ! top
 			do i=1,(yn/cell)
 				if (vTransport(i,yn/cell) .lt. 0.0) then
-					solute(i,yn/cell,n) = (soluteOcean(n)) ! last
-					! trying this...
-! 					solute(i,1,n) = (soluteOcean(n))
-! 					solute(1,i,n) = (soluteOcean(n))
-! 					solute(yn/cell,i,n) = (soluteOcean(n))
+					solute(i,yn/cell,n) = (soluteOcean(n)) ! last				 
+                                    else
+                                       solute(i,yn/cell,n)=(4.0/3.0)*solute(i,yn/cell-1,n)-(1.0/3.0)*solute(i,yn/cell-2,n)
+
 				end if
 			end do
 			!solute(:,1,n) = (soluteOcean(n)) ! last 
 			!solute(1,:,n) = (soluteOcean(n)) ! last 
 			!solute(yn/cell,:,n) = (soluteOcean(n)) ! last
 			solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
-			solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
-								& (1.0/3.0)*solute(3,:,n)  ! left
-			solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
-								& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
+			!solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
+			!					& (1.0/3.0)*solute(3,:,n)  ! left
+			!solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
+			!					& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
 		end do
+
 		
 
 			n=1 ! ph
@@ -685,13 +712,36 @@ do j = 2, tn
 	 		solTemp = solute(:,:,n)
 	 		solute(:,:,n) = solute_next(solTemp,uTransport,vTransport)
 
-! 			! convert [H+], [e-] to pH, pe
-! 			do i=1,xn/cell
-! 				do ii=1,yn/cell
-! 					solute(i,ii,1) = -log10(solute(i,ii,1))
-! 					!solute(i,ii,2) = -log10(solute(i,ii,2))
-! 				end do
-! 			end do
+
+	
+!!$		! actual boundary conditions
+!!$		do n=1,g_sol
+!!$			!solute(:,yn/cell,n) = (soluteOcean(n)) ! top
+!!$			do i=1,(yn/cell)
+!!$				if (vTransport(i,yn/cell) .lt. 0.0) then
+!!$					solute(i,yn/cell,n) = (soluteOcean(n)) ! last				 
+!!$                                    else
+!!$                                       solute(i,yn/cell,n)=(4.0/3.0)*solute(i,yn/cell-1,n)-(1.0/3.0)*solute(i,yn/cell-2,n)
+!!$
+!!$				end if
+!!$			end do
+!!$			!solute(:,1,n) = (soluteOcean(n)) ! last 
+!!$			!solute(1,:,n) = (soluteOcean(n)) ! last 
+!!$			!solute(yn/cell,:,n) = (soluteOcean(n)) ! last
+!!$			solute(:,1,n) = (4.0/3.0)*solute(:,2,n) - (1.0/3.0)*solute(:,3,n) ! bottom
+!!$			solute(1,:,n) = (4.0/3.0)*solute(2,:,n) - &
+!!$								& (1.0/3.0)*solute(3,:,n)  ! left
+!!$			solute(yn/cell,:,n) = (4.0/3.0)*solute(yn/cell-1,:,n) - &
+!!$								& (1.0/3.0)*solute(yn/cell-2,:,n)  ! right
+!!$		end do
+
+! 			!! convert [H+], [e-] to pH, pe
+ 			!do i=1,xn/cell
+ 			!	do ii=1,yn/cell
+ 			!		solute(i,ii,1) = -log10(solute(i,ii,1))
+! 			!		!solute(i,ii,2) = -log10(solute(i,ii,2))
+ 			!	end do
+ 			!end do
 		
 			
 ! 		!mixed top boundary condition
@@ -884,7 +934,7 @@ end do
 
 yep = write_vec ( xn, real(x,kind=4), 'x.txt' )
 yep = write_vec ( yn, real(y,kind=4), 'y.txt' )
-yep = write_vec ( tn, real(t, kind=4), 't.txt' )
+!yep = write_vec ( tn, real(t, kind=4), 't.txt' )
 !yep = write_matrix ( xn, yn*tn/mstep, real(hmat, kind = 4), 'hMat.txt' )
 !yep = write_matrix ( xn, yn*tn/mstep, real(psimat,kind=4), 'psiMat.txt' )
 !yep = write_matrix ( xn, yn*tn/mstep, real(umat, kind = 4), 'uMat.txt' )
@@ -1052,48 +1102,48 @@ else
 			write(*,*) medLocal(m,6:7)
 			
 			
-			if (medLocal(m,5) .eq. 1.0) then
-				! run the phreeqc alteration model
-! 				write(*,*) "pri local"
-! 				write(*,*) priLocal(m,:)
-! 				write(*,*) "sec local"
-! 				write(*,*) secLocal(m,:)
-! 				write(*,*) "sol local"
-! 				write(*,*) solLocal(m,:)
- 				alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
- 						    secLocal(m,:),solLocal(m,:),medLocal(m,:))
-			end if
-
-
-			! parse the phreeqc output
-			! changed 5 -> 3
-			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
-			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
-			alt0(1,13), alt0(1,14), alt0(1,15), 0.0D+00/)
-
-			secLocal(m,:) = (/ alt0(1,16), alt0(1,18), alt0(1,20), &
-			alt0(1,22), alt0(1,24), alt0(1,26), alt0(1,28), alt0(1,30), alt0(1,32), alt0(1,34), &
-			alt0(1,36), alt0(1,38), alt0(1,40), alt0(1,42), alt0(1,44), alt0(1,46), alt0(1,48), &
-			alt0(1,50), alt0(1,52), alt0(1,54), alt0(1,56), alt0(1,58), alt0(1,60), alt0(1,62), &
-			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70), &
-			alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80), alt0(1,82), alt0(1,84), &
-			alt0(1,86), alt0(1,88), alt0(1,90), alt0(1,92), alt0(1,94), alt0(1,96), alt0(1,98), &
-			alt0(1,100), alt0(1,102), alt0(1,104), alt0(1,106), alt0(1,108), alt0(1,110), alt0(1,112), &
-			alt0(1,114), alt0(1,116), alt0(1,118), alt0(1,120), alt0(1,122), alt0(1,124), alt0(1,126), &
-			alt0(1,128), alt0(1,130), alt0(1,132), &
-			alt0(1,134), alt0(1,136), alt0(1,138), alt0(1,140), alt0(1,142), alt0(1,144), alt0(1,146), &
-			alt0(1,148), alt0(1,150), alt0(1,152) /)
-
-			!priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
-			priLocal(m,:) = (/ alt0(1,154), alt0(1,156), alt0(1,158), alt0(1,160), alt0(1,162)/)
-
-			!medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,4)/)
-			medLocal(m,1:4) = (/ alt0(1,164), alt0(1,165), alt0(1,4), alt0(1,166)/)
-
-			! print something you want to look at
-			!write(*,*) medLocal(m,3) ! water
-			
-			!write(*,*) alt0
+!!$			if (medLocal(m,5) .eq. 1.0) then
+!!$				! run the phreeqc alteration model
+!!$! 				write(*,*) "pri local"
+!!$! 				write(*,*) priLocal(m,:)
+!!$! 				write(*,*) "sec local"
+!!$! 				write(*,*) secLocal(m,:)
+!!$! 				write(*,*) "sol local"
+!!$! 				write(*,*) solLocal(m,:)
+!!$ 				alt0 = alt_next(hLocal(m),dt_local*mstep,priLocal(m,:), &
+!!$ 						    secLocal(m,:),solLocal(m,:),medLocal(m,:))
+!!$			end if
+!!$
+!!$
+!!$			! parse the phreeqc output
+!!$			! changed 5 -> 3
+!!$			solLocal(m,:) = (/ alt0(1,2), alt0(1,3), alt0(1,4), alt0(1,5), alt0(1,6), &
+!!$			alt0(1,7), alt0(1,8), alt0(1,9), alt0(1,10), alt0(1,11), alt0(1,12), &
+!!$			alt0(1,13), alt0(1,14), alt0(1,15), 0.0D+00/)
+!!$
+!!$			secLocal(m,:) = (/ alt0(1,16), alt0(1,18), alt0(1,20), &
+!!$			alt0(1,22), alt0(1,24), alt0(1,26), alt0(1,28), alt0(1,30), alt0(1,32), alt0(1,34), &
+!!$			alt0(1,36), alt0(1,38), alt0(1,40), alt0(1,42), alt0(1,44), alt0(1,46), alt0(1,48), &
+!!$			alt0(1,50), alt0(1,52), alt0(1,54), alt0(1,56), alt0(1,58), alt0(1,60), alt0(1,62), &
+!!$			alt0(1,64), alt0(1,66), alt0(1,68), alt0(1,70), &
+!!$			alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80), alt0(1,82), alt0(1,84), &
+!!$			alt0(1,86), alt0(1,88), alt0(1,90), alt0(1,92), alt0(1,94), alt0(1,96), alt0(1,98), &
+!!$			alt0(1,100), alt0(1,102), alt0(1,104), alt0(1,106), alt0(1,108), alt0(1,110), alt0(1,112), &
+!!$			alt0(1,114), alt0(1,116), alt0(1,118), alt0(1,120), alt0(1,122), alt0(1,124), alt0(1,126), &
+!!$			alt0(1,128), alt0(1,130), alt0(1,132), &
+!!$			alt0(1,134), alt0(1,136), alt0(1,138), alt0(1,140), alt0(1,142), alt0(1,144), alt0(1,146), &
+!!$			alt0(1,148), alt0(1,150), alt0(1,152) /)
+!!$
+!!$			!priLocal(m,:) = (/ alt0(1,72), alt0(1,74), alt0(1,76), alt0(1,78), alt0(1,80)/)
+!!$			priLocal(m,:) = (/ alt0(1,154), alt0(1,156), alt0(1,158), alt0(1,160), alt0(1,162)/)
+!!$
+!!$			!medLocal(m,1:4) = (/ alt0(1,82), alt0(1,83), alt0(1,84), alt0(1,4)/)
+!!$			medLocal(m,1:4) = (/ alt0(1,164), alt0(1,165), alt0(1,4), alt0(1,166)/)
+!!$
+!!$			! print something you want to look at
+!!$			!write(*,*) medLocal(m,3) ! water
+!!$			
+!!$			!write(*,*) alt0
 			
 		end do
 		
@@ -1696,16 +1746,24 @@ vec = reshape(sol(1:xn/cell,1:yn/cell), (/(xn/cell)*(yn/cell)/))
 aBand = 0.0
 do i = 1,(xn/cell)*(yn/cell)
 
-	aBand(i,2) = 1.0
-	if (i-1 .gt. 0) then
-	aBand(i,1) = - uLong(i)*qx/2.0
-	end if
-	if (i+1 .le. (xn/cell)*(yn/cell)) then
-	aBand(i,3) = uLong(i)*qx/2.0
-	end if
+	!aBand(i,2) = 1.0
+	!if (i-1 .gt. 0) then
+	!aBand(i,1) = - uLong(i)*qx/2.0
+	!end if
+	!if (i+1 .le. (xn/cell)*(yn/cell)) then
+	!aBand(i,3) = uLong(i)*qx/2.0
+	!end if
+        ! switching solvers for a change
+        !aBand(i,2) = 1.0 - uLong(i)*qx
+	!if (i .gt. 1) then
+	!aBand(i,1) =  0.0
+	!end if
+	!if (i .le. (xn/cell)*(yn/cell)) then
+	!aBand(i,3) = uLong(i)*qx
+	!end if
 
 	! first edge
-	if (any(mod((/i-1/),xn/cell) .eq. 0.0)) then
+	if ((any(mod((/i-1/),xn/cell) .eq. 0.0)) .OR. (uLong(i) .le. 0.0)) then
 		aBand(i,2) = 1.0 - uLong(i)*qx
 		if (i .gt. 1) then
 		aBand(i,1) =  0.0
@@ -1716,7 +1774,7 @@ do i = 1,(xn/cell)*(yn/cell)
 	end if
 
 	! last edge
-	if (any(mod((/i/),xn/cell) .eq. 0.0)) then
+	if ((any(mod((/i/),xn/cell) .eq. 0.0)) .OR. (uLong(i) .gt. 0.0)) then
 		aBand(i,2) = 1.0 + uLong(i)*qx
 		if (i .gt. 1) then
 		aBand(i,3) =  0.0
@@ -1749,16 +1807,24 @@ sol_nextRow = reshape(transpose(sol(1:xn/cell,1:yn/cell)), (/(xn/cell)*(yn/cell)
 ! MAKE THE BAND
 bBand = 0.0
 do i = 1,(xn/cell)*(yn/cell)
-	bBand(i,2) = 1.0
-	if (i-1 .gt. 0) then
-	bBand(i,1) = - vLong(i)*qy/2.0
-	end if
-	if (i+1 .le. (xn/cell)*(yn/cell)) then
-	bBand(i,3) = vLong(i)*qy/2.0
-	end if
+	!bBand(i,2) = 1.0
+	!if (i-1 .gt. 0) then
+	!bBand(i,1) = - vLong(i)*qy/2.0
+	!end if
+	!if (i+1 .le. (xn/cell)*(yn/cell)) then
+	!bBand(i,3) = vLong(i)*qy/2.0
+	!end if
+        !switching solvers for a change
+        !bBand(i,2) = 1.0 - vLong(i)*qy
+	!if (i .gt. 1) then
+	!bBand(i,1) =  0.0
+	!end if
+	!if (i .le. (xn/cell)*(yn/cell)) then
+	!bBand(i,3) = vLong(i)*qy
+	!end if
 
 	! first edge x 2
-	if (any(mod((/i-1/),xn/cell) .eq. 0.0)) then
+	if ((any(mod((/i-1/),xn/cell) .eq. 0.0)) .OR. (vLong(i) .le. 0.0)) then
 		bBand(i,2) = 1.0 - vLong(i)*qy
 		if (i .gt. 1) then
 		bBand(i,1) =  0.0
@@ -1769,7 +1835,7 @@ do i = 1,(xn/cell)*(yn/cell)
 	end if
 
 	! last edge x 2
-	if (any(mod((/i/),xn/cell) .eq. 0.0)) then
+	if ((any(mod((/i/),xn/cell) .eq. 0.0)) .OR. (vLong(i) .gt. 0.0)) then
 		bBand(i,2) = 1.0 + vLong(i)*qy
 		if (i .gt. 1) then
 		bBand(i,3) =  0.0
@@ -1790,34 +1856,31 @@ end do
 sol_nextRow = tridiag(bBand(:,1),bBand(:,2),bBand(:,3),sol_nextRow,((xn/cell))*((yn/cell)))
 solute_next(1:(xn/cell),1:(yn/cell)) = transpose(reshape(sol_nextRow, (/(xn/cell), (yn/cell)/)))
 
-! ! most boundary conditions
-! solute_next(2,:) = sol0(2,:)!(4.0/3.0)*solute_next(3,:) - (1.0/3.0)*solute_next(4,:)
-! solute_next(xn/cell-1,:) = sol0(xn/cell,:)!(4.0/3.0)*solute_next((xn/cell)-2,:) 
-! - (1.0/3.0)*solute_next((xn/cell)-3,:)
-!solute_next(:,2) = sol0(:,2)
-
-do i=1,xn/cell
-do ii=1,yn/cell
-	if (solute_next(i,ii) .gt. maxval(sol0)) then
-		solute_next(i,ii) = maxval(sol0)
-	end if
-	if (solute_next(i,ii) .lt. minval(sol0)) then
-		solute_next(i,ii) = minval(sol0)
-	end if
-end do
-end do
 
 
-do i=2,xn/cell-1
-do ii=2,yn/cell-1
-	if (solute_next(i,ii) .gt. maxval(sol0(i-1:i+1,ii-1:ii+1))) then
-		solute_next(i,ii) = sol0(i,ii)
-	end if
-	if (solute_next(i,ii) .lt. minval(sol0(i-1:i+1,ii-1:ii+1))) then
-		solute_next(i,ii) = sol0(i,ii)
-	end if
-end do
-end do
+
+!do i=1,xn/cell
+!do ii=1,yn/cell
+!	if (solute_next(i,ii) .gt. maxval(sol0)) then
+!		solute_next(i,ii) = maxval(sol0)
+!	end if
+!	if (solute_next(i,ii) .lt. minval(sol0)) then
+!		solute_next(i,ii) = minval(sol0)
+!	end if
+!end do
+!end do
+
+
+!do i=2,xn/cell-1
+!do ii=2,yn/cell-1
+!	if (solute_next(i,ii) .gt. maxval(sol0(i-1:i+1,ii-1:ii+1))) then
+!		solute_next(i,ii) = sol0(i,ii)
+!	end if
+!	if (solute_next(i,ii) .lt. minval(sol0(i-1:i+1,ii-1:ii+1))) then
+!		solute_next(i,ii) = sol0(i,ii)
+!	end if
+!end do
+!end do
 
 return
 
@@ -1947,6 +2010,37 @@ velocities(1:xn,yn+1:2*yn) = v0
 
 return
 end function velocities
+
+
+! calculates velocities from COARSE streamfunction values
+function velocitiesCoarse(psiCoarse)
+	use globals
+	use initialize
+	implicit none
+	real(8) :: velocitiesCoarse(xn/cell,2*yn/cell), psiCoarse(xn/cell,yn/cell)
+	real(8) :: u0(xn/cell,yn/cell), v0(xn/cell,yn/cell)
+
+interface
+
+	function partial(array,rows,cols,d1,d2,dim)
+		use globals
+		use initialize
+		implicit none
+		integer :: rows, cols, dim, i, j, ii, jj
+		real(8) :: array(rows,cols), d1, d2, d
+		real(8) :: partial(rows,cols)
+	end function partial
+
+end interface
+
+u0 = partial(psiCoarse,xn/cell,yn/cell,dx*cell,dy*cell,2)
+v0 = -partial(psiCoarse,xn/cell,yn/cell,dx*cell,dy*cell,1)
+
+velocitiesCoarse(1:xn/cell,1:yn/cell) = u0
+velocitiesCoarse(1:xn/cell,yn/cell+1:2*yn/cell) = v0
+
+return
+end function velocitiesCoarse
 
 
 
