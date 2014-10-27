@@ -23,11 +23,11 @@ print "doing something..."
 # LOAD MODEL OUTPUT #
 #####################
 
-cell = 4
+cell = 10
 #steps = 400
-steps = 240
+steps = 50
 
-path = "output/shift12/"
+path = "output/shift18/"
 #path = ""
 
 
@@ -77,8 +77,10 @@ perm0 = np.loadtxt(path + 'permeability.txt')
 geo0 = np.loadtxt(path + 'sol_c.txt')
 sol_w0 = np.loadtxt(path + 'sol_w.txt')
 geo0 = geo0 * sol_w0
-#geo0 = np.loadtxt(path + 'sec_calcite.txt')
 
+
+#geo0 = np.loadtxt(path + 'sec_calcite.txt')
+#geo0[:,-1] = 0.0
 
 # format output
 geo00 = np.zeros(steps)
@@ -168,8 +170,8 @@ for i in range(0,steps,1):
     glass = np.append(glass, glass[:,-1:], axis=1)
 
     geo = geo0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell),:]
-    geo = np.append(geo, geo[-1:,:], axis=0)
-    geo = np.append(geo, geo[:,-1:], axis=1)
+    geo = np.append(geo, geo[-1:,:]-.000000001, axis=0)
+    geo = np.append(geo, geo[:,-1:]+.000000001, axis=1)
 
     sol_w = sol_w0[(i*len(y0)/cell):(i*len(y0)/cell+len(y0)/cell),:]
     sol_w = np.append(sol_w, sol_w[-1:,:], axis=0)
@@ -190,7 +192,7 @@ for i in range(0,steps,1):
                     #(np.max(geo00)-np.min(geo0))/20.0)
     geoContours = np.arange(np.min(geo0),np.max(geo00)+(np.max(geo00)-np.min(geo0))/10.0,
                     (np.max(geo00)-np.min(geo0))/10.0)
-    #geoContours = np.linspace(0.00,0.004,5)
+
 
     
     #ticks=np.arange(0.000,0.0028,.0004)
@@ -205,8 +207,9 @@ for i in range(0,steps,1):
     print np.max(geo00)
     # plot chem
     
-    
-    pGlass = plt.pcolor(xCell, yCell, geo, vmin=np.min(geo00), vmax=np.max(geo00),
+    #geo = geo[:-1, :-1]
+    pGlass = plt.pcolor(xCell, yCell, geo, vmin=np.min(geo00),
+                         vmax=np.max(geo00),
                         cmap=cm.Spectral_r, linewidth=0.0, color='#444444')
     #pGlass = plt.contourf(xCell, yCell, geo, geoContours,
     #                    cmap=cm.Spectral_r, linewidth=1.0, color='black')
@@ -223,7 +226,7 @@ for i in range(0,steps,1):
     plt.xlabel('x [m]')
     plt.ylabel('y [m]')
     
-    plt.title('t = ' + str(i*6400) + ' years')
+    plt.title('t = ' + str(i*400) + ' years')
 
     
     plt.savefig(path + 'plot_4y4_c_' + str(i) + '.png')
